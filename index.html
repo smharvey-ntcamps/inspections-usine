@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Grille d'inspection — Usine modulaire</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --teal:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-dark:#04342C;
+  --red:#E24B4A;--red-light:#FCEBEB;--red-dark:#501313;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --green:#3B6D11;--green-light:#EAF3DE;
+  --gray:#888780;--gray-light:#F1EFE8;
+  --bg:#F8F7F4;--surface:#FFFFFF;--border:rgba(0,0,0,.1);
+  --text:#1A1A18;--text2:#5C5C5A;--text3:#9A9A97;
+  --radius:10px;--radius-lg:14px;
+  --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+}
+html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var(--text);font-size:16px}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.header{background:var(--teal-dark);color:#fff;padding:1.1rem 1.25rem .9rem;position:sticky;top:0;z-index:20}
+.header h1{font-size:15px;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
+.header h1 svg{width:18px;height:18px;opacity:.9}
+.header p{font-size:11px;opacity:.6;margin-top:3px;margin-left:26px;font-family:var(--mono)}
+.sync-status{font-size:10px;font-family:var(--mono);margin-top:4px;margin-left:26px;display:flex;align-items:center;gap:5px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#4ade80}
+.sync-dot.syncing{background:#fbbf24;animation:pulse 1s infinite}
+.sync-dot.error{background:#f87171}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.nav{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:72px;z-index:19}
+.nav-btn{padding:11px 4px 10px;font-size:11px;font-family:var(--font);font-weight:500;text-align:center;cursor:pointer;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav-btn svg{width:17px;height:17px}
+.nav-btn.active{color:var(--teal-mid);border-bottom-color:var(--teal-mid)}
+.screen{flex:1;padding:1rem 1.25rem 2rem;display:none}
+.screen.active{display:block}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.field label{font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;font-size:14px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;transition:.15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal-mid);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+.field textarea{resize:vertical;min-height:72px}
+.progress-wrap{margin-bottom:.75rem}
+.progress-track{height:3px;background:var(--border);border-radius:2px;margin-top:6px}
+.progress-fill{height:3px;border-radius:2px;background:var(--teal-mid);transition:width .4s ease}
+.progress-label{font-size:11px;font-family:var(--mono);color:var(--text3)}
+.section-block{margin-bottom:.5rem;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);overflow:hidden}
+.section-header{padding:11px 14px;font-size:13px;font-weight:600;color:var(--teal-dark);background:var(--teal-light);cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none}
+.section-header .chev{transition:transform .2s;color:var(--teal)}
+.section-block.collapsed .section-items{display:none}
+.section-block.collapsed .chev{transform:rotate(-90deg)}
+.section-count{font-size:11px;font-family:var(--mono);font-weight:400;color:var(--teal);margin-left:auto;margin-right:10px}
+.item{padding:10px 14px;border-top:1px solid var(--border)}
+.item-label{font-size:13px;color:var(--text);line-height:1.45;margin-bottom:7px}
+.item-num{font-family:var(--mono);font-size:11px;color:var(--text3);margin-right:5px}
+.badge-row{display:flex;gap:6px}
+.badge{padding:5px 10px;font-size:12px;font-weight:500;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);transition:.12s;font-family:var(--mono)}
+.badge:active{transform:scale(.96)}
+.badge.sel-C{background:var(--green-light);color:var(--green);border-color:var(--green)}
+.badge.sel-PC{background:var(--amber-light);color:var(--amber);border-color:var(--amber)}
+.badge.sel-NC{background:var(--red-light);color:var(--red);border-color:var(--red)}
+.badge.sel-NA{background:var(--gray-light);color:var(--gray);border-color:var(--gray)}
+.badge.sel-SO{background:var(--gray-light);color:var(--gray);border-color:var(--gray)}
+.corr-wrap{margin-top:8px;display:none}
+.corr-wrap.show{display:block}
+.corr-wrap textarea{width:100%;padding:8px 10px;font-size:12px;font-family:var(--font);border:1px solid var(--red);border-radius:var(--radius);background:var(--red-light);color:var(--text);outline:none;resize:none;min-height:56px}
+.btn{width:100%;padding:13px;font-size:14px;font-weight:600;font-family:var(--font);border-radius:var(--radius);cursor:pointer;transition:.15s;border:none;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--teal-mid);color:#fff;margin-top:1rem}
+.btn-primary:hover{background:var(--teal)}
+.btn-primary:disabled{background:var(--gray);cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--teal-mid);border:1.5px solid var(--teal-mid);margin-top:.5rem}
+.btn svg{width:17px;height:17px}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty-state svg{width:40px;height:40px;margin-bottom:.75rem;opacity:.4}
+.empty-state p{font-size:13px}
+.loading-state{text-align:center;padding:2rem 1rem;color:var(--text3);font-size:13px;font-family:var(--mono)}
+.hcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:.75rem}
+.hcard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.6rem}
+.hcard-date{font-size:14px;font-weight:600}
+.hcard-insp{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px}
+.hcard-type{font-size:11px;font-family:var(--mono);font-weight:500;padding:2px 8px;border-radius:6px;background:var(--teal-light);color:var(--teal);display:inline-block;margin-bottom:.5rem}
+.score-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.6rem}
+.score-badge{font-size:11px;font-family:var(--mono);font-weight:500;padding:3px 9px;border-radius:6px}
+.sb-c{background:var(--green-light);color:var(--green)}
+.sb-pc{background:var(--amber-light);color:var(--amber)}
+.sb-nc{background:var(--red-light);color:var(--red)}
+.sb-na,.sb-so{background:var(--gray-light);color:var(--gray)}
+.nc-block{border-top:1px solid var(--border);padding-top:.6rem;margin-top:.4rem}
+.nc-block h4{font-size:11px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);margin-bottom:.4rem}
+.nc-item-row{font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);color:var(--text)}
+.nc-item-row:last-child{border:none}
+.nc-corr{font-size:11px;color:var(--text3);margin-top:2px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;text-align:center}
+.stat-val{font-size:26px;font-weight:600;font-family:var(--mono)}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:3px}
+.stat-card.danger .stat-val{color:var(--red)}
+.stat-card.ok .stat-val{color:var(--green)}
+.stat-card.warn .stat-val{color:var(--amber)}
+.nc-full-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.9rem;margin-bottom:.6rem}
+.nc-section-tag{font-size:10px;font-family:var(--mono);background:var(--gray-light);color:var(--gray);padding:2px 7px;border-radius:5px;display:inline-block;margin-bottom:5px}
+.nc-item-name{font-size:13px;font-weight:500;color:var(--text);line-height:1.4}
+.nc-meta{font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--mono)}
+.nc-action{font-size:12px;padding:5px 9px;border-radius:7px;margin-top:.5rem}
+.nc-action.has{background:var(--green-light);color:var(--green)}
+.nc-action.missing{background:var(--red-light);color:var(--red)}
+.nc-edit-btn{font-size:12px;padding:5px 10px;border-radius:7px;margin-top:.4rem;background:var(--teal-light);color:var(--teal);border:none;cursor:pointer;font-family:var(--font);font-weight:500}
+.nc-suivi-wrap{margin-top:.5rem}
+.nc-suivi-input{width:100%;padding:8px 10px;font-size:12px;font-family:var(--font);border:1px solid var(--teal-mid);border-radius:var(--radius);background:var(--teal-light);color:var(--text);outline:none;resize:none;min-height:60px}
+.nc-suivi-save{margin-top:.4rem;padding:6px 14px;font-size:12px;font-weight:600;font-family:var(--font);background:var(--teal-mid);color:#fff;border:none;border-radius:7px;cursor:pointer}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:1rem;padding:8px 12px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border)}
+.legend span{display:flex;align-items:center;gap:4px}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(10px);background:var(--teal-dark);color:#fff;padding:10px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red-dark)}
+.btn-delete{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;transition:.15s;display:flex;align-items:center;justify-content:center}
+.btn-delete:hover{background:var(--red-light);color:var(--red)}
+.btn-delete svg{width:16px;height:16px}
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.confirm-box{background:var(--surface);border-radius:var(--radius-lg);padding:1.5rem;max-width:320px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.confirm-box h3{font-size:15px;font-weight:600;margin-bottom:.5rem}
+.confirm-box p{font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.5}
+.confirm-actions{display:flex;gap:8px}
+.confirm-actions button{flex:1;padding:10px;font-size:13px;font-weight:600;font-family:var(--font);border-radius:var(--radius);cursor:pointer;border:none}
+.btn-cancel{background:var(--bg);color:var(--text2)}
+.btn-confirm-del{background:var(--red);color:#fff}
+.filter-row{display:flex;gap:8px;margin-bottom:.75rem;overflow-x:auto;padding-bottom:4px}
+.filter-btn{padding:5px 12px;font-size:11px;font-family:var(--mono);font-weight:500;border-radius:20px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);white-space:nowrap;transition:.12s;flex-shrink:0}
+.filter-btn.active{background:var(--teal-mid);color:#fff;border-color:var(--teal-mid)}
+.date-filter-row{display:flex;align-items:flex-end;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
+.date-filter-field{display:flex;flex-direction:column;gap:3px}
+.date-filter-field label{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.date-filter-field input{font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-family:var(--font);outline:none}
+.date-filter-field input:focus{border-color:var(--teal-mid)}
+.date-clear-btn{font-size:11px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;font-family:var(--mono);align-self:flex-end}
+.date-clear-btn:hover{background:var(--red-light);color:var(--red);border-color:var(--red)}
+.nc-tab-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;margin-top:.5rem}
+.refresh-btn{font-size:11px;font-family:var(--mono);padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      Grille d'inspection
+    </h1>
+    <p id="header-subtitle">Usine de fabrication modulaire</p>
+    <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecté</span></div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab('form',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Formulaire
+    </button>
+    <button class="nav-btn" onclick="showTab('history',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Historique
+    </button>
+    <button class="nav-btn" onclick="showTab('nc',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Non-conf.
+    </button>
+  </nav>
+
+  <!-- FORMULAIRE -->
+  <div id="tab-form" class="screen active">
+    <div style="margin-bottom:1rem"></div>
+    <div class="field" style="margin-bottom:1rem">
+      <label>Type d'inspection</label>
+      <select id="insp-type" onchange="onTypeChange()">
+        <option value="usine">🏭 Usine de fabrication</option>
+        <option value="chariot">🚜 Chariot élévateur (lift)</option>
+        <option value="faresin">🚜 Chariot télescopique (Faresin)</option>
+        <option value="ciseau">🔧 Plateforme élévatrice (ciseau lift)</option>
+        <option value="transit">🚐 Automobile (Transit)</option>
+        <option value="audit5s">✅ Audit 5S</option>
+      </select>
+    </div>
+    <div class="meta-grid">
+      <div class="field"><label>Date</label><input type="date" id="insp-date"></div>
+      <div class="field"><label>Inspecteur</label><input type="text" id="insp-name" placeholder="Nom..."></div>
+    </div>
+    <div class="legend" id="legend-usine">
+      <span><span class="leg-dot" style="background:var(--green)"></span>C = Conforme</span>
+      <span><span class="leg-dot" style="background:var(--amber)"></span>PC = Partiel</span>
+      <span><span class="leg-dot" style="background:var(--red)"></span>NC = Non conforme</span>
+      <span><span class="leg-dot" style="background:var(--gray)"></span>NA = N/A</span>
+    </div>
+    <div class="legend" id="legend-equip" style="display:none">
+      <span><span class="leg-dot" style="background:var(--green)"></span>C = Conforme</span>
+      <span><span class="leg-dot" style="background:var(--red)"></span>NC = Non conforme</span>
+      <span><span class="leg-dot" style="background:var(--gray)"></span>S.O = Sans objet</span>
+    </div>
+    <div class="legend" id="legend-5s" style="display:none">
+      <span><span class="leg-dot" style="background:var(--green)"></span>C = Conforme</span>
+      <span><span class="leg-dot" style="background:var(--red)"></span>NC = Non conforme</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label" id="prog-label">0 / 0 éléments évalués</div>
+      <div class="progress-track"><div class="progress-fill" id="prog-bar" style="width:0%"></div></div>
+    </div>
+    <div id="sections"></div>
+    <div class="field" style="margin-top:1rem"><label>Notes / Observations</label><textarea id="notes" placeholder="Remarques générales..."></textarea></div>
+    <button class="btn btn-primary" id="btn-save" onclick="submitForm()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+      Sauvegarder l'inspection
+    </button>
+    <button class="btn btn-ghost" onclick="resetForm()">Réinitialiser</button>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div id="tab-history" class="screen">
+    <div id="history-content"></div>
+  </div>
+
+  <!-- NON-CONFORMITÉS -->
+  <div id="tab-nc" class="screen">
+    <div class="nc-tab-header">
+      <p style="font-size:12px;color:var(--text3);font-family:var(--mono)">Suivi des non-conformités</p>
+      <button class="refresh-btn" onclick="refreshNC()">↻ Actualiser</button>
+    </div>
+    <div id="nc-content"></div>
+  </div>
+</div>
+
+<!-- CONFIRMATION SUPPRESSION -->
+<div class="confirm-overlay" id="confirm-overlay" style="display:none">
+  <div class="confirm-box">
+    <h3>Supprimer cette inspection ?</h3>
+    <p>Cette action est irréversible. L'inspection sera supprimée de Google Sheets et de l'historique.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="closeConfirm()">Annuler</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">Supprimer</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwmTj8v1vw0E5yibwU94wKVIOByQ2HIA7bRJyOl0FP3adp9T4tVnZWrqEpk6VDn3rGe/exec';
+
+const FORMS = {
+  usine: {
+    label: 'Usine de fabrication',
+    codes: ['C','PC','NC','NA'],
+    sections: [
+      {id:'A',title:'A) Usine générale',items:[
+        'Éclairage suffisant et adéquat',
+        "Sorties d'urgence identifiées et éclairées",
+        'Interrupteurs en bon état et avec plaque de protection',
+        'Prises électriques en bon état et avec plaque de protection',
+        'Absence de fils non sécurisés ou traînant au sol',
+        "Accès pour circuler et sortir de l'usine bien dégagés",
+        "Plancher dégagé d'objet encombrant et de rebut",
+        'Revêtement de plancher uniforme et exempt de bris',
+        'Plancher sécuritaire (non glissant, huileux ou mouillé)',
+        'Absence de verre ou de vitres endommagés ou cassés',
+        'Matériel rangé et empilé avec ordre et sécurité',
+        'Tablettes utilisées selon les limites de charges',
+        'Objets lourds rangés adéquatement',
+        'Accessoires fixés aux murs et bien ancrés',
+        'Charges les plus lourdes dans les tiroirs du bas des classeurs',
+        'Poubelles ou contenants de récupération stables',
+        'Affiches indiquant le port obligatoire des ÉPI',
+        'ÉPI disponibles et portés par les visiteurs occasionnels',
+        "Plans d'évacuation affichés aux endroits stratégiques"
+      ]},
+      {id:'B',title:'B) Menuiserie',items:[
+        'Utilisation des procédures de cadenassage',
+        'Accès à des pièces en mouvement protégé',
+        'Inspection des machines outils',
+        'Perceuses sur colonne et meules ancrées',
+        'Dispositifs de sécurité sur les machines conformes et en bon état',
+        "Zones de travail dégagées d'objets encombrants",
+        'Extincteurs vérifiés par un expert (annuel)',
+        'Extincteurs pleins (cadran vert)'
+      ]},
+      {id:'C',title:'C) Coin santé et sécurité',items:[
+        'Affiche visible identifiant les secouristes désignés',
+        'Trousse de premiers soins accessible, complète et conforme',
+        "Plan des mesures d'urgence accessible, affiché et à jour",
+        'Programme de prévention disponible, accessible et à jour',
+        'Cartable des fiches signalétiques SIMDUT',
+        'Douche oculaire fonctionnelle et propre'
+      ]},
+      {id:'D',title:'D) Mezzanine',items:[
+        'Tablettes utilisées selon les limites de charges',
+        "Plancher dégagé d'objet encombrant et de rebut"
+      ]},
+      {id:'E',title:'E) Magasin',items:[
+        'Produits contrôlés SIMDUT bien étiquetés',
+        'Présence de produits dangereux (à noter)',
+        'Tiroirs fermés quand ils ne servent pas',
+        'Matériel rangé et empilé avec ordre et sécurité',
+        "Plancher dégagé d'objet encombrant et de rebut",
+        'Tablettes utilisées selon les limites de charges'
+      ]}
+    ]
+  },
+  audit5s: {
+    label: 'Audit 5S',
+    codes: ['C','NC'],
+    sections: [
+      {id:'A', title:'A) Panneau outils et consommables', items:[
+        'Bon niveau des consommables',
+        'Matériel au bon endroit',
+        'Aucun débris ou saleté',
+        'Identifications claires'
+      ]}
+    ]
+  },
+  audit5s: {
+    label: 'Audit 5S',
+    codes: ['C','NC'],
+    sections: [
+      {id:'A', title:'A) Panneau outils et consommables', items:[
+        'Bon niveau des consommables',
+        'Matériel au bon endroit',
+        'Aucun débris ou saleté',
+        'Identifications claires'
+      ]}
+    ]
+  },
+  equip: {
+    label: 'Équipement',
+    codes: ['C','NC','SO'],
+    sections: [
+      {id:'A',title:'A) Inspection avant démarrage',items:[
+        'Niveau des fluides (liquide de frein, liquide de refroidissement, huile hydraulique, électrolyte, huile à moteur) et fuite de liquide sur le plancher',
+        'Plaque signalétique lisible (capacité de charge, charte de levage, consignes de sécurité)',
+        'État général de la structure (cabine, vitres, mâts)',
+        'Vérins hydrauliques (fuite)',
+        'Boyaux hydrauliques (torsion, fuite, usure)',
+        'Chaînes de levage (tension égale, propreté, usure)',
+        'Fourches et dosseret (torsion, fissures, ancrages, verrous)',
+        'Pneus et roues (état, boulons et pression)',
+        'Batterie (état des câbles, propreté des bornes)',
+        'Propane (niveau, odeur, support, attache et position de la bouteille)'
+      ]},
+      {id:'B',title:'B) Essais et fonctionnement',items:[
+        "Instruments de contrôle (température du liquide de refroidissement et de l'huile, état de la batterie, pression de l'air, niveau de carburant)",
+        'Avertisseurs visuels et sonores (phares, feux de signalisation, gyrophare, klaxon, signal de marche arrière)',
+        'Commandes de déplacement et de freinage (direction, pédales, frein de stationnement)',
+        'Commande de levage (montée, descente, inclinaison, déplacement latéral)'
+      ]}
+    ]
+  }
+};
+
+const EQUIP_TYPES = ['chariot','faresin','ciseau','transit'];
+const AUDIT5S_TYPES = ['audit5s'];
+const TYPE_LABELS = {
+  usine: '🏭 Usine de fabrication',
+  chariot: '🚜 Chariot élévateur (lift)',
+  faresin: '🚜 Chariot télescopique (Faresin)',
+  ciseau: '🔧 Plateforme élévatrice (ciseau lift)',
+  transit: '🚐 Automobile (Transit)',
+  audit5s: '✅ Audit 5S'
+};
+
+let currentForm = FORMS.usine;
+let currentType = 'usine';
+let state = {};
+let records = [];
+let pendingDeleteId = null;
+let activeFilter = 'tous';
+let histDateFrom = '';
+let histDateTo = '';
+let ncDateFrom = '';
+let ncDateTo = '';
+let ncFilters = { code: 'tous', type: 'tous', suivi: 'tous' };
+let suiviActions = JSON.parse(localStorage.getItem('suivi_actions') || '{}');
+let lastFetchTime = 0;
+const CACHE_MS = 60000;
+
+// ─── SYNC ─────────────────────────────────────────────────────────────────────
+
+function setSyncStatus(status, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot' + (status === 'syncing' ? ' syncing' : status === 'error' ? ' error' : '');
+  lbl.textContent = label;
+}
+
+async function apiGet(force) {
+  const now = Date.now();
+  const age = now - lastFetchTime;
+  if (!force && records.length > 0 && CACHE_MS > age) {
+    setSyncStatus('ok', 'Synchronisé');
+    return true;
+  }
+  setSyncStatus('syncing', 'Chargement...');
+  try {
+    const res = await fetch(API_URL);
+    const json = await res.json();
+    records = (json.data || []).map(function(r) {
+      return Object.assign({}, r, {
+        scores: typeof r.scores === 'string' ? JSON.parse(r.scores) : r.scores,
+        ncItems: typeof r.ncItems === 'string' ? JSON.parse(r.ncItems) : r.ncItems
+      });
+    }).reverse();
+    if (json.suivi) {
+      suiviActions = json.suivi;
+      localStorage.setItem('suivi_actions', JSON.stringify(suiviActions));
+    }
+    lastFetchTime = now;
+    setSyncStatus('ok', 'Synchronisé');
+    return true;
+  } catch(e) {
+    setSyncStatus('error', 'Hors ligne');
+    records = JSON.parse(localStorage.getItem('insp_backup') || '[]');
+    suiviActions = JSON.parse(localStorage.getItem('suivi_actions') || '{}');
+    return false;
+  }
+}
+
+async function apiPost(payload) {
+  setSyncStatus('syncing', 'Sauvegarde...');
+  try {
+    await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+    const backup = JSON.parse(localStorage.getItem('insp_backup') || '[]');
+    backup.unshift(payload);
+    localStorage.setItem('insp_backup', JSON.stringify(backup));
+    lastFetchTime = 0; // force reload next time
+    setSyncStatus('ok', 'Synchronisé');
+    return true;
+  } catch(e) {
+    const backup = JSON.parse(localStorage.getItem('insp_backup') || '[]');
+    backup.unshift(payload);
+    localStorage.setItem('insp_backup', JSON.stringify(backup));
+    setSyncStatus('error', 'Sauvegardé localement');
+    return false;
+  }
+}
+
+// ─── FORMULAIRE ───────────────────────────────────────────────────────────────
+
+function onTypeChange() {
+  const type = document.getElementById('insp-type').value;
+  currentType = type;
+  if (EQUIP_TYPES.indexOf(type) >= 0) {
+    currentForm = FORMS.equip;
+  } else if (type === 'audit5s') {
+    currentForm = FORMS.audit5s;
+  } else {
+    currentForm = FORMS.usine;
+  }
+  document.getElementById('legend-usine').style.display = currentType === 'usine' ? 'flex' : 'none';
+  document.getElementById('legend-equip').style.display = (EQUIP_TYPES.indexOf(currentType) >= 0) ? 'flex' : 'none';
+  document.getElementById('legend-5s').style.display = currentType === 'audit5s' ? 'flex' : 'none';
+  document.getElementById('header-subtitle').textContent = TYPE_LABELS[type];
+  initState();
+  buildForm();
+  updateProgress();
+  currentForm.sections.forEach(function(s) { updateSectionCount(s.id); });
+}
+
+function initState() {
+  state = {};
+  currentForm.sections.forEach(function(s) {
+    s.items.forEach(function(item, i) {
+      state[s.id + '_' + i] = { code: null, corr: '' };
+    });
+  });
+}
+
+function buildForm() {
+  const c = document.getElementById('sections');
+  c.innerHTML = '';
+  currentForm.sections.forEach(function(s) {
+    const wrap = document.createElement('div');
+    wrap.className = 'section-block';
+    wrap.id = 'sec_' + s.id;
+    const hdr = document.createElement('div');
+    hdr.className = 'section-header';
+    hdr.innerHTML = '<span>' + s.title + '</span><span class="section-count" id="cnt_' + s.id + '">0/' + s.items.length + '</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
+    hdr.onclick = function() { wrap.classList.toggle('collapsed'); };
+    wrap.appendChild(hdr);
+    const itemsEl = document.createElement('div');
+    itemsEl.className = 'section-items';
+    s.items.forEach(function(item, i) {
+      const key = s.id + '_' + i;
+      const div = document.createElement('div');
+      div.className = 'item';
+      const badges = currentForm.codes.map(function(code) {
+        return '<span class="badge" data-key="' + key + '" data-code="' + code + '" onclick="setCode(\'' + key + '\',\'' + code + '\',this)">' + code + '</span>';
+      }).join('');
+      div.innerHTML = '<div class="item-label"><span class="item-num">' + (i+1) + '.</span>' + item + '</div><div class="badge-row">' + badges + '</div><div class="corr-wrap" id="cw_' + key + '"><textarea placeholder="Mesure corrective à prendre..." oninput="saveCorr(\'' + key + '\',this.value)"></textarea></div>';
+      itemsEl.appendChild(div);
+    });
+    wrap.appendChild(itemsEl);
+    c.appendChild(wrap);
+  });
+}
+
+function setCode(key, code, el) {
+  state[key].code = code;
+  const row = el.closest('.badge-row');
+  row.querySelectorAll('.badge').forEach(function(b) {
+    b.className = 'badge';
+    if (b.dataset.code === code) b.classList.add('sel-' + code);
+  });
+  const cw = document.getElementById('cw_' + key);
+  cw.classList.toggle('show', code === 'NC' || code === 'PC');
+  updateProgress();
+  updateSectionCount(key.split('_')[0]);
+}
+
+function saveCorr(key, val) { state[key].corr = val; }
+
+function updateSectionCount(sid) {
+  const s = currentForm.sections.find(function(x) { return x.id === sid; });
+  if (!s) return;
+  const filled = s.items.filter(function(item, i) { return state[sid + '_' + i] && state[sid + '_' + i].code; }).length;
+  const el = document.getElementById('cnt_' + sid);
+  if (el) el.textContent = filled + '/' + s.items.length;
+}
+
+function updateProgress() {
+  const total = Object.keys(state).length;
+  const filled = Object.values(state).filter(function(v) { return v.code; }).length;
+  const pct = total ? Math.round(filled / total * 100) : 0;
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = filled + ' / ' + total + ' éléments évalués';
+}
+
+async function submitForm() {
+  const date = document.getElementById('insp-date').value;
+  const name = document.getElementById('insp-name').value.trim();
+  if (!date || !name) { toast("Veuillez renseigner la date et l'inspecteur.", true); return; }
+
+  // Validation : tous les éléments doivent être évalués
+  const missing = [];
+  currentForm.sections.forEach(function(s) {
+    s.items.forEach(function(item, i) {
+      const k = s.id + '_' + i;
+      if (!state[k].code) missing.push({ key: k, sid: s.id });
+    });
+  });
+  if (missing.length > 0) {
+    missing.forEach(function(m) {
+      const badges = document.querySelectorAll('[data-key="' + m.key + '"]');
+      if (badges.length) {
+        const itemEl = badges[0].closest('.item');
+        if (itemEl) {
+          itemEl.style.background = 'var(--red-light)';
+          itemEl.style.borderLeft = '3px solid var(--red)';
+          setTimeout(function() { itemEl.style.background = ''; itemEl.style.borderLeft = ''; }, 4000);
+        }
+      }
+    });
+    const firstSid = missing[0].sid;
+    const secEl = document.getElementById('sec_' + firstSid);
+    if (secEl) secEl.classList.remove('collapsed');
+    const firstBadge = document.querySelector('[data-key="' + missing[0].key + '"]');
+    if (firstBadge) firstBadge.closest('.item').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast(missing.length + " élément(s) sans réponse — surlignés en rouge", true);
+    return;
+  }
+
+  const scores = {};
+  currentForm.codes.forEach(function(c) { scores[c] = 0; });
+  const ncItems = [];
+  currentForm.sections.forEach(function(s) {
+    s.items.forEach(function(item, i) {
+      const k = s.id + '_' + i;
+      const v = state[k];
+      if (v.code) scores[v.code] = (scores[v.code] || 0) + 1;
+      if (v.code === 'NC' || v.code === 'PC') ncItems.push({ section: s.title, item: item, code: v.code, corr: v.corr });
+    });
+  });
+
+  const payload = {
+    id: 'INS-' + Date.now().toString(),
+    type: currentType,
+    typeLabel: TYPE_LABELS[currentType],
+    date: date,
+    inspector: name,
+    notes: document.getElementById('notes').value,
+    scores: scores,
+    ncItems: ncItems
+  };
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = 'Sauvegarde en cours...';
+  const ok = await apiPost(payload);
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg> Sauvegarder l\'inspection';
+  toast(ok ? '✓ Inspection sauvegardée !' : 'Sauvegardé localement (hors ligne)', !ok);
+  resetForm();
+}
+
+function resetForm() {
+  initState();
+  buildForm();
+  ['insp-name', 'notes'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('insp-date').value = new Date().toISOString().split('T')[0];
+  updateProgress();
+  currentForm.sections.forEach(function(s) { updateSectionCount(s.id); });
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+
+async function showTab(tab, btn) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (tab === 'history') {
+    renderLoading('history-content');
+    await apiGet(true);
+    try { renderHistory(); } catch(err) { document.getElementById('history-content').innerHTML = '<div style="padding:1rem;color:red;font-size:12px">Erreur: ' + err.message + '</div>'; }
+  }
+  if (tab === 'nc') {
+    if (records.length > 0) {
+      try { renderNC(); } catch(err) { document.getElementById('nc-content').innerHTML = '<div style="padding:1rem;color:red;font-size:12px">Erreur: ' + err.message + '</div>'; }
+    } else {
+      renderLoading('nc-content');
+      await apiGet(true);
+      try { renderNC(); } catch(err) { document.getElementById('nc-content').innerHTML = '<div style="padding:1rem;color:red;font-size:12px">Erreur: ' + err.message + '</div>'; }
+    }
+  }
+}
+
+function renderLoading(id) {
+  document.getElementById(id).innerHTML = '<div class="loading-state">Chargement depuis Google Sheets...</div>';
+}
+
+// ─── HISTORIQUE ───────────────────────────────────────────────────────────────
+
+function renderHistory() {
+  const el = document.getElementById('history-content');
+  if (!records.length) {
+    el.innerHTML = "<div class='empty-state'><p>Cliquez sur Historique puis revenez ici</p></div>";
+    return;
+  }
+  const types = ['tous'].concat(Array.from(new Set(records.map(function(r) { return r.type || 'usine'; }))));
+  const filterHtml = '<div class="filter-row">' + types.map(function(t) {
+    return '<button class="filter-btn' + (activeFilter === t ? ' active' : '') + '" onclick="setFilter(\'' + t + '\')">' + (t === 'tous' ? 'Tous' : (TYPE_LABELS[t] || t)) + '</button>';
+  }).join('') + '</div>';
+
+  const dateFiltreHtml = '<div class="date-filter-row">' +
+    '<div class="date-filter-field"><label>Du</label><input type="date" id="hist-date-from" value="' + histDateFrom + '" onchange="histDateFrom=this.value;renderHistory()"></div>' +
+    '<div class="date-filter-field"><label>Au</label><input type="date" id="hist-date-to" value="' + histDateTo + '" onchange="histDateTo=this.value;renderHistory()"></div>' +
+    '<button class="date-clear-btn" onclick="clearHistDates()">&#x2715; Effacer</button>' +
+    '</div>';
+
+  let filtered = activeFilter === 'tous' ? records.slice() : records.filter(function(r) { return (r.type || 'usine') === activeFilter; });
+  if (histDateFrom) filtered = filtered.filter(function(r) { return r.date >= histDateFrom; });
+  if (histDateTo) filtered = filtered.filter(function(r) { return r.date <= histDateTo; });
+
+  if (!filtered.length) {
+    el.innerHTML = filterHtml + dateFiltreHtml + '<div class="empty-state"><p>Aucune inspection pour ce filtre</p></div>';
+    return;
+  }
+
+  const cards = filtered.map(function(r) {
+    const s = r.scores || {};
+    const ncItems = r.ncItems || [];
+    const scoreHtml = Object.entries(s).filter(function(e) { return e[1] > 0; }).map(function(e) {
+      return '<span class="score-badge sb-' + e[0].toLowerCase() + '">' + e[0] + ': ' + e[1] + '</span>';
+    }).join('');
+    const ncSec = ncItems.length ? '<div class="nc-block"><h4>Non-conformités et partiels (' + ncItems.length + ')</h4>' + ncItems.map(function(n) {
+      return '<div class="nc-item-row"><strong>' + n.code + '</strong> — ' + n.item + (n.corr ? '<div class="nc-corr">→ ' + n.corr + '</div>' : '') + '</div>';
+    }).join('') + '</div>' : '';
+    const notesHtml = r.notes && r.notes.trim() ? '<div style="font-size:12px;color:var(--text2);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border)"><span style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Notes</span><div style="margin-top:3px">' + r.notes + '</div></div>' : '';
+    return '<div class="hcard"><div class="hcard-top"><div><div class="hcard-date">' + fmtDate(r.date) + '</div><div class="hcard-insp">' + r.inspector + '</div></div><button class="btn-delete" onclick="askDelete(\'' + r.id + '\')" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div><div class="hcard-type">' + (r.typeLabel || TYPE_LABELS[r.type] || 'Usine') + '</div><div class="score-row">' + scoreHtml + '</div>' + ncSec + notesHtml + '</div>';
+  }).join('');
+
+  el.innerHTML = filterHtml + dateFiltreHtml + cards;
+}
+
+function setFilter(type) {
+  activeFilter = type;
+  renderHistory();
+}
+
+function clearHistDates() {
+  histDateFrom = '';
+  histDateTo = '';
+  renderHistory();
+}
+
+// ─── NON-CONFORMITÉS ──────────────────────────────────────────────────────────
+
+function renderNC() {
+  const el = document.getElementById('nc-content');
+  const allItems = records.flatMap(function(r) {
+    return (r.ncItems || []).filter(function(n) { return n.code === 'NC' || n.code === 'PC'; }).map(function(n, i) {
+      const uid = r.id + '_' + i;
+      return Object.assign({}, n, {
+        uid: uid,
+        date: r.date,
+        inspector: r.inspector,
+        typeLabel: r.typeLabel || TYPE_LABELS[r.type] || r.type || 'Usine',
+        typeKey: r.type || 'usine',
+        corr: (suiviActions[uid] !== undefined) ? suiviActions[uid] : (n.corr || '')
+      });
+    });
+  });
+
+  if (!records.length) {
+    el.innerHTML = "<div class='empty-state'><p>Cliquez sur Historique puis revenez ici</p></div>";
+    return;
+  }
+  if (!allItems.length) {
+    el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>Aucune non-conformité enregistrée</p></div>';
+    return;
+  }
+
+  const totalNC = allItems.filter(function(n) { return n.code === 'NC'; }).length;
+  const totalPC = allItems.filter(function(n) { return n.code === 'PC'; }).length;
+  const withAction = allItems.filter(function(n) { return n.corr && String(n.corr || '').trim(); }).length;
+  const withoutAction = allItems.length - withAction;
+
+  const stats = '<div class="stat-grid"><div class="stat-card danger"><div class="stat-val">' + totalNC + '</div><div class="stat-lbl">NC totales</div></div><div class="stat-card warn"><div class="stat-val">' + totalPC + '</div><div class="stat-lbl">PC totales</div></div><div class="stat-card danger"><div class="stat-val">' + withoutAction + '</div><div class="stat-lbl">Sans action</div></div><div class="stat-card ok"><div class="stat-val">' + withAction + '</div><div class="stat-lbl">Avec action</div></div></div>';
+
+  const ncDateFiltreHtml = '<div class="date-filter-row">' +
+    '<div class="date-filter-field"><label>Du</label><input type="date" id="nc-date-from" value="' + ncDateFrom + '" onchange="ncDateFrom=this.value;renderNC()"></div>' +
+    '<div class="date-filter-field"><label>Au</label><input type="date" id="nc-date-to" value="' + ncDateTo + '" onchange="ncDateTo=this.value;renderNC()"></div>' +
+    '<button class="date-clear-btn" onclick="clearNcDates()">✕ Effacer</button>' +
+    '</div>';
+
+  const codeFilterHtml = '<div class="filter-row">' +
+    ['tous','NC','PC'].map(function(c) {
+      const lbl = c === 'tous' ? 'NC + PC' : c === 'NC' ? 'Non conformes' : 'Partiels';
+      return '<button class="filter-btn' + (ncFilters.code === c ? ' active' : '') + '" onclick="setNcFilter(\'code\',\'' + c + '\')">' + lbl + '</button>';
+    }).join('') + '</div>';
+
+  const types = Array.from(new Set(allItems.map(function(n) { return n.typeKey; })));
+  const typeFilterHtml = types.length > 1 ? '<div class="filter-row">' +
+    ['tous'].concat(types).map(function(t) {
+      return '<button class="filter-btn' + (ncFilters.type === t ? ' active' : '') + '" onclick="setNcFilter(\'type\',\'' + t + '\')">' + (t === 'tous' ? 'Tous' : (TYPE_LABELS[t] || t)) + '</button>';
+    }).join('') + '</div>' : '';
+
+  const suiviFilterHtml = '<div class="filter-row">' +
+    [['tous','Tout suivi'],['sans','⚠ Sans action'],['avec','✓ Avec action']].map(function(s) {
+      return '<button class="filter-btn' + (ncFilters.suivi === s[0] ? ' active' : '') + '" onclick="setNcFilter(\'suivi\',\'' + s[0] + '\')">' + s[1] + '</button>';
+    }).join('') + '</div>';
+
+  let filtered = allItems.slice();
+  if (ncFilters.code !== 'tous') filtered = filtered.filter(function(n) { return n.code === ncFilters.code; });
+  if (ncFilters.type !== 'tous') filtered = filtered.filter(function(n) { return n.typeKey === ncFilters.type; });
+  if (ncFilters.suivi === 'sans') filtered = filtered.filter(function(n) { return !n.corr || !String(n.corr || '').trim(); });
+  if (ncFilters.suivi === 'avec') filtered = filtered.filter(function(n) { return n.corr && String(n.corr || '').trim(); });
+  if (ncDateFrom) filtered = filtered.filter(function(n) { return n.date >= ncDateFrom; });
+  if (ncDateTo) filtered = filtered.filter(function(n) { return n.date <= ncDateTo; });
+  filtered.sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+  const cards = filtered.length ? filtered.map(function(n) {
+    const hasAction = n.corr && String(n.corr || '').trim();
+    const codeCls = n.code === 'NC' ? 'sb-nc' : 'sb-pc';
+    const actionHtml = hasAction
+      ? '<div class="nc-action has">✓ ' + n.corr + '</div><button class="nc-edit-btn" onclick="editAction(\'' + n.uid + '\')">Modifier l\'action</button>'
+      : '<div class="nc-action missing">⚠ Aucune mesure corrective inscrite</div><div class="nc-suivi-wrap" id="suivi_' + n.uid + '" style="display:none"><textarea class="nc-suivi-input" id="suivi_txt_' + n.uid + '" placeholder="Décrire la mesure corrective..."></textarea><button class="nc-suivi-save" onclick="saveAction(\'' + n.uid + '\')">Enregistrer</button></div><button class="nc-edit-btn" onclick="toggleSuivi(\'' + n.uid + '\')">+ Ajouter une action</button>';
+    return '<div class="nc-full-card"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap"><span class="score-badge ' + codeCls + '">' + n.code + '</span><span class="nc-section-tag">' + n.typeLabel + '</span><span class="nc-section-tag">' + n.section + '</span></div><div class="nc-item-name">' + n.item + '</div><div class="nc-meta">' + fmtDate(n.date) + ' — ' + n.inspector + '</div>' + actionHtml + '</div>';
+  }).join('') : '<div class="empty-state" style="padding:1.5rem"><p>Aucun élément pour ces filtres</p></div>';
+
+  el.innerHTML = stats + ncDateFiltreHtml + codeFilterHtml + typeFilterHtml + suiviFilterHtml +
+    '<p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:.6rem">' + filtered.length + ' élément(s) affiché(s)</p>' + cards;
+}
+
+
+function clearNcDates() {
+  ncDateFrom = '';
+  ncDateTo = '';
+  renderNC();
+}
+function setNcFilter(key, val) {
+  ncFilters[key] = val;
+  renderNC();
+}
+
+async function refreshNC() {
+  renderLoading('nc-content');
+  try {
+    await apiGet(true);
+  } catch(e) {}
+  renderNC();
+}
+
+function toggleSuivi(uid) {
+  const wrap = document.getElementById('suivi_' + uid);
+  if (wrap) wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+}
+
+function editAction(uid) {
+  const allCards = document.querySelectorAll('.nc-full-card');
+  allCards.forEach(function(card) {
+    const btn = card.querySelector('.nc-edit-btn');
+    if (btn && btn.getAttribute('onclick') === "editAction('" + uid + "')") {
+      const actionDiv = card.querySelector('.nc-action.has');
+      const currentText = actionDiv ? actionDiv.textContent.replace('✓ ', '') : '';
+      actionDiv.outerHTML = '<div class="nc-suivi-wrap" id="suivi_' + uid + '" style="display:block"><textarea class="nc-suivi-input" id="suivi_txt_' + uid + '">' + currentText + '</textarea><button class="nc-suivi-save" onclick="saveAction(\'' + uid + '\')">Enregistrer</button></div>';
+      btn.remove();
+    }
+  });
+}
+
+async function saveAction(uid) {
+  const txt = document.getElementById('suivi_txt_' + uid);
+  if (!txt) return;
+  const val = txt.value.trim();
+  suiviActions[uid] = val;
+  localStorage.setItem('suivi_actions', JSON.stringify(suiviActions));
+  setSyncStatus('syncing', 'Sauvegarde...');
+  const url = API_URL + '?action=suivi&uid=' + encodeURIComponent(uid) + '&corr=' + encodeURIComponent(val);
+  await new Promise(function(resolve) {
+    const img = new Image();
+    img.onload = img.onerror = function() { resolve(); };
+    img.src = url;
+    setTimeout(resolve, 4000);
+  });
+  setSyncStatus('ok', 'Synchronisé');
+  toast(val ? '✓ Action sauvegardée !' : 'Action retirée.');
+  renderNC();
+}
+
+// ─── SUPPRESSION ──────────────────────────────────────────────────────────────
+
+function askDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('confirm-overlay').style.display = 'flex';
+}
+
+function closeConfirm() {
+  pendingDeleteId = null;
+  document.getElementById('confirm-overlay').style.display = 'none';
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  const idToDelete = pendingDeleteId;
+  closeConfirm();
+  setSyncStatus('syncing', 'Suppression...');
+  const url = API_URL + '?action=delete&id=' + encodeURIComponent(String(idToDelete));
+  await new Promise(function(resolve) {
+    const img = new Image();
+    img.onload = img.onerror = function() { resolve(); };
+    img.src = url;
+    setTimeout(resolve, 4000);
+  });
+  await apiGet(true);
+  setSyncStatus('ok', 'Synchronisé');
+  renderHistory();
+  renderNC();
+  toast('Inspection supprimée.');
+}
+
+// ─── UTILITAIRES ──────────────────────────────────────────────────────────────
+
+function fmtDate(d) {
+  if (!d) return '';
+  const parts = d.split('-');
+  return parts[2] + '/' + parts[1] + '/' + parts[0];
+}
+
+function toast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (err ? ' err' : '');
+  void t.offsetWidth;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.getElementById('insp-date').value = new Date().toISOString().split('T')[0];
+initState();
+buildForm();
+currentForm.sections.forEach(function(s) { updateSectionCount(s.id); });
+</script>
+</body>
+</html>
