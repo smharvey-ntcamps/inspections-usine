@@ -207,6 +207,18 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--red-dark)}
 
+/* DÉJÀ RÉGLÉ */
+.regle-wrap{margin-top:6px;display:none}
+.regle-wrap.show{display:flex;align-items:center;gap:7px}
+.regle-check{width:16px;height:16px;cursor:pointer;accent-color:var(--green)}
+.regle-label{font-size:12px;color:var(--green);font-weight:500}
+
+/* STATUT NC */
+.nc-statut-btn{font-size:11px;font-family:var(--mono);font-weight:500;padding:5px 12px;border-radius:20px;border:none;cursor:pointer;transition:.15s;white-space:nowrap;margin-top:.4rem}
+.nc-statut-btn.ouvert{background:var(--red-light);color:var(--red)}
+.nc-statut-btn.en_cours{background:var(--amber-light);color:var(--amber)}
+.nc-statut-btn.regle{background:var(--green-light);color:var(--green)}
+
 /* SUIVI PANEL */
 .suivi-panel{background:var(--bg);border-top:1px solid var(--border);padding:.85rem;display:none}
 .suivi-panel.open{display:block}
@@ -386,8 +398,8 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 <div class="toast" id="toast"></div>
 
 <script>
-const INSP_API = 'https://script.google.com/macros/s/AKfycbwsGfcsifAuoqkPWB7Rkfp_mz3Q08Gsu5zpPes0YRhBAyjedae6mq4aBFb5spURcgSb/exec';
-const F03_API  = 'https://script.google.com/macros/s/AKfycbwsGfcsifAuoqkPWB7Rkfp_mz3Q08Gsu5zpPes0YRhBAyjedae6mq4aBFb5spURcgSb/exec';
+const INSP_API = 'https://script.google.com/macros/s/AKfycby-l_5oVotZ8TXH5NIeqNRSpCvw7cV1F1XGE3HFVNEFRVeLf6U2ZBD86Y6kZZX918C_/exec';
+const F03_API  = 'https://script.google.com/macros/s/AKfycby-l_5oVotZ8TXH5NIeqNRSpCvw7cV1F1XGE3HFVNEFRVeLf6U2ZBD86Y6kZZX918C_/exec';
 
 // ════════════════════════════════════════════════════════════
 // DONNÉES
@@ -428,7 +440,10 @@ let selectedElements = [];
 let suiviActions = JSON.parse(localStorage.getItem('suivi_actions') || '{}');
 let f03Statuts = JSON.parse(localStorage.getItem('f03_statuts') || '{}');
 let f03Journal = JSON.parse(localStorage.getItem('f03_journal') || '{}');
+let ncStatuts = JSON.parse(localStorage.getItem('nc_statuts') || '{}');
+let ncJournal = JSON.parse(localStorage.getItem('nc_journal') || '{}');
 let currentUserName = localStorage.getItem('suivi_username') || '';
+let savedUsername = localStorage.getItem('saved_username') || '';
 let pendingDeleteId = null;
 let pendingDeleteType = null;
 let activeHistFilter = 'tous';
@@ -466,6 +481,8 @@ async function loadAll(force) {
     if (ji.suivi) { suiviActions = ji.suivi; localStorage.setItem('suivi_actions', JSON.stringify(suiviActions)); }
     f03Records = (ji.modifications||[]).map(function(r){ return Object.assign({},r,{elements:typeof r.elements==='string'?JSON.parse(r.elements):r.elements}); }).reverse();
     f03Records.forEach(function(r){ if (r.statut && r.statut !== 'attente') f03Statuts[r.id] = r.statut; });
+    if (ji.ncStatuts) { ncStatuts = ji.ncStatuts; localStorage.setItem('nc_statuts', JSON.stringify(ncStatuts)); }
+    if (ji.ncJournal) { ncJournal = ji.ncJournal; localStorage.setItem('nc_journal', JSON.stringify(ncJournal)); }
     if (ji.journal) {
       f03Journal = ji.journal;
       localStorage.setItem('f03_journal', JSON.stringify(f03Journal));
@@ -553,6 +570,7 @@ function onTypeChange() {
   document.getElementById('f03-fields').style.display = isF03 ? 'block' : 'none';
 
   if (!isF03) {
+    if (savedUsername) document.getElementById('insp-name').value = savedUsername;
     currentForm = EQUIP_TYPES.indexOf(type) >= 0 ? FORMS.equip : (type === 'audit5s' ? FORMS.audit5s : FORMS.usine);
     document.getElementById('legend-usine').style.display = type === 'usine' ? 'flex' : 'none';
     document.getElementById('legend-equip').style.display = EQUIP_TYPES.indexOf(type) >= 0 ? 'flex' : 'none';
@@ -560,6 +578,7 @@ function onTypeChange() {
     initInspState(); buildInspForm(); updateProgress();
     currentForm.sections.forEach(function(s){ updateSectionCount(s.id); });
   } else {
+    if (savedUsername) document.getElementById('f03-nom').value = savedUsername;
     // Init canvas when F03 is shown
     if (!ctx) initCanvas();
     else drawSchema();
@@ -570,7 +589,7 @@ function onTypeChange() {
 
 function initInspState() {
   inspState = {};
-  currentForm.sections.forEach(function(s){ s.items.forEach(function(item,i){ inspState[s.id+'_'+i]={code:null,corr:''}; }); });
+  currentForm.sections.forEach(function(s){ s.items.forEach(function(item,i){ inspState[s.id+'_'+i]={code:null,corr:'',regle:false}; }); });
 }
 
 function buildInspForm() {
@@ -585,7 +604,7 @@ function buildInspForm() {
     s.items.forEach(function(item,i){
       var key=s.id+'_'+i; var div=document.createElement('div'); div.className='item';
       var badges=currentForm.codes.map(function(code){ return '<span class="badge" data-key="'+key+'" data-code="'+code+'" onclick="setCode(\''+key+'\',\''+code+'\',this)">'+code+'</span>'; }).join('');
-      div.innerHTML='<div class="item-label"><span class="item-num">'+(i+1)+'.</span>'+item+'</div><div class="badge-row">'+badges+'</div><div class="corr-wrap" id="cw_'+key+'"><textarea placeholder="Mesure corrective..." oninput="inspState[\''+key+'\'].corr=this.value"></textarea></div>';
+      div.innerHTML='<div class="item-label"><span class="item-num">'+(i+1)+'.</span>'+item+'</div><div class="badge-row">'+badges+'</div><div class="corr-wrap" id="cw_'+key+'"><textarea placeholder="Description du problème..." oninput="inspState[\''+key+'\'].corr=this.value"></textarea><div class="regle-wrap" id="rw_'+key+'"><input type="checkbox" class="regle-check" id="rc_'+key+'" onchange="inspState[\''+key+'\'].regle=this.checked"><label class="regle-label" for="rc_'+key+'">✓ Problème déjà réglé</label></div></div>';
       itemsEl.appendChild(div);
     });
     wrap.appendChild(itemsEl); c.appendChild(wrap);
@@ -614,6 +633,7 @@ function updateProgress() {
 
 async function submitInspection() {
   var date=document.getElementById('insp-date').value, name=document.getElementById('insp-name').value.trim();
+  if(name){ savedUsername=name; localStorage.setItem('saved_username', name); }
   if(!date||!name){ toast("Veuillez renseigner la date et l'inspecteur.",true); return; }
   var missing=[];
   currentForm.sections.forEach(function(s){ s.items.forEach(function(item,i){ var k=s.id+'_'+i; if(!inspState[k].code) missing.push({key:k,sid:s.id}); }); });
@@ -625,7 +645,7 @@ async function submitInspection() {
   }
   var scores={}; currentForm.codes.forEach(function(c){ scores[c]=0; });
   var ncItems=[];
-  currentForm.sections.forEach(function(s){ s.items.forEach(function(item,i){ var k=s.id+'_'+i,v=inspState[k]; if(v.code) scores[v.code]=(scores[v.code]||0)+1; if(v.code==='NC'||v.code==='PC') ncItems.push({section:s.title,item:item,code:v.code,corr:v.corr}); }); });
+  currentForm.sections.forEach(function(s){ s.items.forEach(function(item,i){ var k=s.id+'_'+i,v=inspState[k]; if(v.code) scores[v.code]=(scores[v.code]||0)+1; if(v.code==='NC'||v.code==='PC') ncItems.push({section:s.title,item:item,code:v.code,corr:v.corr,regle:v.regle||false}); }); });
   var payload={id:'INS-'+Date.now().toString(),type:currentType,typeLabel:TYPE_LABELS[currentType],date:date,inspector:name,notes:document.getElementById('insp-notes').value,scores:scores,ncItems:ncItems};
   var btn=document.getElementById('btn-save-insp'); btn.disabled=true; btn.textContent='Sauvegarde...';
   var ok=await postInsp(payload);
@@ -751,6 +771,7 @@ function clearCanvas(){ drawSchema(); }
 
 async function submitF03() {
   var nom=document.getElementById('f03-nom').value.trim();
+  if(nom){ savedUsername=nom; localStorage.setItem('saved_username', nom); }
   var date=document.getElementById('f03-date').value;
   var desc=document.getElementById('f03-description').value.trim();
   var unite=document.getElementById('f03-unite').value.trim();
@@ -844,42 +865,151 @@ function renderNC() {
   var allItems=inspRecords.flatMap(function(r){
     return (r.ncItems||[]).filter(function(n){ return n.code==='NC'||n.code==='PC'; }).map(function(n,i){
       var uid=r.id+'_'+i;
-      return Object.assign({},n,{uid:uid,date:r.date,inspector:r.inspector,typeLabel:r.typeLabel||TYPE_LABELS[r.type]||'Usine',typeKey:r.type||'usine',corr:(suiviActions[uid]!==undefined)?suiviActions[uid]:(n.corr||'')});
+      return Object.assign({},n,{uid:uid,date:r.date,inspector:r.inspector,typeLabel:r.typeLabel||TYPE_LABELS[r.type]||'Usine',typeKey:r.type||'usine',description:n.corr||'',corr:(suiviActions[uid]!==undefined)?suiviActions[uid]:''});
     });
   });
   if(!allItems.length){ el.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>Aucune non-conformité</p></div>'; return; }
   var totalNC=allItems.filter(function(n){ return n.code==='NC'; }).length;
   var totalPC=allItems.filter(function(n){ return n.code==='PC'; }).length;
-  var withAction=allItems.filter(function(n){ return n.corr&&String(n.corr).trim(); }).length;
-  var stats='<div class="stat-grid"><div class="stat-card danger"><div class="stat-val">'+totalNC+'</div><div class="stat-lbl">NC totales</div></div><div class="stat-card warn"><div class="stat-val">'+totalPC+'</div><div class="stat-lbl">PC totales</div></div><div class="stat-card danger"><div class="stat-val">'+(allItems.length-withAction)+'</div><div class="stat-lbl">Sans action</div></div><div class="stat-card ok"><div class="stat-val">'+withAction+'</div><div class="stat-lbl">Avec action</div></div></div>';
+  var nbOuvert=allItems.filter(function(n){ return (ncStatuts[n.uid]||( n.regle?'regle':'ouvert'))==='ouvert'; }).length;
+  var nbEnCours=allItems.filter(function(n){ return (ncStatuts[n.uid]||(n.regle?'regle':'ouvert'))==='en_cours'; }).length;
+  var nbRegle=allItems.filter(function(n){ return (ncStatuts[n.uid]||(n.regle?'regle':'ouvert'))==='regle'; }).length;
+  var stats='<div class="stat-grid">'
+    +'<div class="stat-card"><div class="stat-val" style="font-size:20px">'+(totalNC+totalPC)+'</div><div class="stat-lbl">Total NC + PC</div></div>'
+    +'<div class="stat-card danger"><div class="stat-val">'+nbOuvert+'</div><div class="stat-lbl">🔴 Ouvert</div></div>'
+    +'<div class="stat-card warn"><div class="stat-val">'+nbEnCours+'</div><div class="stat-lbl">🟡 En cours</div></div>'
+    +'<div class="stat-card ok"><div class="stat-val">'+nbRegle+'</div><div class="stat-lbl">🟢 Réglé</div></div>'
+    +'</div>';
   var codeF='<div class="filter-row">'+['tous','NC','PC'].map(function(c){ return '<button class="filter-btn'+(ncFilters.code===c?' active':'')+'" onclick="ncFilters.code=\''+c+'\';renderNC()">'+(c==='tous'?'NC + PC':c==='NC'?'Non conformes':'Partiels')+'</button>'; }).join('')+'</div>';
   var types=[...new Set(allItems.map(function(n){ return n.typeKey; }))];
   var typeF=types.length>1?'<div class="filter-row">'+['tous'].concat(types).map(function(t){ return '<button class="filter-btn'+(ncFilters.type===t?' active':'')+'" onclick="ncFilters.type=\''+t+'\';renderNC()">'+(t==='tous'?'Tous':(TYPE_LABELS[t]||t))+'</button>'; }).join('')+'</div>':'';
-  var suiviF='<div class="filter-row">'+[['tous','Tout suivi'],['sans','⚠ Sans action'],['avec','✓ Avec action']].map(function(s){ return '<button class="filter-btn'+(ncFilters.suivi===s[0]?' active':'')+'" onclick="ncFilters.suivi=\''+s[0]+'\';renderNC()">'+s[1]+'</button>'; }).join('')+'</div>';
+  var suiviF='<div class="filter-row">'+[['tous','Tous'],['ouvert','🔴 Ouvert'],['en_cours','🟡 En cours'],['regle','🟢 Réglé']].map(function(s){ return '<button class="filter-btn'+(ncFilters.suivi===s[0]?' active':'')+'" onclick="ncFilters.suivi=\''+s[0]+'\';renderNC()">'+s[1]+'</button>'; }).join('')+'</div>';
   var dateF='<div class="date-filter-row"><div class="date-filter-field"><label>Du</label><input type="date" id="nc-date-from" value="'+ncDateFrom+'" onchange="ncDateFrom=this.value;renderNC()"></div><div class="date-filter-field"><label>Au</label><input type="date" id="nc-date-to" value="'+ncDateTo+'" onchange="ncDateTo=this.value;renderNC()"></div><button class="date-clear-btn" onclick="ncDateFrom=\'\';ncDateTo=\'\';renderNC()">✕</button></div>';
   var filtered=allItems.slice();
   if(ncFilters.code!=='tous') filtered=filtered.filter(function(n){ return n.code===ncFilters.code; });
   if(ncFilters.type!=='tous') filtered=filtered.filter(function(n){ return n.typeKey===ncFilters.type; });
-  if(ncFilters.suivi==='sans') filtered=filtered.filter(function(n){ return !n.corr||!String(n.corr).trim(); });
-  if(ncFilters.suivi==='avec') filtered=filtered.filter(function(n){ return n.corr&&String(n.corr).trim(); });
+  if(ncFilters.suivi==='ouvert') filtered=filtered.filter(function(n){ return (ncStatuts[n.uid]||(n.regle?'regle':'ouvert'))==='ouvert'; });
+  if(ncFilters.suivi==='en_cours') filtered=filtered.filter(function(n){ return (ncStatuts[n.uid]||(n.regle?'regle':'ouvert'))==='en_cours'; });
+  if(ncFilters.suivi==='regle') filtered=filtered.filter(function(n){ return (ncStatuts[n.uid]||(n.regle?'regle':'ouvert'))==='regle'; });
   if(ncDateFrom) filtered=filtered.filter(function(n){ return n.date>=ncDateFrom; });
   if(ncDateTo) filtered=filtered.filter(function(n){ return n.date<=ncDateTo; });
   filtered.sort(function(a,b){ return b.date.localeCompare(a.date); });
   var cards=filtered.map(function(n){
-    var hasAction=n.corr&&String(n.corr).trim();
     var codeCls=n.code==='NC'?'sb-nc':'sb-pc';
-    var actionHtml=hasAction
-      ?'<div class="nc-action has">✓ '+n.corr+'</div><button class="nc-edit-btn" onclick="editNcAction(\''+n.uid+'\')">Modifier</button>'
-      :'<div class="nc-action missing">⚠ Aucune mesure corrective</div><div class="nc-suivi-wrap" id="suivi_'+n.uid+'" style="display:none"><textarea class="nc-suivi-input" id="suivi_txt_'+n.uid+'" placeholder="Mesure corrective..."></textarea><button class="nc-suivi-save" onclick="saveNcAction(\''+n.uid+'\')">Enregistrer</button></div><button class="nc-edit-btn" onclick="toggleSuivi(\''+n.uid+'\')">+ Ajouter une action</button>';
-    return '<div class="nc-full-card"><div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap"><span class="score-badge '+codeCls+'">'+n.code+'</span><span class="nc-section-tag">'+n.typeLabel+'</span><span class="nc-section-tag">'+n.section+'</span></div><div class="nc-item-name">'+n.item+'</div><div class="nc-meta">'+fmtDate(n.date)+' — '+n.inspector+'</div>'+actionHtml+'</div>';
+    var ncStatut = ncStatuts[n.uid] || (n.regle ? 'regle' : 'ouvert');
+    var statutLabel = ncStatut==='ouvert' ? '🔴 Ouvert' : ncStatut==='en_cours' ? '🟡 En cours' : '🟢 Réglé';
+    var regleLabel = n.regle ? '<span style="font-size:11px;color:var(--green);font-family:var(--mono);margin-left:6px">✓ Réglé lors de l inspection</span>' : '';
+    var journal = ncJournal[n.uid] || [];
+    var journalHtml = journal.length
+      ? journal.map(function(e){
+          var sl = e.statut==='ouvert'?'🔴 Ouvert':e.statut==='en_cours'?'🟡 En cours':'🟢 Réglé';
+          return '<div class="journal-entry"><div class="journal-date">'+e.date+' — '+e.nom+'</div><div>'+sl+'</div></div>';
+        }).join('')
+      : '<div class="journal-empty">Aucun changement de statut enregistré</div>';
+    var actionHtml = '<div class="suivi-panel-wrap">'
+      + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:.4rem">'
+      + '<span class="nc-statut-btn ' + ncStatut + '">' + statutLabel + '</span>'
+      + regleLabel
+      + '<button class="suivi-toggle no-print" onclick="toggleNcJournal(\'' + n.uid + '\')">Suivi ▼</button>'
+      + '</div>'
+      + '<div class="suivi-panel" id="ncjournal_' + n.uid + '">'
+      + '<div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">Historique</div>'
+      + journalHtml
+      + '<div class="statut-change-form">'
+      + '<label>Votre nom</label>'
+      + '<input type="text" id="ncnom_' + n.uid + '" value="' + (savedUsername||'') + '" placeholder="Votre nom..." oninput="savedUsername=this.value;localStorage.setItem(\'saved_username\',this.value)">'
+      + '<label>Nouveau statut</label>'
+      + '<div class="statut-btns-row">'
+      + '<button class="statut-choice" style="background:var(--red-light);color:var(--red);border-color:var(--red)" onclick="setNcStatut(\'' + n.uid + '\',\'ouvert\')">🔴 Ouvert</button>'
+      + '<button class="statut-choice" style="background:var(--amber-light);color:var(--amber);border-color:var(--amber)" onclick="setNcStatut(\'' + n.uid + '\',\'en_cours\')">🟡 En cours</button>'
+      + '<button class="statut-choice" style="background:var(--green-light);color:var(--green);border-color:var(--green)" onclick="setNcStatut(\'' + n.uid + '\',\'regle\')">🟢 Réglé</button>'
+      + '</div>'
+      + '<button class="btn-enregistrer" onclick="enregistrerNcStatut(\'' + n.uid + '\')">Enregistrer</button>'
+      + '</div>'
+      + '</div>'
+      + '</div>';
+    var descHtml = n.description && String(n.description).trim()
+      ? '<div style="font-size:12px;color:var(--text2);margin:.4rem 0;padding:7px 9px;background:var(--bg);border-radius:var(--radius);border-left:3px solid var(--amber)"><span style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px">Description du problème</span>'+n.description+'</div>'
+      : '';
+    return '<div class="nc-full-card"><div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap"><span class="score-badge '+codeCls+'">'+n.code+'</span><span class="nc-section-tag">'+n.typeLabel+'</span><span class="nc-section-tag">'+n.section+'</span></div><div class="nc-item-name">'+n.item+'</div><div class="nc-meta">'+fmtDate(n.date)+' — '+n.inspector+'</div>'+descHtml+actionHtml+'</div>';
   }).join('');
   el.innerHTML=stats+dateF+codeF+typeF+suiviF+'<p style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:.5rem">'+filtered.length+' élément(s)</p>'+(filtered.length?cards:'<div class="empty-state" style="padding:1.5rem"><p>Aucun élément pour ces filtres</p></div>');
 }
 
+function toggleNcJournal(uid) {
+  var panel = document.getElementById('ncjournal_'+uid);
+  if(panel) panel.classList.toggle('open');
+}
+
+function setNcStatut(uid, statut) {
+  // Highlight selected statut button
+  var panel = document.getElementById('ncjournal_'+uid);
+  if (!panel) return;
+  panel.querySelectorAll('.statut-choice').forEach(function(b){ b.style.opacity='0.5'; });
+  var btns = panel.querySelectorAll('.statut-choice');
+  var idx = ['ouvert','en_cours','regle'].indexOf(statut);
+  if (btns[idx]) btns[idx].style.opacity='1';
+  panel.dataset.pendingStatut = statut;
+}
+
+function enregistrerNcStatut(uid) {
+  var panel = document.getElementById('ncjournal_'+uid);
+  if (!panel) return;
+  var newStatut = panel.dataset.pendingStatut;
+  var nomEl = document.getElementById('ncnom_'+uid);
+  var nom = nomEl ? nomEl.value.trim() : savedUsername;
+  if (!newStatut) { toast('Veuillez choisir un statut.', true); return; }
+  if (!nom) { toast('Veuillez entrer votre nom.', true); return; }
+  if (nom) { savedUsername=nom; localStorage.setItem('saved_username',nom); }
+  ncStatuts[uid] = newStatut;
+  if (!ncJournal[uid]) ncJournal[uid] = [];
+  var now = new Date();
+  var dateStr = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear()+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  ncJournal[uid].push({ statut: newStatut, nom: nom, date: dateStr });
+  localStorage.setItem('nc_statuts', JSON.stringify(ncStatuts));
+  localStorage.setItem('nc_journal', JSON.stringify(ncJournal));
+  var url = INSP_API + '?action=nc_statut&uid=' + encodeURIComponent(uid) + '&statut=' + encodeURIComponent(newStatut) + '&nom=' + encodeURIComponent(nom) + '&date=' + encodeURIComponent(dateStr);
+  var img = new Image(); img.src = url;
+  toast('Statut enregistré !');
+  renderNC();
+}
+
 async function refreshNC(){ document.getElementById('nc-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderNC(); }
 function toggleSuivi(uid){ var w=document.getElementById('suivi_'+uid); if(w) w.style.display=w.style.display==='none'?'block':'none'; }
-function editNcAction(uid){ var cards=document.querySelectorAll('.nc-full-card'); cards.forEach(function(card){ var btn=card.querySelector('.nc-edit-btn'); if(btn&&btn.getAttribute('onclick')==="editNcAction('"+uid+"')"){ var actionDiv=card.querySelector('.nc-action.has'); var cur=actionDiv?actionDiv.textContent.replace('✓ ',''):''; actionDiv.outerHTML='<div class="nc-suivi-wrap" id="suivi_'+uid+'" style="display:block"><textarea class="nc-suivi-input" id="suivi_txt_'+uid+'">'+cur+'</textarea><button class="nc-suivi-save" onclick="saveNcAction(\''+uid+'\')">Enregistrer</button></div>'; btn.remove(); } }); }
-async function saveNcAction(uid){ var txt=document.getElementById('suivi_txt_'+uid); if(!txt) return; var val=txt.value.trim(); await saveSuiviAction(uid,val); toast(val?'Action sauvegardée !':'Action retirée.'); renderNC(); }
+function editNcAction(uid){
+  var cards=document.querySelectorAll('.nc-full-card');
+  cards.forEach(function(card){
+    var btn=card.querySelector('.nc-edit-btn');
+    if(btn&&btn.getAttribute('onclick')==="editNcAction('"+uid+"')"){
+      var actionDiv=card.querySelector('.nc-action.has');
+      var curAction='', curNom=savedUsername;
+      try {
+        var parsed=JSON.parse(actionDiv?actionDiv.dataset.raw||'{}':'{}');
+        curAction=parsed.action||''; curNom=parsed.nom||savedUsername;
+      } catch(ex){ curAction=actionDiv?actionDiv.textContent.replace('✓ ',''):''; }
+      actionDiv.outerHTML='<div class="nc-suivi-wrap" id="suivi_'+uid+'" style="display:block">'
+        +'<div style="margin-bottom:.4rem"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Votre nom</label>'
+        +'<input type="text" id="suivi_nom_'+uid+'" value="'+curNom+'" style="width:100%;padding:6px 9px;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);margin-top:3px;outline:none"></div>'
+        +'<label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Action corrective</label>'
+        +'<textarea class="nc-suivi-input" id="suivi_txt_'+uid+'">'+curAction+'</textarea>'
+        +'<button class="nc-suivi-save" onclick="saveNcAction(\''+uid+'\')">Enregistrer</button></div>';
+      btn.remove();
+    }
+  });
+}
+async function saveNcAction(uid){
+  var txt=document.getElementById('suivi_txt_'+uid); if(!txt) return;
+  var val=txt.value.trim();
+  var nomEl=document.getElementById('suivi_nom_'+uid);
+  var nom=nomEl?nomEl.value.trim():savedUsername;
+  if(nom){ savedUsername=nom; localStorage.setItem('saved_username',nom); }
+  var now=new Date();
+  var dateStr=now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+  var actionData=val?JSON.stringify({action:val,nom:nom,date:dateStr}):'';
+  await saveSuiviAction(uid,actionData);
+  toast(val?'Action corrective sauvegardée !':'Action retirée.');
+  renderNC();
+}
 
 // ════════════════════════════════════════════════════════════
 // MODIFICATIONS F03 TAB
@@ -917,7 +1047,7 @@ function renderMods() {
     var journalHtml = journal.length
       ? journal.map(function(e){ return '<div class="journal-entry"><div class="journal-date">'+e.date+' — '+e.nom+'</div><div>'+(e.statut==='attente'?'⏳ En attente':e.statut==='cours'?'🔄 En cours':'✓ Complété')+(e.comment?' — '+e.comment:'')+'</div></div>'; }).join('')
       : '<div class="journal-empty">Aucun suivi enregistré</div>';
-    return '<div class="mod-card" id="modcard_'+r.id+'"><div class="mod-card-top"><div><div class="mod-date">'+fmtDate(r.date)+'</div><div class="mod-nom">'+r.nom+'</div></div><button onclick="exportF03PDF(\''+r.id+'\')" class="export-btn no-print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button></div>'+(metaStr?'<div class="mod-meta">'+metaStr+'</div>':'')+'<div class="mod-tags">'+tags+'</div><div class="mod-desc">'+r.description+'</div>'+schemaHtml+'<div class="statut-row"><span class="statut-btn '+statut+'">'+statutLabel+'</span><button class="suivi-toggle no-print" onclick="toggleSuiviPanel(\''+r.id+'\')">Suivi ▼</button></div><div class="suivi-panel" id="suivipanel_'+r.id+'"><div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">Journal</div>'+journalHtml+'<div class="statut-change-form"><label>Votre nom</label><input type="text" id="suivinom_'+r.id+'" value="'+currentUserName+'" placeholder="Votre nom..." oninput="currentUserName=this.value;localStorage.setItem(\'suivi_username\',this.value)"><label>Nouveau statut</label><div class="statut-btns-row"><button class="statut-choice attente" onclick="setSuiviStatut(\''+r.id+'\',\'attente\')">⏳ En attente</button><button class="statut-choice cours" onclick="setSuiviStatut(\''+r.id+'\',\'cours\')">🔄 En cours</button><button class="statut-choice complete" onclick="setSuiviStatut(\''+r.id+'\',\'complete\')">✓ Complété</button></div><label>Commentaire (optionnel)</label><textarea class="comment-input" id="suivicomment_'+r.id+'" placeholder="Ajouter un commentaire..."></textarea><button class="btn-enregistrer" onclick="enregistrerSuivi(\''+r.id+'\')">Enregistrer</button></div></div></div>';
+    return '<div class="mod-card" id="modcard_'+r.id+'"><div class="mod-card-top"><div><div class="mod-date">'+fmtDate(r.date)+'</div><div class="mod-nom">'+r.nom+'</div></div><button onclick="exportF03PDF(\''+r.id+'\')" class="export-btn no-print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button></div>'+(metaStr?'<div class="mod-meta">'+metaStr+'</div>':'')+'<div class="mod-tags">'+tags+'</div><div class="mod-desc">'+r.description+'</div>'+schemaHtml+'<div class="statut-row"><span class="statut-btn '+statut+'">'+statutLabel+'</span><button class="suivi-toggle no-print" onclick="toggleSuiviPanel(\''+r.id+'\')">Suivi ▼</button></div><div class="suivi-panel" id="suivipanel_'+r.id+'"><div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">Journal</div>'+journalHtml+'<div class="statut-change-form"><label>Votre nom</label><input type="text" id="suivinom_'+r.id+'" value="'+(currentUserName||savedUsername)+'" placeholder="Votre nom..." oninput="currentUserName=this.value;localStorage.setItem(\'suivi_username\',this.value)"><label>Nouveau statut</label><div class="statut-btns-row"><button class="statut-choice attente" onclick="setSuiviStatut(\''+r.id+'\',\'attente\')">⏳ En attente</button><button class="statut-choice cours" onclick="setSuiviStatut(\''+r.id+'\',\'cours\')">🔄 En cours</button><button class="statut-choice complete" onclick="setSuiviStatut(\''+r.id+'\',\'complete\')">✓ Complété</button></div><label>Commentaire (optionnel)</label><textarea class="comment-input" id="suivicomment_'+r.id+'" placeholder="Ajouter un commentaire..."></textarea><button class="btn-enregistrer" onclick="enregistrerSuivi(\''+r.id+'\')">Enregistrer</button></div></div></div>';
   }).join('');
 
   el.innerHTML=statutF+uniteF+elF+dateF+'<p style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:.5rem">'+filtered.length+' modification(s)</p>'+(filtered.length?cards:'<div class="empty-state" style="padding:1.5rem"><p>Aucune modification pour ces filtres</p></div>');
@@ -1033,6 +1163,11 @@ function toast(msg, err) {
 // ════════════════════════════════════════════════════════════
 document.getElementById('insp-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('f03-date').value = new Date().toISOString().split('T')[0];
+// Pré-remplir les champs nom avec le nom sauvegardé
+if (savedUsername) {
+  document.getElementById('insp-name').value = savedUsername;
+  document.getElementById('f03-nom').value = savedUsername;
+}
 initInspState();
 buildInspForm();
 currentForm.sections.forEach(function(s){ updateSectionCount(s.id); });
