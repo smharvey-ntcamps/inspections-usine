@@ -248,6 +248,129 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
   .app{max-width:100%}
   body{background:#fff}
 }
+
+/* ── CONTRÔLE QUALITÉ ── */
+.cq-module-list{display:flex;flex-direction:column;gap:.6rem}
+.cq-module-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:.85rem 1rem;cursor:pointer;transition:.15s;user-select:none}
+.cq-module-card:active{transform:scale(.99)}
+.cq-module-card.st-ok{border-color:var(--green)}
+.cq-module-card.st-warn{border-color:var(--amber)}
+.cq-module-card.st-nc{border-color:var(--red)}
+.cq-module-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.cq-module-id{font-size:15px;font-weight:600}
+.cq-module-type{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px}
+.cq-pill{font-size:10px;font-family:var(--mono);font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.cq-pill.ok{background:var(--green-light);color:var(--green)}
+.cq-pill.warn{background:var(--amber-light);color:var(--amber)}
+.cq-pill.nc{background:var(--red-light);color:var(--red)}
+.cq-pill.new{background:var(--gray-light);color:var(--gray)}
+.cq-steps-row{display:flex;gap:5px;margin-top:.55rem}
+.cq-step-dot{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg);color:var(--text3)}
+.cq-step-dot.done{background:var(--green-light);color:var(--green);border-color:var(--green)}
+.cq-step-dot.partial{background:var(--amber-light);color:var(--amber);border-color:var(--amber)}
+.cq-new-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:.75rem}
+.cq-new-form h3{font-size:13px;font-weight:600;margin-bottom:.75rem;color:var(--teal-dark)}
+.cq-back-btn{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:500;color:var(--teal-mid);background:none;border:none;cursor:pointer;padding:0;margin-bottom:.9rem}
+.cq-module-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.85rem 1rem;margin-bottom:.85rem}
+.cq-module-header-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px}
+.cq-module-header h2{font-size:16px;font-weight:600}
+.cq-module-header p{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.cq-phase-tabs{display:flex;gap:5px;margin-bottom:.85rem}
+.cq-phase-tab{flex:1;padding:8px 4px;font-size:11px;font-weight:600;font-family:var(--mono);text-align:center;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;background:var(--bg);color:var(--text3);transition:.15s}
+.cq-phase-tab.active{background:var(--teal-dark);color:#fff;border-color:var(--teal-dark)}
+.cq-phase-tab.done{border-color:var(--green);color:var(--green)}
+.cq-phase-tab.partial{border-color:var(--amber);color:var(--amber)}
+.cq-phase-panel{display:none}
+.cq-phase-panel.active{display:block}
+.cq-phase-meta{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:.75rem}
+.cq-phase-meta .field{margin-bottom:.5rem}
+.cq-phase-meta .field:last-child{margin-bottom:0}
+.cq-banner{border-radius:var(--radius);padding:.55rem .85rem;font-size:12px;margin-bottom:.7rem;display:flex;align-items:center;gap:6px}
+.cq-banner.ok{background:var(--green-light);color:var(--green);border:1px solid var(--green)}
+.cq-banner.warn{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber)}
+.cq-filter-row{display:flex;align-items:center;justify-content:flex-end;margin-bottom:.65rem}
+.cq-filter-label{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.cq-toggle-btn{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--teal-mid);background:var(--teal-light);border:1.5px solid var(--teal-mid);border-radius:20px;cursor:pointer;padding:5px 12px;transition:.15s}
+.cq-toggle-btn:active{transform:scale(.97)}
+/* CQ badge extra states */
+.badge.sel-REV{background:#EEE8FF;color:#6B2FE0;border-color:#6B2FE0}
+.cq-item-conform{display:none}
+.cq-item-conform.show{display:block}
+.cq-imp-badge{font-size:9px;font-family:var(--mono);background:var(--amber-light);color:var(--amber);padding:1px 5px;border-radius:4px;flex-shrink:0;margin-top:3px}
+
+/* Historique des visites */
+.cq-visit-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:.6rem}
+.cq-visit-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
+.cq-visit-title{font-size:13px;font-weight:600}
+.cq-visit-meta{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:.5rem}
+.cq-visit-scores{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.4rem}
+.cq-visit-nc{margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border)}
+.cq-visit-nc-title{font-size:10px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);margin-bottom:.35rem}
+.cq-visit-nc-item{font-size:12px;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border);line-height:1.4}
+.cq-visit-nc-item:last-child{border:none}
+.cq-visit-nc-note{font-size:11px;color:var(--text3);margin-top:2px}
+.cq-last-visit{background:var(--blue-light);border:1px solid rgba(33,118,204,.25);border-radius:var(--radius);padding:.6rem .85rem;font-size:12px;color:var(--blue-dark);margin-bottom:.7rem;display:flex;align-items:center;gap:6px}
+.cq-btn-row{display:flex;gap:8px;margin-top:.75rem}
+.cq-btn-row .btn{margin:0}
+.btn-termine{background:var(--teal-dark);color:#fff}
+.btn-termine:hover{background:var(--teal)}
+
+/* Sous-navigation Qualité */
+.cq-subnav{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0}
+.cq-subnav-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 8px;font-size:12px;font-weight:600;font-family:var(--font);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--text3);cursor:pointer;transition:.15s}
+.cq-subnav-btn.active{color:var(--teal-mid);border-bottom-color:var(--teal-mid)}
+.cq-taches-badge{background:var(--red);color:#fff;font-size:10px;font-family:var(--mono);font-weight:700;padding:1px 6px;border-radius:20px;min-width:18px;text-align:center;display:inline-block}
+
+/* Tâches NC */
+.cq-tache-group{margin-bottom:1rem}
+.cq-tache-group-header{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem;display:flex;align-items:center;gap:6px;padding:.5rem 0 .3rem}
+.cq-tache-group-tag{background:var(--teal-light);color:var(--teal);font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500;text-transform:none;letter-spacing:0}
+.cq-tache-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.7rem .9rem;margin-bottom:.4rem;display:flex;align-items:flex-start;gap:.75rem;transition:opacity .25s}
+.cq-tache-card.done{opacity:.4}
+.cq-tache-check{width:20px;height:20px;flex-shrink:0;cursor:pointer;accent-color:var(--teal-mid);margin-top:2px}
+.cq-tache-body{flex:1;min-width:0}
+.cq-tache-text{font-size:13px;color:var(--text);line-height:1.45}
+.cq-tache-card.done .cq-tache-text{text-decoration:line-through;color:var(--text3)}
+.cq-tache-meta{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px}
+.cq-tache-note{font-size:11px;color:var(--text2);margin-top:3px;font-style:italic}
+.cq-taches-empty{text-align:center;padding:2.5rem 1rem;color:var(--text3)}
+.cq-taches-empty svg{width:36px;height:36px;margin-bottom:.5rem;opacity:.35;display:block;margin-left:auto;margin-right:auto}
+.cq-taches-toggle{display:flex;justify-content:flex-end;margin-bottom:.65rem}
+.cq-taches-toggle button{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--text3);background:var(--gray-light);border:1px solid var(--border);border-radius:20px;cursor:pointer;padding:4px 12px}
+.cq-type-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cq-type-item:last-child{border-bottom:none}
+.cq-type-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 4px;line-height:1;border-radius:4px}
+.cq-type-del:hover{color:var(--red);background:var(--red-light)}
+
+/* ── Tableau de bord direction ── */
+.cq-dash-header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--teal-dark);color:#fff;border-radius:var(--radius-lg);cursor:pointer;font-size:13px;font-weight:600;margin-top:.75rem;user-select:none}
+#cq-dash-body{overflow:hidden;transition:max-height .35s ease;max-height:2000px}
+#cq-dash-body.collapsed{max-height:0}
+.cq-dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:.85rem 0 .6rem}
+.cq-dash-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.7rem .5rem;text-align:center}
+.cq-dash-stat-val{font-size:24px;font-weight:700;font-family:var(--mono);line-height:1}
+.cq-dash-stat-lbl{font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--mono)}
+.cq-dash-stat.ok .cq-dash-stat-val{color:var(--green)}
+.cq-dash-stat.warn .cq-dash-stat-val{color:var(--amber)}
+.cq-dash-stat.danger .cq-dash-stat-val{color:var(--red)}
+.cq-dash-global{margin-bottom:.85rem}
+.cq-dash-global-label{display:flex;justify-content:space-between;font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:5px}
+.cq-dash-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.cq-dash-bar-fill{height:6px;border-radius:3px;background:var(--teal-mid);transition:width .6s ease}
+.cq-dash-section-title{font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:.5rem;margin-top:.75rem}
+.cq-dash-module-row{background:var(--surface);border:1px solid var(--border);border-left-width:3px;border-radius:var(--radius);padding:.65rem .85rem;margin-bottom:.4rem;cursor:pointer;transition:.15s}
+.cq-dash-module-row:active{transform:scale(.99)}
+.cq-dash-module-row.st-nc{border-left-color:var(--red)}
+.cq-dash-module-row.st-warn{border-left-color:var(--amber)}
+.cq-dash-module-row.st-ok{border-left-color:var(--green)}
+.cq-dash-module-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
+.cq-dash-module-name{font-size:13px;font-weight:600}
+.cq-dash-module-type{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.cq-dash-phases{display:flex;gap:4px}
+.cq-dash-phase{font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:4px;border:1px solid var(--border)}
+.cq-dash-phase.done{background:var(--green-light);color:var(--green);border-color:var(--green)}
+.cq-dash-phase.partial{background:var(--amber-light);color:var(--amber);border-color:var(--amber)}
+.cq-dash-phase.empty{background:var(--bg);color:var(--text3)}
 </style>
 </head>
 <body>
@@ -276,6 +399,10 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
     <button class="nav-btn" onclick="showTab('mods',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Modifs plans
+    </button>
+    <button class="nav-btn" onclick="showTab('qualite',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+      Qualité
     </button>
 
   </nav>
@@ -334,7 +461,17 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
         <div class="field"><label>Date</label><input type="date" id="f03-date"></div>
       </div>
       <div class="meta-grid">
-        <div class="field"><label>Numéro d'unité</label><input type="text" id="f03-unite" placeholder="Ex: U-101..."></div>
+        <div class="field"><label>Numéro d'unité</label>
+          <div style="position:relative">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text3);pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="f03-unite" placeholder="Ex: U-101..." autocomplete="off"
+              oninput="f03UniteSuggest()"
+              onfocus="f03UniteSuggest()"
+              onblur="setTimeout(function(){var s=document.getElementById('f03-unite-suggest');if(s)s.style.display='none'},150)"
+              style="width:100%;padding:8px 10px 8px 30px;font-size:13px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none">
+            <div id="f03-unite-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);z-index:50;max-height:180px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)"></div>
+          </div>
+        </div>
         <div class="field"><label>Numéro de page</label><input type="text" id="f03-page" placeholder="Ex: P-03..."></div>
       </div>
       <div class="section-title">Schéma — Indiquer l'emplacement</div>
@@ -383,7 +520,101 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
     <div id="mods-content"></div>
   </div>
 
-</div>
+  <!-- ═══ CONTRÔLE QUALITÉ ═══ -->
+  <div id="tab-qualite" class="screen">
+
+    <!-- Tableau de bord direction -->
+    <div id="cq-dashboard">
+      <div class="cq-dash-header" onclick="cqToggleDash()">
+        <span style="display:flex;align-items:center;gap:7px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Vue d'ensemble
+        </span>
+        <svg id="cq-dash-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div id="cq-dash-body">
+        <div id="cq-dash-content"></div>
+      </div>
+    </div>
+
+    <!-- Sous-navigation Modules / Tâches -->
+    <div class="cq-subnav no-print">
+      <button class="cq-subnav-btn active" id="cq-subnav-modules" onclick="cqSubNav('modules')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Modules
+      </button>
+      <button class="cq-subnav-btn" id="cq-subnav-taches" onclick="cqSubNav('taches')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Tâches NC
+        <span id="cq-taches-badge" style="display:none"></span>
+      </button>
+    </div>
+
+    <!-- Vue liste des modules -->
+    <div id="cq-list-view">
+      <div style="margin-bottom:.75rem"></div>
+      <button class="btn btn-primary" style="margin-bottom:1rem" onclick="cqShowNewForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouveau contrôle qualité
+      </button>
+      <div id="cq-new-form" style="display:none" class="cq-new-form">
+        <h3>Nouveau dossier de contrôle qualité</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.75rem">
+          <div class="field" style="margin:0"><label>N° d'unité</label><input type="text" id="cq-new-unit" placeholder="ex: D-2025-01"></div>
+          <div class="field" style="margin:0">
+            <label style="display:flex;align-items:center;justify-content:space-between">
+              Type de module
+              <button onclick="cqShowManageTypes()" style="font-size:10px;font-family:var(--mono);color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;font-weight:400">Gérer</button>
+            </label>
+            <input type="text" id="cq-new-type" placeholder="ex: Dortoir" list="cq-type-list" autocomplete="off">
+            <datalist id="cq-type-list"></datalist>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" style="margin:0" onclick="cqCreateModule()">Créer le dossier</button>
+          <button class="btn btn-ghost" style="margin:0;flex:0 0 auto;width:auto;padding:11px 16px" onclick="cqHideNewForm()">Annuler</button>
+        </div>
+      </div>
+
+      <!-- Recherche + tri -->
+      <div style="display:flex;gap:8px;margin-bottom:.75rem">
+        <div style="position:relative;flex:1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text3);pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="cq-search" placeholder="Rechercher un module..." autocomplete="off"
+            oninput="renderCQList();cqSearchSuggest()"
+            onfocus="cqSearchSuggest()"
+            onblur="setTimeout(function(){document.getElementById('cq-suggest').style.display='none'},150)"
+            style="width:100%;padding:8px 10px 8px 30px;font-size:13px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none">
+          <div id="cq-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);z-index:50;max-height:180px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)"></div>
+        </div>
+        <select id="cq-sort" onchange="renderCQList()"
+          style="padding:8px 10px;font-size:13px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;cursor:pointer">
+          <option value="date">↓ Date</option>
+          <option value="unit">A–Z Unité</option>
+          <option value="type">A–Z Type</option>
+          <option value="status">Statut</option>
+        </select>
+      </div>
+
+      <div id="cq-module-list" class="cq-module-list"></div>
+    </div>
+
+    <!-- Vue tâches NC -->
+    <div id="cq-taches-view" style="display:none">
+      <div style="margin-bottom:.75rem"></div>
+      <div id="cq-taches-content"></div>
+    </div>
+
+    <!-- Vue détail d'un module -->
+    <div id="cq-detail-view" style="display:none">
+      <div style="margin-bottom:.75rem"></div>
+      <button class="cq-back-btn" onclick="cqBackToList()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><polyline points="15 18 9 12 15 6"/></svg>
+        Tous les modules
+      </button>
+      <div id="cq-detail-content"></div>
+    </div>
+  </div>
 
 <div class="confirm-overlay" id="confirm-overlay" style="display:none">
   <div class="confirm-box">
@@ -395,11 +626,46 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
     </div>
   </div>
 </div>
+
+<!-- Modal suppression visite CQ (simple oui/non) -->
+<div class="confirm-overlay" id="cq-visit-confirm" style="display:none">
+  <div class="confirm-box">
+    <h3>Supprimer cette visite ?</h3>
+    <p>L'entrée d'historique sera supprimée. Les données actuelles du dossier ne sont pas affectées.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="cqCloseVisitConfirm()">Annuler</button>
+      <button class="btn-confirm-del" onclick="cqConfirmDeleteVisit()">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal gestion des types de module -->
+<div class="confirm-overlay" id="cq-types-modal" style="display:none">
+  <div class="confirm-box" style="width:100%;max-width:320px">
+    <h3 style="margin-bottom:.75rem">Types de module mémorisés</h3>
+    <div id="cq-types-list" style="margin-bottom:1rem"></div>
+    <button class="btn btn-ghost" style="margin:0" onclick="cqCloseManageTypes()">Fermer</button>
+  </div>
+</div>
+<div class="confirm-overlay" id="cq-module-confirm" style="display:none">
+  <div class="confirm-box">
+    <h3>Supprimer ce dossier ?</h3>
+    <p>Toutes les données de ce contrôle qualité seront supprimées définitivement, incluant l'historique des visites.</p>
+    <p style="margin-top:.5rem;margin-bottom:.75rem;font-size:12px;color:var(--text3)">Tapez <strong style="color:var(--text)">Confirmer</strong> pour continuer.</p>
+    <input type="text" id="cq-confirm-input" placeholder="Confirmer" autocomplete="off"
+      style="width:100%;padding:9px 11px;font-size:14px;border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:1rem;outline:none;font-family:var(--font)"
+      oninput="cqCheckConfirmInput()">
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="cqCloseModuleConfirm()">Annuler</button>
+      <button class="btn-confirm-del" id="cq-confirm-del-btn" onclick="cqConfirmDeleteModule()" disabled style="opacity:.4;cursor:not-allowed">Supprimer</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
-const INSP_API = 'https://script.google.com/macros/s/AKfycby-l_5oVotZ8TXH5NIeqNRSpCvw7cV1F1XGE3HFVNEFRVeLf6U2ZBD86Y6kZZX918C_/exec';
-const F03_API  = 'https://script.google.com/macros/s/AKfycby-l_5oVotZ8TXH5NIeqNRSpCvw7cV1F1XGE3HFVNEFRVeLf6U2ZBD86Y6kZZX918C_/exec';
+const INSP_API = 'https://script.google.com/macros/s/AKfycbxlk41R7pJD6WBJLNYJFksoj0Nm17uSIGQwa1pgruF2YCmAuLTlY9hKwJm62hHSxwHu/exec';
+const F03_API  = 'https://script.google.com/macros/s/AKfycbxlk41R7pJD6WBJLNYJFksoj0Nm17uSIGQwa1pgruF2YCmAuLTlY9hKwJm62hHSxwHu/exec';
 
 // ════════════════════════════════════════════════════════════
 // DONNÉES
@@ -481,6 +747,7 @@ async function loadAll(force) {
     if (ji.suivi) { suiviActions = ji.suivi; localStorage.setItem('suivi_actions', JSON.stringify(suiviActions)); }
     f03Records = (ji.modifications||[]).map(function(r){ return Object.assign({},r,{elements:typeof r.elements==='string'?JSON.parse(r.elements):r.elements}); }).reverse();
     f03Records.forEach(function(r){ if (r.statut && r.statut !== 'attente') f03Statuts[r.id] = r.statut; });
+    f03UpdateUniteList();
     if (ji.ncStatuts) { ncStatuts = ji.ncStatuts; localStorage.setItem('nc_statuts', JSON.stringify(ncStatuts)); }
     if (ji.ncJournal) { ncJournal = ji.ncJournal; localStorage.setItem('nc_journal', JSON.stringify(ncJournal)); }
     if (ji.journal) {
@@ -784,6 +1051,11 @@ async function submitF03() {
   var autre=document.getElementById('f03-autre').value.trim();
   var elements=selectedElements.map(function(e){ return (e==='Autre (spécifier)'&&autre)?'Autre: '+autre:e; });
   var payload={id:'F03-'+Date.now().toString(),type:'f03',date:date,nom:nom,unite:unite,page:page,elements:elements,description:desc,schema:canvas.toDataURL('image/png'),statut:'attente'};
+
+  // Mémoriser l'unité dans la datalist
+  var f03Units = JSON.parse(localStorage.getItem('f03_units')||'[]');
+  if(unite && !f03Units.includes(unite)){ f03Units.push(unite); localStorage.setItem('f03_units', JSON.stringify(f03Units)); }
+  f03UpdateUniteList();
   var btn=document.getElementById('btn-save-f03'); btn.disabled=true; btn.textContent='Sauvegarde...';
   var ok=await postF03(payload);
   btn.disabled=false; btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg> Soumettre la modification';
@@ -808,6 +1080,7 @@ async function showTab(tab, btn) {
   if(tab==='history'){ document.getElementById('history-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderHistory(); }
   if(tab==='nc'){ if(inspRecords.length>0) renderNC(); else { document.getElementById('nc-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderNC(); } }
   if(tab==='mods'){ if(f03Records.length>0) renderMods(); else { document.getElementById('mods-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderMods(); } }
+  if(tab==='qualite'){ cqInit(); }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1023,7 +1296,16 @@ function renderMods() {
   var statutF='<div class="filter-row">'+[['tous','Tous'],['attente','⏳ En attente'],['cours','🔄 En cours'],['complete','✓ Complété']].map(function(s){ return '<button class="filter-btn'+(modFilters.statut===s[0]?' active blue':'')+'" onclick="modFilters.statut=\''+s[0]+'\';renderMods()">'+s[1]+'</button>'; }).join('')+'</div>';
 
   var allUnites=[...new Set(f03Records.filter(function(r){ return r.unite; }).map(function(r){ return r.unite; }))].sort();
-  var uniteF='<div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem"><label style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Unité</label><select onchange="modFilters.type=this.value;renderMods()" style="font-size:13px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;flex:1"><option value="tous">Toutes les unités</option>'+allUnites.map(function(u){ return '<option value="'+u+'"'+(modFilters.type===u?' selected':'')+'>'+u+'</option>'; }).join('')+'</select></div>';
+  var uniteF='<div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem"><label style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Unité</label>'
+    +'<div style="position:relative;flex:1">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--text3);pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+    +'<input type="text" id="mod-unite-filter" placeholder="Toutes les unités..." autocomplete="off" value="'+(modFilters.type==='tous'?'':modFilters.type)+'"'
+    +' oninput="modFilters.type=this.value.trim()||\'tous\';renderMods();modUniteSuggest()"'
+    +' onfocus="modUniteSuggest()"'
+    +' onblur="setTimeout(function(){var s=document.getElementById(\'mod-unite-suggest\');if(s)s.style.display=\'none\'},150)"'
+    +' style="width:100%;padding:7px 28px;font-size:13px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none">'
+    +'<div id="mod-unite-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);z-index:50;max-height:160px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)"></div>'
+    +'</div></div>';
 
   var allEls=[...new Set(f03Records.flatMap(function(r){ return r.elements||[]; }))].sort();
   var elF='<div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem"><label style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Élément</label><select onchange="modFilters.el=this.value;renderMods()" style="font-size:13px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;flex:1"><option value="tous">Tous les éléments</option>'+allEls.map(function(e){ return '<option value="'+e+'"'+((modFilters.el||'tous')===e?' selected':'')+'>'+e+'</option>'; }).join('')+'</select></div>';
@@ -1032,7 +1314,7 @@ function renderMods() {
 
   var filtered=f03Records.slice();
   if(modFilters.statut!=='tous') filtered=filtered.filter(function(r){ return (f03Statuts[r.id]||'attente')===modFilters.statut; });
-  if(modFilters.type&&modFilters.type!=='tous') filtered=filtered.filter(function(r){ return r.unite===modFilters.type; });
+  if(modFilters.type&&modFilters.type!=='tous') filtered=filtered.filter(function(r){ return r.unite&&r.unite.toLowerCase().includes(modFilters.type.toLowerCase()); });
   if(modFilters.el&&modFilters.el!=='tous') filtered=filtered.filter(function(r){ return (r.elements||[]).indexOf(modFilters.el)>=0; });
   if(modFilters.date_from) filtered=filtered.filter(function(r){ return r.date>=modFilters.date_from; });
   if(modFilters.date_to) filtered=filtered.filter(function(r){ return r.date<=modFilters.date_to; });
@@ -1173,6 +1455,1168 @@ buildInspForm();
 currentForm.sections.forEach(function(s){ updateSectionCount(s.id); });
 buildElements();
 initCanvas();
+f03UpdateUniteList();
+
+// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+// F03 — Datalist unité
+// ════════════════════════════════════════════════════════════
+function f03UpdateUniteList(){
+  // Fusionner localStorage + unités tirées des enregistrements existants
+  var stored = JSON.parse(localStorage.getItem('f03_units')||'[]');
+  var fromRecords = (typeof f03Records !== 'undefined')
+    ? f03Records.filter(function(r){ return r.unite; }).map(function(r){ return r.unite; })
+    : [];
+  var all = stored.slice();
+  fromRecords.forEach(function(u){ if(u && !all.includes(u)) all.push(u); });
+  all.sort();
+  // Stocker la liste fusionnée pour f03UniteSuggest
+  window._f03AllUnits = all;
+}
+
+function modUniteSuggest(){
+  var input = document.getElementById('mod-unite-filter');
+  var box = document.getElementById('mod-unite-suggest');
+  if(!input || !box) return;
+  var q = input.value.trim().toLowerCase();
+  // Toutes les unités des enregistrements f03
+  var all = [...new Set((typeof f03Records!=='undefined'?f03Records:[])
+    .filter(function(r){ return r.unite; })
+    .map(function(r){ return r.unite; }))].sort();
+  var matches = q
+    ? all.filter(function(u){ return u.toLowerCase().includes(q) && u.toLowerCase()!==q; })
+    : all;
+  if(!matches.length){ box.style.display='none'; return; }
+  box.innerHTML = matches.slice(0,8).map(function(u){
+    var highlighted = u;
+    if(q){
+      var idx = u.toLowerCase().indexOf(q);
+      highlighted = u.slice(0,idx)+'<strong>'+u.slice(idx,idx+q.length)+'</strong>'+u.slice(idx+q.length);
+    }
+    return '<div style="padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border)"'
+      +' onmousedown="document.getElementById(\'mod-unite-filter\').value=\''+u.replace(/'/g,"\\'")+"';"
+      +"modFilters.type='"+u.replace(/'/g,"\\'")+"';"
+      +"renderMods();"
+      +"document.getElementById('mod-unite-suggest').style.display='none'\">"
+      +highlighted+'</div>';
+  }).join('');
+  box.style.display = 'block';
+}
+
+function f03UniteSuggest(){
+  var input = document.getElementById('f03-unite');
+  var box = document.getElementById('f03-unite-suggest');
+  if(!input || !box) return;
+  var q = input.value.trim().toLowerCase();
+  var all = window._f03AllUnits || [];
+
+  // Filtrer par "contient" — si vide, tout afficher
+  var matches = q
+    ? all.filter(function(u){ return u.toLowerCase().includes(q) && u.toLowerCase() !== q; })
+    : all;
+
+  if(!matches.length){ box.style.display='none'; return; }
+
+  box.innerHTML = matches.slice(0,8).map(function(u){
+    var highlighted = u;
+    if(q){
+      var idx = u.toLowerCase().indexOf(q);
+      highlighted = u.slice(0,idx)+'<strong>'+u.slice(idx,idx+q.length)+'</strong>'+u.slice(idx+q.length);
+    }
+    return '<div style="padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border)" '
+      +'onmousedown="document.getElementById(\'f03-unite\').value=\''+u.replace(/'/g,"\\'")+"';document.getElementById('f03-unite-suggest').style.display='none'\">"
+      +highlighted+'</div>';
+  }).join('');
+  box.style.display = 'block';
+}
+
+// CONTRÔLE QUALITÉ — F02
+// ════════════════════════════════════════════════════════════
+
+var CQ_PHASES = [
+  {
+    id:'avant', label:'Avant', title:'Avant le début des travaux',
+    sections:[
+      {title:'Vérification du châssis d\'acier', items:[
+        {id:'a1',imp:1,text:'Vérification du châssis d\'acier (général)'},
+        {id:'a2',imp:3,text:'Les soudures sont uniformes et lisses, sans défauts (fissures, porosités, surplus de métal)'},
+        {id:'a3',imp:2,text:'Aucune rouille importante sur le frame d\'acier'},
+        {id:'a4',imp:2,text:'La peinture est saine et n\'est pas écaillée'},
+        {id:'a5',imp:2,text:'Les flèches indiquant l\'emplacement des cages sont bien identifiées sur le frame d\'acier'}
+      ]}
+    ]
+  },
+  {
+    id:'pendant', label:'Pendant', title:'Pendant les travaux',
+    sections:[
+      {title:'Vérifications structurales', items:[
+        {id:'p1',imp:5,text:'Le vissage du plancher au frame d\'acier est conforme aux plans (quantité, type)'},
+        {id:'p2',imp:5,text:'Le vissage des murs est conforme aux plans (quantité, type)'},
+        {id:'p3',imp:5,text:'Le vissage des plaques d\'acier aux murs de périmètre est conforme aux plans (quantité, type)'},
+        {id:'p4',imp:4,text:'Les colonnes et poutres GlueLam sont installées conformément aux plans'},
+        {id:'p5',imp:4,text:'La toiture est saine et toutes les ouvertures au toit sont bien scellées — aucun risque d\'infiltration d\'eau'}
+      ]}
+    ]
+  },
+  {
+    id:'apres', label:'Après', title:'Après les travaux',
+    sections:[
+      {title:'Revêtement et finition extérieur', items:[
+        {id:'r1',imp:3,text:'La tôle est posée dans le bon sens (sens du vent)'},
+        {id:'r2',imp:3,text:'Les tôles sont bien vissées (vis alignées, aucune vis manquante)'},
+        {id:'r3',imp:3,text:'Aucune bosse (bris) sur le revêtement'},
+        {id:'r4',imp:3,text:'Les larmiers sont installés et conformes (au-dessus de chaque ouverture)'},
+        {id:'r5',imp:3,text:'Les joints de scellants sont faits et conformes (esthétique et durabilité)'}
+      ]},
+      {title:'Sous plancher (isolation, plomberie, électricité)', items:[
+        {id:'s1',imp:4,text:'L\'épaisseur d\'uréthane sous le module est uniforme (aucune cavité visible)'},
+        {id:'s2',imp:4,text:'L\'isolant rigide 2po. des murs est appuyé complètement sur les parois de CLT'},
+        {id:'s3',imp:4,text:'Aucune zone sans uréthane sous le module'},
+        {id:'s4',imp:4,text:'La section plomberie (panneaux) est bien scellée et isolée'},
+        {id:'s5',imp:3,text:'Le fil tek est dans l\'uréthane (non visible)'},
+        {id:'s6',imp:3,text:'Le câble de mise à la terre est bien attaché (pour le transport)'},
+        {id:'s7',imp:4,text:'L\'entrée d\'eau est dégagée — tuyau carlon 0-3/4po. isolé passe dans le trou en forêt'},
+        {id:'s8',imp:4,text:'Aucun tuyau ne dépasse le frame d\'acier (pour transport)'},
+        {id:'s9',imp:4,text:'Le branchement du tuyau BNQ 3po. a été testé et se connecte facilement'}
+      ]},
+      {title:'Isolation et insonorisation (intérieur)', items:[
+        {id:'i1',imp:4,text:'Aucun espace d\'air visible entre les murs de divisions de chambre (pas de lumière de la pièce voisine)'},
+        {id:'i2',imp:3,text:'Les vides autour du cabinet de remplissage ont été comblés (isolant rigide ou uréthane)'},
+        {id:'i3',imp:3,text:'Un joint insonorisant a été installé entre les murs en ossature et le CLT'}
+      ]},
+      {title:'Portes et fenêtres', items:[
+        {id:'pf1',imp:3,text:'Le sens d\'ouverture des portes est conforme aux plans'},
+        {id:'pf2',imp:3,text:'Les portes et fenêtres ouvrent et ferment bien'},
+        {id:'pf3',imp:2,text:'Chaque fenêtre a sa manivelle et son moustiquaire installés'},
+        {id:'pf4',imp:3,text:'Les fenêtres sont bien fermées (pour le transport)'}
+      ]},
+      {title:'Chauffage', items:[
+        {id:'ch1',imp:5,text:'Le glycole a été pompé dans le système et tout fonctionne conformément'},
+        {id:'ch2',imp:4,text:'Les fuites ont été réparées (si applicable)'},
+        {id:'ch3',imp:3,text:'Les manifolds et contrôleurs (tekmar) sont identifiés (No. de chambre)'},
+        {id:'ch4',imp:3,text:'Le réservoir a été rempli de carburant'},
+        {id:'ch5',imp:3,text:'Le sifflet du réservoir fonctionne bien'},
+        {id:'ch6',imp:4,text:'La fournaise a été testée et fonctionne conformément'},
+        {id:'ch7',imp:4,text:'Aucune fuite de carburant'},
+        {id:'ch8',imp:4,text:'Les radiateurs et/ou plinthes ont été testés et tout fonctionne conformément'},
+        {id:'ch9',imp:4,text:'L\'échangeur à plaque a été testé et tout fonctionne conformément'},
+        {id:'ch10',imp:3,text:'Les thermostats fonctionnent et contrôlent les bons équipements'},
+        {id:'ch11',imp:3,text:'La porte du cabinet de remplissage ouvre bien'}
+      ]},
+      {title:'Ventilation et climatisation', items:[
+        {id:'v1',imp:4,text:'L\'échangeur d\'air a été testé et les modes de ventilation fonctionnent'},
+        {id:'v2',imp:4,text:'Les prises d\'air (tirées) et sorties (poussées) fonctionnent bien (tester au papier)'},
+        {id:'v3',imp:3,text:'Le tuyau de drain est installé et bien fixé à l\'échangeur'},
+        {id:'v4',imp:4,text:'Les thermopompes ont été mises en marche et fonctionnent bien'},
+        {id:'v5',imp:3,text:'Les télécommandes des thermopompes fonctionnent, sont identifiées et dans leur support mural'},
+        {id:'v6',imp:3,text:'Les climatiseurs portatifs sont bien entreposés pour le transport'}
+      ]},
+      {title:'Plomberie', items:[
+        {id:'pl1',imp:4,text:'(ABS) L\'eau s\'écoule bien — pas d\'accumulation liée à un problème de ventilation'},
+        {id:'pl2',imp:4,text:'(ABS) La toilette et l\'urinoir flush bien'},
+        {id:'pl3',imp:4,text:'(ABS) Aucune fuite sur l\'ensemble du réseau d\'égout'},
+        {id:'pl4',imp:4,text:'(PEX) L\'eau s\'écoule bien dans le réseau'},
+        {id:'pl5',imp:4,text:'(PEX) La robinetterie de la salle de bain a été testée (douche, lavabo, urinoir)'},
+        {id:'pl6',imp:4,text:'(PEX) Aucune fuite sur l\'ensemble du réseau d\'eau'},
+        {id:'pl7',imp:4,text:'L\'eau chaude et l\'eau froide ne sont pas inversées (tester tous les appareils)'},
+        {id:'pl8',imp:3,text:'Les tuyaux d\'eau chaude sont identifiés (tape rouge ou tuyau rouge)'},
+        {id:'pl9',imp:3,text:'Les tuyaux semblent bien fixés'},
+        {id:'pl10',imp:3,text:'Les portes de visites ont été faites et sont faciles d\'utilisation'},
+        {id:'pl11',imp:3,text:'L\'entrée d\'eau et les purges sont identifiées (conciergerie, douche, évier)'}
+      ]},
+      {title:'Électricité', items:[
+        {id:'e1',imp:5,text:'Le courant a été testé et tout fonctionne conformément'},
+        {id:'e2',imp:4,text:'Les disjoncteurs sont identifiés dans le panneau électrique'},
+        {id:'e3',imp:4,text:'Toutes les prises et interrupteurs ont été testés et fonctionnent'},
+        {id:'e4',imp:4,text:'Les gradateurs dans chaque chambre fonctionnent bien (le bouton du bas doit fermer complètement)'},
+        {id:'e5',imp:3,text:'L\'identification des prises, interrupteurs et appareils électriques a été faite'},
+        {id:'e6',imp:4,text:'Les lumières d\'urgence fonctionnent'},
+        {id:'e7',imp:3,text:'Les supports de lumières extérieures sont posés dans le bas des murs près des portes (transport)'}
+      ]},
+      {title:'Télécommunication', items:[
+        {id:'t1',imp:3,text:'La boîte étanche est installée à l\'arrière du module'},
+        {id:'t2',imp:3,text:'La boîte est fermée et barrée avec un crochet attaché à une chaîne'},
+        {id:'t3',imp:3,text:'Le bouchon pour passer les fils est posé et attaché à la boîte avec une chaîne'},
+        {id:'t4',imp:3,text:'Les équipements à l\'intérieur sont installés et fonctionnels'}
+      ]},
+      {title:'Ameublement intérieur', items:[
+        {id:'am1',imp:3,text:'Chaque chambre : chaise pliante, matelas, télévision + télécommande, miroir, crochets (valider quantité aux plans)'},
+        {id:'am2',imp:3,text:'Les TV fonctionnent, télécommandes avec batteries et dans le support mural'},
+        {id:'am3',imp:3,text:'Les distributeurs à papiers et savon sont installés et remplis'},
+        {id:'am4',imp:3,text:'Conciergerie : balais, porte-poussière, chaudière, moppe, papier brun (min 2), papier toilette (min 2), savon (min 1 boîte), rondelles urinoir (min 2)'},
+        {id:'am5',imp:4,text:'2 extincteurs 5lbs dans le module, bien fixés au mur (1 par porte ext.) — dates d\'inspection à jour'}
+      ]},
+      {title:'Identification des équipements', items:[
+        {id:'id1',imp:3,text:'Identification des numéros de chambres (plaques)'},
+        {id:'id2',imp:3,text:'Identification des télécommandes (avec le numéro de la chambre)'},
+        {id:'id3',imp:3,text:'Identification du numéro d\'unité (à l\'avant du module, coin supérieur droit)'},
+        {id:'id4',imp:3,text:'Logo de l\'entreprise posé à l\'avant du module (au-dessus du numéro d\'unité)'}
+      ]},
+      {title:'Autres', items:[
+        {id:'au1',imp:3,text:'Le plan d\'évacuation est lisible et affiché (salle de bain + passage)'},
+        {id:'au2',imp:3,text:'Le ménage a été fait à l\'intérieur'},
+        {id:'au3',imp:4,text:'Les plans annotés (tel que construit) sont complétés et récupérés'}
+      ]},
+      {title:'Préparation au transport', items:[
+        {id:'tr1',imp:4,text:'4 chandelles en acier'},
+        {id:'tr2',imp:4,text:'72 blocs de bois 6x6 (pour 6 cages) minimum'},
+        {id:'tr3',imp:3,text:'Les escaliers d\'aluminium sont bien entreposés et stabilisés dans le module'},
+        {id:'tr4',imp:3,text:'Toile de protection installée sur la/les unités extérieures (compresseurs)'},
+        {id:'tr5',imp:4,text:'Si le dortoir reste dans la cour : air passé dans tout le système et glycol dans les tuyaux'},
+        {id:'tr6',imp:4,text:'Équipements fixés adéquatement'},
+        {id:'tr7',imp:4,text:'La valve de 2po. sur le réservoir de carburant est fermée'}
+      ]}
+    ]
+  }
+];
+
+var cqModules = [];
+var cqCurrent = null;   // index dans cqModules
+var cqPhase = 'avant';
+var cqShowAll = false;  // afficher items conformes ou non
+
+function cqLoad(){ try{ cqModules = JSON.parse(localStorage.getItem('cq_modules')||'[]'); }catch(e){ cqModules=[]; } }
+
+function cqPersist(){
+  localStorage.setItem('cq_modules', JSON.stringify(cqModules));
+}
+
+// Envoie un module modifié vers Google Sheets (fire-and-forget)
+function cqSyncModule(module){
+  try {
+    fetch(INSP_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({ type: 'cq', module: module })
+    });
+  } catch(e) {}
+}
+
+// Envoie une suppression de module vers Google Sheets
+function cqSyncDelete(unit){
+  try {
+    fetch(INSP_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({ type: 'cq_delete', unit: unit })
+    });
+  } catch(e) {}
+}
+
+async function cqInit(){
+  cqActiveSubNav = 'modules';
+  cqCurrent = null;
+  cqLoad();
+  cqShowDetail(false);
+  document.getElementById('cq-list-view').style.display = 'block';
+  document.getElementById('cq-taches-view').style.display = 'none';
+  document.getElementById('cq-subnav-modules').classList.add('active');
+  document.getElementById('cq-subnav-taches').classList.remove('active');
+  renderCQList();
+  renderCQDashboard();
+  cqUpdateTachesBadge();
+
+  try {
+    var res = await fetch(INSP_API + '?action=getCQ');
+    var json = await res.json();
+    if(json.status === 'ok'){
+      // Fusionner les modules
+      if(json.modules){
+        json.modules.forEach(function(sheetMod){
+          var localIdx = cqModules.findIndex(function(m){ return m.unit === sheetMod.unit; });
+          if(localIdx === -1){
+            if(!sheetMod.visits) sheetMod.visits = [];
+            cqModules.push(sheetMod);
+          } else {
+            var sheetDate = sheetMod.updatedAt || '';
+            var localDate = cqModules[localIdx].updatedAt || '';
+            if(sheetDate >= localDate){
+              if(!sheetMod.visits) sheetMod.visits = [];
+              cqModules[localIdx] = sheetMod;
+            }
+          }
+        });
+        localStorage.setItem('cq_modules', JSON.stringify(cqModules));
+        renderCQList();
+        renderCQDashboard();
+        cqUpdateTachesBadge();
+      }
+      // Fusionner les types (Sheets est source de vérité)
+      if(json.types && json.types.length){
+        var localTypes = JSON.parse(localStorage.getItem('cq_types')||'[]');
+        var merged = json.types.slice();
+        localTypes.forEach(function(t){ if(!merged.includes(t)) merged.push(t); });
+        localStorage.setItem('cq_types', JSON.stringify(merged));
+        cqUpdateTypeList();
+      }
+    }
+  } catch(e) {}
+}
+
+var cqDashCollapsed = false;
+
+function cqToggleDash(){
+  cqDashCollapsed = !cqDashCollapsed;
+  var body = document.getElementById('cq-dash-body');
+  var chev = document.getElementById('cq-dash-chev');
+  if(body) body.classList.toggle('collapsed', cqDashCollapsed);
+  if(chev) chev.style.transform = cqDashCollapsed ? 'rotate(-90deg)' : '';
+}
+
+function renderCQDashboard(){
+  var el = document.getElementById('cq-dash-content');
+  if(!el) return;
+
+  if(!cqModules.length){
+    el.innerHTML = '<p style="font-size:12px;color:rgba(255,255,255,.5);padding:.5rem 0;text-align:center">Aucun module créé.</p>';
+    return;
+  }
+
+  // ── Calcul des stats globales ──
+  var total = 0, totalC = 0, totalNC = 0;
+  var nbOk = 0, nbWarn = 0, nbNc = 0;
+
+  cqModules.forEach(function(m){
+    var st = cqModuleSt(m);
+    if(st==='ok') nbOk++;
+    else if(st==='warn') nbWarn++;
+    else nbNc++;
+
+    CQ_PHASES.forEach(function(ph){
+      ph.sections.forEach(function(sec){
+        sec.items.forEach(function(item){
+          var v = m.items[ph.id+'_'+item.id];
+          if(v && v.code){
+            total++;
+            if(v.code==='C'||v.code==='NA') totalC++;
+            if(v.code==='NC') totalNC++;
+          }
+        });
+      });
+    });
+  });
+
+  var pct = total > 0 ? Math.round(totalC/total*100) : 0;
+
+  // ── Stats rapides ──
+  var statsHtml = '<div class="cq-dash-stats">'
+    +'<div class="cq-dash-stat ok"><div class="cq-dash-stat-val">'+nbOk+'</div><div class="cq-dash-stat-lbl">Complétés</div></div>'
+    +'<div class="cq-dash-stat warn"><div class="cq-dash-stat-val">'+nbWarn+'</div><div class="cq-dash-stat-lbl">En cours</div></div>'
+    +'<div class="cq-dash-stat danger"><div class="cq-dash-stat-val">'+nbNc+'</div><div class="cq-dash-stat-lbl">NC actives</div></div>'
+    +'</div>';
+
+  // ── Barre de progression globale ──
+  var barHtml = '<div class="cq-dash-global">'
+    +'<div class="cq-dash-global-label"><span>Conformité globale</span><span>'+totalC+' / '+total+' items ('+pct+'%)</span></div>'
+    +'<div class="cq-dash-bar"><div class="cq-dash-bar-fill" style="width:'+pct+'%"></div></div>'
+    +'</div>';
+
+  // ── Liste des modules triée : NC d'abord, puis En cours, puis Complétés ──
+  var statusOrder = {nc:0, warn:1, ok:2};
+  var sorted = cqModules.map(function(m,idx){ return {m:m,idx:idx}; })
+    .sort(function(a,b){
+      var sa = statusOrder[cqModuleSt(a.m)]??9;
+      var sb = statusOrder[cqModuleSt(b.m)]??9;
+      return sa-sb || a.m.unit.localeCompare(b.m.unit);
+    });
+
+  var rowsHtml = '<div class="cq-dash-section-title">État des modules</div>'
+    + sorted.map(function(e){
+      var m=e.m; var idx=e.idx;
+      var st=cqModuleSt(m);
+
+      // Compter NC actives
+      var ncCount=0;
+      CQ_PHASES.forEach(function(ph){
+        ph.sections.forEach(function(sec){
+          sec.items.forEach(function(item){
+            var v=m.items[ph.id+'_'+item.id];
+            if(v&&v.code==='NC') ncCount++;
+          });
+        });
+      });
+
+      // Phases dots
+      var phases = CQ_PHASES.map(function(ph){
+        var ps=cqPhaseSt(m,ph.id);
+        return '<span class="cq-dash-phase '+ps+'">'+ph.label+'</span>';
+      }).join('');
+
+      var ncBadge = ncCount>0
+        ? '<span style="font-size:11px;font-family:var(--mono);color:var(--red);font-weight:700">⚠ '+ncCount+' NC</span>'
+        : '';
+
+      return '<div class="cq-dash-module-row st-'+st+'" onclick="cqOpenModule('+idx+')">'
+        +'<div class="cq-dash-module-top">'
+        +'<div><span class="cq-dash-module-name">'+m.unit+'</span> <span class="cq-dash-module-type">'+m.type+'</span></div>'
+        +ncBadge
+        +'</div>'
+        +'<div class="cq-dash-phases">'+phases+'</div>'
+        +'</div>';
+    }).join('');
+
+  el.innerHTML = statsHtml + barHtml + rowsHtml;
+}
+
+var cqActiveSubNav = 'modules'; // 'modules' ou 'taches'
+var cqShowReglees = false;       // afficher les tâches réglées
+
+function cqSubNav(which){
+  cqActiveSubNav = which;
+  document.getElementById('cq-subnav-modules').classList.toggle('active', which==='modules');
+  document.getElementById('cq-subnav-taches').classList.toggle('active', which==='taches');
+  document.getElementById('cq-list-view').style.display = (which==='modules' && cqCurrent===null) ? 'block' : 'none';
+  document.getElementById('cq-taches-view').style.display = which==='taches' ? 'block' : 'none';
+  document.getElementById('cq-detail-view').style.display = 'none';
+  if(which==='taches') renderCQTaches();
+  if(which==='modules' && cqCurrent!==null){
+    document.getElementById('cq-detail-view').style.display = 'block';
+  }
+}
+
+function cqShowDetail(show){
+  document.getElementById('cq-list-view').style.display = (!show && cqActiveSubNav==='modules') ? 'block' : 'none';
+  document.getElementById('cq-taches-view').style.display = (!show && cqActiveSubNav==='taches') ? 'block' : 'none';
+  document.getElementById('cq-detail-view').style.display = show ? 'block' : 'none';
+}
+
+function cqBackToList(){
+  cqCurrent = null;
+  cqSubNav(cqActiveSubNav);
+  if(cqActiveSubNav==='modules') renderCQList();
+}
+
+function cqShowNewForm(){
+  document.getElementById('cq-new-form').style.display = 'block';
+  cqUpdateTypeList();
+  setTimeout(function(){ document.getElementById('cq-new-unit').focus(); }, 50);
+}
+
+function cqUpdateTypeList(){
+  var types = JSON.parse(localStorage.getItem('cq_types')||'[]');
+  var dl = document.getElementById('cq-type-list');
+  if(dl) dl.innerHTML = types.map(function(t){ return '<option value="'+t+'">'; }).join('');
+}
+
+function cqSyncTypes(){
+  var types = JSON.parse(localStorage.getItem('cq_types')||'[]');
+  try {
+    fetch(INSP_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({ type: 'cq_types', types: types })
+    });
+  } catch(e) {}
+}
+
+function cqShowManageTypes(){
+  var types = JSON.parse(localStorage.getItem('cq_types')||'[]');
+  var el = document.getElementById('cq-types-list');
+  if(!types.length){
+    el.innerHTML = '<p style="font-size:13px;color:var(--text3);text-align:center;padding:.5rem 0">Aucun type mémorisé.</p>';
+  } else {
+    el.innerHTML = types.map(function(t, i){
+      return '<div class="cq-type-item">'
+        +'<span>'+t+'</span>'
+        +'<button class="cq-type-del" onclick="cqDeleteType('+i+')" title="Supprimer">✕</button>'
+        +'</div>';
+    }).join('');
+  }
+  document.getElementById('cq-types-modal').style.display = 'flex';
+}
+
+function cqDeleteType(idx){
+  var types = JSON.parse(localStorage.getItem('cq_types')||'[]');
+  types.splice(idx, 1);
+  localStorage.setItem('cq_types', JSON.stringify(types));
+  cqUpdateTypeList();
+  cqSyncTypes();
+  cqShowManageTypes();
+}
+
+function cqCloseManageTypes(){
+  document.getElementById('cq-types-modal').style.display = 'none';
+}
+function cqHideNewForm(){
+  document.getElementById('cq-new-form').style.display = 'none';
+  document.getElementById('cq-new-unit').value = '';
+  document.getElementById('cq-new-type').value = '';
+}
+
+function cqCreateModule(){
+  var unit = document.getElementById('cq-new-unit').value.trim();
+  var type = document.getElementById('cq-new-type').value.trim();
+  if(!unit){ toast('Veuillez entrer le numéro d\'unité.',true); return; }
+  if(!type){ toast('Veuillez entrer le type de module.',true); return; }
+  if(cqModules.find(function(m){ return m.unit===unit; })){ toast('Ce numéro d\'unité existe déjà.',true); return; }
+
+  // Mémoriser le type dans la liste
+  var types = JSON.parse(localStorage.getItem('cq_types')||'[]');
+  if(!types.includes(type)){ types.push(type); localStorage.setItem('cq_types', JSON.stringify(types)); cqSyncTypes(); }
+  cqUpdateTypeList();
+
+  // Initialise les items — tous à null
+  var items = {};
+  CQ_PHASES.forEach(function(ph){
+    ph.sections.forEach(function(sec){
+      sec.items.forEach(function(item){
+        items[ph.id+'_'+item.id] = {code:null, note:''};
+      });
+    });
+  });
+
+  var newMod = {unit:unit, type:type, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(), items:items, sigs:{}, visits:[]};
+  cqModules.unshift(newMod);
+  cqPersist();
+  cqSyncModule(newMod);
+  cqHideNewForm();
+  toast('✓ Dossier '+unit+' créé');
+  renderCQList();
+  renderCQDashboard();
+}
+
+// ── Statuts ──────────────────────────────────────────────
+function cqModuleSt(m){
+  var hasNC=false, hasPend=false;
+  CQ_PHASES.forEach(function(ph){
+    ph.sections.forEach(function(sec){
+      sec.items.forEach(function(item){
+        var v=m.items[ph.id+'_'+item.id];
+        if(!v||v.code===null||v.code==='REV') hasPend=true;
+        if(v&&v.code==='NC') hasNC=true;
+      });
+    });
+  });
+  if(hasNC) return 'nc';
+  if(hasPend) return 'warn';
+  return 'ok';
+}
+
+function cqPhaseSt(m, phId){
+  var ph=CQ_PHASES.find(function(p){ return p.id===phId; });
+  var total=0,done=0,hasNC=false;
+  ph.sections.forEach(function(sec){
+    sec.items.forEach(function(item){
+      total++;
+      var v=m.items[phId+'_'+item.id];
+      if(v&&v.code&&v.code!=='REV') done++;
+      if(v&&v.code==='NC') hasNC=true;
+    });
+  });
+  if(done===0) return 'empty';
+  if(done===total&&!hasNC) return 'done';
+  return 'partial';
+}
+
+// ── Rendu liste ───────────────────────────────────────────
+function cqSearchSuggest(){
+  var input = document.getElementById('cq-search');
+  var box = document.getElementById('cq-suggest');
+  if(!input || !box) return;
+  var q = input.value.trim().toLowerCase();
+
+  // Collecter toutes les valeurs uniques (unités + types)
+  var candidates = [];
+  cqModules.forEach(function(m){
+    if(m.unit && !candidates.includes(m.unit)) candidates.push(m.unit);
+    if(m.type && !candidates.includes(m.type)) candidates.push(m.type);
+  });
+  candidates.sort();
+
+  // Filtrer par "contient" — si vide, tout afficher
+  var matches = q
+    ? candidates.filter(function(c){ return c.toLowerCase().includes(q) && c.toLowerCase() !== q; })
+    : candidates;
+
+  if(!matches.length){ box.style.display='none'; return; }
+
+  box.innerHTML = matches.slice(0,8).map(function(c){
+    var highlighted = c;
+    if(q){
+      var idx = c.toLowerCase().indexOf(q);
+      highlighted = c.slice(0,idx)+'<strong>'+c.slice(idx,idx+q.length)+'</strong>'+c.slice(idx+q.length);
+    }
+    return '<div style="padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border)" '
+      +'onmousedown="document.getElementById(\'cq-search\').value=\''+c.replace(/'/g,"\\'")+"';renderCQList();document.getElementById('cq-suggest').style.display='none'\">"
+      +highlighted+'</div>';
+  }).join('');
+  box.style.display = 'block';
+}
+
+function renderCQList(){
+  var el=document.getElementById('cq-module-list');
+
+  // Recherche
+  var searchEl = document.getElementById('cq-search');
+  var sortEl = document.getElementById('cq-sort');
+  var query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  var sortBy = sortEl ? sortEl.value : 'date';
+
+  // Créer une liste indexée pour conserver le vrai idx dans cqModules
+  var indexed = cqModules.map(function(m, idx){ return {m:m, idx:idx}; });
+
+  // Filtrer
+  if(query){
+    indexed = indexed.filter(function(e){
+      return e.m.unit.toLowerCase().includes(query) || e.m.type.toLowerCase().includes(query);
+    });
+  }
+
+  // Trier
+  var statusOrder = {nc:0, warn:1, ok:2};
+  indexed.sort(function(a, b){
+    if(sortBy==='unit') return a.m.unit.localeCompare(b.m.unit);
+    if(sortBy==='type') return a.m.type.localeCompare(b.m.type) || a.m.unit.localeCompare(b.m.unit);
+    if(sortBy==='status'){
+      var sa = statusOrder[cqModuleSt(a.m)] ?? 9;
+      var sb = statusOrder[cqModuleSt(b.m)] ?? 9;
+      return sa - sb || a.m.unit.localeCompare(b.m.unit);
+    }
+    // date (défaut) — plus récent en premier
+    return (b.m.createdAt||'').localeCompare(a.m.createdAt||'');
+  });
+
+  if(!indexed.length){
+    el.innerHTML = query
+      ? '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>Aucun résultat pour "<strong>'+query+'</strong>"</p></div>'
+      : '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p>Aucun dossier de contrôle qualité.<br>Créez-en un pour commencer.</p></div>';
+    return;
+  }
+
+  el.innerHTML=indexed.map(function(e){
+    var m=e.m; var idx=e.idx;
+    var st=cqModuleSt(m);
+    var pillCls={ok:'ok',warn:'warn',nc:'nc'}[st];
+    var pillLbl={ok:'✓ Complété',warn:'En cours',nc:'⚠ NC actives'}[st];
+    var steps=CQ_PHASES.map(function(ph){
+      var ps=cqPhaseSt(m,ph.id);
+      var cls={done:'done',partial:'partial',empty:''}[ps];
+      return '<span class="cq-step-dot '+cls+'">'+ph.label+'</span>';
+    }).join('');
+    var dateStr=m.createdAt?fmtDate(m.createdAt.split('T')[0]):'';
+    return '<div class="cq-module-card st-'+st+'" onclick="cqOpenModule('+idx+')">'
+      +'<div class="cq-module-top"><div><div class="cq-module-id">'+m.unit+'</div><div class="cq-module-type">'+m.type+(dateStr?' · '+dateStr:'')+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:6px">'
+      +'<span class="cq-pill '+pillCls+'">'+pillLbl+'</span>'
+      +'<button onclick="event.stopPropagation();cqAskDeleteModule('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:3px 5px;border-radius:5px;font-size:14px;line-height:1" title="Supprimer ce dossier">🗑</button>'
+      +'</div></div>'
+      +'<div class="cq-steps-row">'+steps+'</div></div>';
+  }).join('');
+}
+
+// ── Ouverture d'un module ─────────────────────────────────
+function cqOpenModule(idx){
+  cqCurrent=idx;
+  cqPhase='avant';
+  cqShowAll=false;
+  cqActiveSubNav='modules';
+  document.getElementById('cq-subnav-modules').classList.add('active');
+  document.getElementById('cq-subnav-taches').classList.remove('active');
+  document.getElementById('cq-taches-view').style.display='none';
+  cqShowDetail(true);
+  renderCQDetail();
+}
+
+function cqSetPhase(phId){ cqPhase=phId; cqShowAll=false; renderCQDetail(); }
+function cqToggleAll(){ cqShowAll=!cqShowAll; renderCQDetail(); }
+
+// ── Rendu détail ──────────────────────────────────────────
+function renderCQDetail(){
+  var m=cqModules[cqCurrent];
+  var mst=cqModuleSt(m);
+  var mpillCls={ok:'ok',warn:'warn',nc:'nc'}[mst];
+  var mpillLbl={ok:'✓ Complété',warn:'En cours',nc:'⚠ NC actives'}[mst];
+
+  // Phase tabs (+ Historique)
+  var tabsHtml=CQ_PHASES.map(function(ph){
+    var ps=cqPhaseSt(m,ph.id);
+    var cls=(ph.id===cqPhase?'active ':(ps==='done'?'done':ps==='partial'?'partial':''));
+    return '<div class="cq-phase-tab '+cls+'" onclick="cqSetPhase(\''+ph.id+'\')">'+ph.label+'</div>';
+  }).join('');
+  tabsHtml += '<div class="cq-phase-tab'+(cqPhase==='historique'?' active':'')+'" onclick="cqSetPhase(\'historique\')">📋</div>';
+
+  // Panel Historique
+  var histPanel = '';
+  if(cqPhase==='historique'){
+    var visits = m.visits || [];
+    if(!visits.length){
+      histPanel = '<div class="cq-phase-panel active"><div class="empty-state" style="padding:2rem 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;margin-bottom:.5rem;opacity:.35"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Aucune visite terminée pour ce dossier.</p></div></div>';
+    } else {
+      var cards = visits.slice().reverse().map(function(v, i){
+        var realIdx = visits.length - 1 - i; // index dans m.visits (non-inversé)
+        var phLabel = {avant:'Avant les travaux', pendant:'Pendant les travaux', apres:'Après les travaux'}[v.phase]||v.phase;
+        var sc = v.scores||{};
+        var ncHtml = '';
+        if(v.ncItems && v.ncItems.length){
+          ncHtml = '<div class="cq-visit-nc"><div class="cq-visit-nc-title">NC actives lors de cette visite ('+v.ncItems.length+')</div>'
+            + v.ncItems.map(function(n){
+                return '<div class="cq-visit-nc-item">'+n.text+(n.note?'<div class="cq-visit-nc-note">→ '+n.note+'</div>':'')+'</div>';
+              }).join('')
+            + '</div>';
+        }
+        return '<div class="cq-visit-card">'
+          +'<div class="cq-visit-header"><span class="cq-visit-title">'+phLabel+'</span>'
+          +'<div style="display:flex;align-items:center;gap:8px">'
+          +'<span class="cq-pill '+(sc.NC>0?'nc':sc.C===v.total?'ok':'warn')+'">'+(sc.NC>0?'⚠ '+sc.NC+' NC':sc.C===v.total?'✓ Complet':'En cours')+'</span>'
+          +'<button onclick="cqAskDeleteVisit('+cqCurrent+','+realIdx+')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:5px;font-size:14px;line-height:1" title="Supprimer cette visite">🗑</button>'
+          +'</div></div>'
+          +'<div class="cq-visit-meta">'+fmtDate(v.date)+' — '+v.inspector+'</div>'
+          +'<div class="cq-visit-scores">'
+          +'<span class="score-badge sb-c">C: '+(sc.C||0)+'</span>'
+          +(sc.NC?'<span class="score-badge sb-nc">NC: '+sc.NC+'</span>':'')
+          +(sc.NA?'<span class="score-badge sb-na">N/A: '+sc.NA+'</span>':'')
+          +(sc.REV?'<span class="score-badge sb-pc">⏸: '+sc.REV+'</span>':'')
+          +'<span style="font-size:11px;font-family:var(--mono);color:var(--text3);padding:3px 0">/ '+v.total+' items</span>'
+          +'</div>'
+          + ncHtml
+          +'</div>';
+      }).join('');
+      histPanel = '<div class="cq-phase-panel active">'+cards+'</div>';
+    }
+  }
+
+  // Phase panels
+  var panelsHtml=CQ_PHASES.map(function(ph){
+    if(ph.id!==cqPhase) return '<div class="cq-phase-panel" id="cqpanel-'+ph.id+'"></div>';
+    var ps=cqPhaseSt(m,ph.id);
+
+    // Banner statut
+    var pendCount=0;
+    ph.sections.forEach(function(sec){ sec.items.forEach(function(item){
+      var v=m.items[ph.id+'_'+item.id];
+      if(!v||v.code===null||v.code==='REV') pendCount++;
+    }); });
+    var banner='';
+    if(ps==='done') banner='<div class="cq-banner ok">✓ Cette étape est complète.</div>';
+    else if(pendCount>0) banner='<div class="cq-banner warn">⏸ '+pendCount+' item'+(pendCount>1?'s':'')+' restant'+(pendCount>1?'s':'')+' à vérifier.</div>';
+
+    // Dernière visite terminée pour cette phase
+    var visits = m.visits || [];
+    var phVisits = visits.filter(function(v){ return v.phase===ph.id; });
+    var lastVisit = phVisits.length ? phVisits[phVisits.length-1] : null;
+    var lastVisitHtml = '';
+    if(lastVisit){
+      var sc=lastVisit.scores||{};
+      lastVisitHtml = '<div class="cq-last-visit">🕐 Dernière visite : '+fmtDate(lastVisit.date)+' — '+lastVisit.inspector
+        +' — <strong>'+(sc.C||0)+' C</strong>'+(sc.NC?' / <strong style="color:var(--red)">'+sc.NC+' NC</strong>':'')
+        +' / '+lastVisit.total+' items</div>';
+    }
+
+    // Meta inspecteur/date
+    var sig=m.sigs[ph.id]||{};
+    var savedName=localStorage.getItem('saved_username')||'';
+    var metaHtml='<div class="cq-phase-meta">'
+      +'<div class="field"><label>Inspecteur</label><input type="text" id="cq-insp-'+ph.id+'" placeholder="Nom..." value="'+(sig.inspector||savedName||'')+'" style="font-size:13px"></div>'
+      +'<div class="field"><label>Date de visite</label><input type="date" id="cq-date-'+ph.id+'" value="'+(sig.date||new Date().toISOString().split('T')[0])+'" style="font-size:13px"></div>'
+      +'</div>';
+
+    // Filtre toggle
+    var filterRow='';
+    if(ps!=='empty'){
+      filterRow='<div class="cq-filter-row">'
+        +'<button class="cq-toggle-btn" onclick="cqToggleAll()">'+(cqShowAll?'👁 Masquer les conformes':'👁 Afficher tous les items')+'</button>'
+        +'</div>';
+    }
+
+    // Sections + items
+    var sectionsHtml=ph.sections.map(function(sec){
+      var itemsHtml=sec.items.map(function(item){
+        var k=ph.id+'_'+item.id;
+        var v=m.items[k]||{code:null,note:''};
+        var isConform=(v.code==='C'||v.code==='NA');
+        var hideClass=(isConform&&!cqShowAll&&ps!=='empty')?'cq-item-conform':'';
+        var noteShow=(v.code==='NC'||v.code==='REV')?'show':'';
+        var badges=['C','NC','NA','REV'].map(function(code){
+          var lbl={C:'C',NC:'NC',NA:'N/A',REV:'⏸'}[code];
+          var sel=(v.code===code?'sel-'+code:'');
+          return '<span class="badge '+sel+'" onclick="cqSetCode('+cqCurrent+',\''+ph.id+'\',\''+item.id+'\',this,\''+code+'\')">'+lbl+'</span>';
+        }).join('');
+        var noteVal=(v.note||'').replace(/"/g,'&quot;');
+        return '<div class="item '+hideClass+'" id="cqi_'+ph.id+'_'+item.id+'">'
+          +'<div class="item-label" style="display:flex;align-items:flex-start;gap:6px">'
+          +'<span class="cq-imp-badge">'+item.imp+'</span>'
+          +'<span>'+item.text+'</span></div>'
+          +'<div class="badge-row">'+badges+'</div>'
+          +'<div class="corr-wrap '+noteShow+'" id="cqnw_'+ph.id+'_'+item.id+'">'
+          +'<textarea placeholder="Note / mesure corrective..." oninput="cqSaveNote('+cqCurrent+',\''+ph.id+'\',\''+item.id+'\',this.value)" id="cqnote_'+ph.id+'_'+item.id+'">'+noteVal+'</textarea>'
+          +'</div></div>';
+      }).join('');
+      return '<div class="section-block" style="margin-bottom:.5rem">'
+        +'<div class="section-header" onclick="this.parentElement.classList.toggle(\'collapsed\')">'
+        +'<span>'+sec.title+'</span>'
+        +'<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>'
+        +'</div><div class="section-items">'+itemsHtml+'</div></div>';
+    }).join('');
+
+    // Deux boutons
+    var btnsHtml='<div class="cq-btn-row">'
+      +'<button class="btn btn-ghost" onclick="cqSavePhase(\''+ph.id+'\')">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>'
+      +' Sauvegarder</button>'
+      +'<button class="btn btn-termine" onclick="cqTerminerPhase(\''+ph.id+'\')">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+      +' Terminer ce contrôle</button>'
+      +'</div>';
+
+    return '<div class="cq-phase-panel active" id="cqpanel-'+ph.id+'">'+banner+lastVisitHtml+metaHtml+filterRow+sectionsHtml+btnsHtml+'</div>';
+  }).join('');
+
+  document.getElementById('cq-detail-content').innerHTML=
+    '<div class="cq-module-header">'
+    +'<div class="cq-module-header-top"><h2>'+m.unit+'</h2><span class="cq-pill '+mpillCls+'">'+mpillLbl+'</span></div>'
+    +'<p>'+m.type+'</p>'
+    +'</div>'
+    +'<div class="cq-phase-tabs">'+tabsHtml+'</div>'
+    +(cqPhase==='historique' ? histPanel : panelsHtml);
+}
+
+// ── Interactions items ────────────────────────────────────
+function cqSetCode(modIdx, phId, itemId, el, code){
+  var k=phId+'_'+itemId;
+  if(!cqModules[modIdx].items[k]) cqModules[modIdx].items[k]={code:null,note:''};
+  cqModules[modIdx].items[k].code=code;
+
+  // Update badges dans la ligne
+  var row=el.closest('.badge-row');
+  row.querySelectorAll('.badge').forEach(function(b){
+    var m=( b.getAttribute('onclick')||'' ).match(/'([A-Z]+)'\)$/);
+    var bCode=m?m[1]:null;
+    b.className='badge'+(bCode===code?' sel-'+code:'');
+  });
+
+  // Afficher/cacher la zone de note
+  var nw=document.getElementById('cqnw_'+phId+'_'+itemId);
+  if(nw) nw.classList.toggle('show', code==='NC'||code==='REV');
+
+  // Mettre à jour le badge tâches
+  cqUpdateTachesBadge();
+
+  // En mode filtre : fade out les items qui viennent de devenir conformes
+  if((code==='C'||code==='NA')&&!cqShowAll){
+    var ph=CQ_PHASES.find(function(p){ return p.id===phId; });
+    var anyDone=false;
+    ph.sections.forEach(function(s){ s.items.forEach(function(i){
+      var v=cqModules[modIdx].items[phId+'_'+i.id];
+      if(v&&v.code&&v.code!=='REV') anyDone=true;
+    }); });
+    if(anyDone){
+      var itemEl=document.getElementById('cqi_'+phId+'_'+itemId);
+      if(itemEl) setTimeout(function(){ itemEl.classList.add('cq-item-conform'); }, 450);
+    }
+  }
+}
+
+function cqSaveNote(modIdx, phId, itemId, val){
+  var k=phId+'_'+itemId;
+  if(!cqModules[modIdx].items[k]) cqModules[modIdx].items[k]={code:null,note:''};
+  cqModules[modIdx].items[k].note=val;
+}
+
+function cqSavePhase(phId){
+  var inspEl=document.getElementById('cq-insp-'+phId);
+  var dateEl=document.getElementById('cq-date-'+phId);
+  var insp=inspEl?inspEl.value.trim():'';
+  var date=dateEl?dateEl.value:'';
+  if(!insp){ toast('Veuillez entrer le nom de l\'inspecteur.',true); return; }
+  var m = cqModules[cqCurrent];
+  m.sigs[phId]={inspector:insp,date:date};
+  m.updatedAt = new Date().toISOString();
+  localStorage.setItem('saved_username', insp);
+  cqPersist();
+  cqSyncModule(m);
+  renderCQDashboard();
+  toast('✓ Sauvegardé — vous pouvez continuer plus tard');
+}
+
+function cqTerminerPhase(phId){
+  var inspEl=document.getElementById('cq-insp-'+phId);
+  var dateEl=document.getElementById('cq-date-'+phId);
+  var insp=inspEl?inspEl.value.trim():'';
+  var date=dateEl?dateEl.value:'';
+  if(!insp){ toast('Veuillez entrer le nom de l\'inspecteur.',true); return; }
+
+  // Construire le snapshot de cette phase
+  var m=cqModules[cqCurrent];
+  var ph=CQ_PHASES.find(function(p){ return p.id===phId; });
+  var scores={C:0,NC:0,NA:0,REV:0};
+  var total=0;
+  var ncItems=[];
+  ph.sections.forEach(function(sec){
+    sec.items.forEach(function(item){
+      total++;
+      var v=m.items[phId+'_'+item.id]||{code:null,note:''};
+      var code=v.code||'REV';
+      scores[code]=(scores[code]||0)+1;
+      if(code==='NC') ncItems.push({text:item.text, note:v.note||''});
+    });
+  });
+
+  var visit={
+    phase: phId,
+    date: date,
+    inspector: insp,
+    terminatedAt: new Date().toISOString(),
+    scores: scores,
+    total: total,
+    ncItems: ncItems
+  };
+
+  if(!m.visits) m.visits=[];
+  m.visits.push(visit);
+  m.sigs[phId]={inspector:insp, date:date};
+  m.updatedAt = new Date().toISOString();
+  localStorage.setItem('saved_username', insp);
+  cqPersist();
+  cqSyncModule(m);
+  renderCQDashboard();
+  toast('✓ Contrôle terminé et enregistré dans l\'historique');
+  renderCQDetail();
+}
+// ════════════════════════════════════════════════════════════
+// TÂCHES NC
+// ════════════════════════════════════════════════════════════
+
+// Collecte toutes les NC actives (code==='NC') de tous les modules
+function cqGetAllTaches(){
+  var taches = [];
+  CQ_PHASES.forEach(function(ph){
+    ph.sections.forEach(function(sec){
+      sec.items.forEach(function(item){
+        cqModules.forEach(function(m, modIdx){
+          var k = ph.id+'_'+item.id;
+          var v = m.items[k];
+          if(v && v.code === 'NC'){
+            taches.push({
+              modIdx: modIdx,
+              unit: m.unit,
+              type: m.type,
+              phase: ph.id,
+              phaseLabel: {avant:'Avant',pendant:'Pendant',apres:'Après'}[ph.id],
+              itemId: item.id,
+              key: k,
+              text: item.text,
+              note: v.note || '',
+              imp: item.imp,
+              reglée: false // NC = pas encore réglé
+            });
+          }
+          // NC réglées = items qui étaient NC et ont été passés à C
+          // On les stocke dans m.tachesReglees = {key: {date, ...}}
+          if(m.tachesReglees && m.tachesReglees[k]){
+            // Déjà comptabilisé si code est C — on l'ajoute comme réglée
+            if(v && v.code === 'C' && m.tachesReglees[k]){
+              taches.push({
+                modIdx: modIdx,
+                unit: m.unit,
+                type: m.type,
+                phase: ph.id,
+                phaseLabel: {avant:'Avant',pendant:'Pendant',apres:'Après'}[ph.id],
+                itemId: item.id,
+                key: k,
+                text: item.text,
+                note: v.note || '',
+                imp: item.imp,
+                reglée: true,
+                regleeLe: m.tachesReglees[k].date
+              });
+            }
+          }
+        });
+      });
+    });
+  });
+  return taches;
+}
+
+function cqUpdateTachesBadge(){
+  var taches = cqGetAllTaches();
+  var actives = taches.filter(function(t){ return !t.reglée; }).length;
+  var badge = document.getElementById('cq-taches-badge');
+  if(!badge) return;
+  if(actives > 0){
+    badge.textContent = actives;
+    badge.style.display = 'inline-block';
+    badge.className = 'cq-taches-badge';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderCQTaches(){
+  var el = document.getElementById('cq-taches-content');
+  var taches = cqGetAllTaches();
+  var actives = taches.filter(function(t){ return !t.reglée; });
+  var reglees = taches.filter(function(t){ return t.reglée; });
+
+  if(!actives.length && !reglees.length){
+    el.innerHTML = '<div class="cq-taches-empty">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>'
+      +'<p style="font-size:13px;margin-top:.5rem">Aucune non-conformité active.<br>Beau travail !</p></div>';
+    return;
+  }
+
+  // Grouper les actives par module
+  var groups = {};
+  actives.forEach(function(t){
+    if(!groups[t.unit]) groups[t.unit] = {type:t.type, items:[]};
+    groups[t.unit].items.push(t);
+  });
+
+  var html = '';
+
+  // Résumé stats
+  html += '<div class="stat-grid" style="margin-bottom:.85rem">'
+    +'<div class="stat-card danger"><div class="stat-val">'+actives.length+'</div><div class="stat-lbl">À régler</div></div>'
+    +'<div class="stat-card ok"><div class="stat-val">'+reglees.length+'</div><div class="stat-lbl">Réglées</div></div>'
+    +'</div>';
+
+  // Groupes actifs
+  Object.keys(groups).forEach(function(unit){
+    var g = groups[unit];
+    html += '<div class="cq-tache-group">'
+      +'<div class="cq-tache-group-header">'
+      +unit+' <span class="cq-tache-group-tag">'+g.type+'</span>'
+      +'</div>';
+    g.items.forEach(function(t){
+      html += '<div class="cq-tache-card" id="tache_'+t.modIdx+'_'+t.key+'">'
+        +'<input type="checkbox" class="cq-tache-check" onchange="cqReglerTache('+t.modIdx+',\''+t.phase+'\',\''+t.itemId+'\',this)">'
+        +'<div class="cq-tache-body">'
+        +'<div class="cq-tache-text">'+t.text+'</div>'
+        +(t.note?'<div class="cq-tache-note">→ '+t.note+'</div>':'')
+        +'<div class="cq-tache-meta">'+t.phaseLabel+(t.imp?' · Importance '+t.imp:'')+'</div>'
+        +'</div></div>';
+    });
+    html += '</div>';
+  });
+
+  // Tâches réglées (toggle)
+  if(reglees.length){
+    html += '<div class="cq-taches-toggle">'
+      +'<button onclick="cqToggleReglees()">'+( cqShowReglees ? '▲ Masquer les réglées' : '▼ Voir les '+reglees.length+' réglée'+(reglees.length>1?'s':''))+'</button>'
+      +'</div>';
+    if(cqShowReglees){
+      reglees.forEach(function(t){
+        html += '<div class="cq-tache-card done">'
+          +'<input type="checkbox" class="cq-tache-check" checked onchange="cqDereglerTache('+t.modIdx+',\''+t.phase+'\',\''+t.itemId+'\',this)">'
+          +'<div class="cq-tache-body">'
+          +'<div class="cq-tache-text">'+t.text+'</div>'
+          +'<div class="cq-tache-meta">'+t.unit+' · '+t.phaseLabel+(t.regleeLe?' · Réglée le '+fmtDate(t.regleeLe):'')+'</div>'
+          +'</div></div>';
+      });
+    }
+  }
+
+  el.innerHTML = html;
+}
+
+function cqToggleReglees(){
+  cqShowReglees = !cqShowReglees;
+  renderCQTaches();
+}
+
+function cqReglerTache(modIdx, phId, itemId, checkbox){
+  var m = cqModules[modIdx];
+  var k = phId+'_'+itemId;
+
+  // Marquer l'item comme C dans le dossier
+  if(!m.items[k]) m.items[k] = {code:null, note:''};
+  m.items[k].code = 'C';
+
+  // Mémoriser la date de règlement
+  if(!m.tachesReglees) m.tachesReglees = {};
+  m.tachesReglees[k] = { date: new Date().toISOString().split('T')[0] };
+
+  m.updatedAt = new Date().toISOString();
+  cqPersist();
+  cqSyncModule(m);
+
+  // Animer la carte avant de re-render
+  var card = document.getElementById('tache_'+modIdx+'_'+k);
+  if(card){
+    card.classList.add('done');
+    setTimeout(function(){ renderCQTaches(); cqUpdateTachesBadge(); }, 500);
+  } else {
+    renderCQTaches();
+    cqUpdateTachesBadge();
+  }
+}
+
+
+function cqDereglerTache(modIdx, phId, itemId, checkbox){
+  var m = cqModules[modIdx];
+  var k = phId+'_'+itemId;
+  if(!m.items[k]) m.items[k] = {code:null, note:''};
+  m.items[k].code = 'NC';
+  if(m.tachesReglees && m.tachesReglees[k]) delete m.tachesReglees[k];
+  m.updatedAt = new Date().toISOString();
+  cqPersist();
+  cqSyncModule(m);
+  renderCQTaches();
+  cqUpdateTachesBadge();
+}
+
+var cqPendingVisitModule = null;
+var cqPendingVisitIdx = null;
+
+function cqAskDeleteVisit(modIdx, visitIdx){
+  cqPendingVisitModule = modIdx;
+  cqPendingVisitIdx = visitIdx;
+  document.getElementById('cq-visit-confirm').style.display = 'flex';
+}
+function cqCloseVisitConfirm(){
+  cqPendingVisitModule = null;
+  cqPendingVisitIdx = null;
+  document.getElementById('cq-visit-confirm').style.display = 'none';
+}
+function cqConfirmDeleteVisit(){
+  if(cqPendingVisitModule === null) return;
+  var m = cqModules[cqPendingVisitModule];
+  m.visits.splice(cqPendingVisitIdx, 1);
+  m.updatedAt = new Date().toISOString();
+  cqPersist();
+  cqSyncModule(m);
+  cqCloseVisitConfirm();
+  toast('Visite supprimée');
+  renderCQDetail();
+}
+
+// ── Suppression dossier ───────────────────────────────────
+var cqPendingModuleIdx = null;
+
+function cqAskDeleteModule(idx){
+  cqPendingModuleIdx = idx;
+  document.getElementById('cq-confirm-input').value = '';
+  document.getElementById('cq-confirm-del-btn').disabled = true;
+  document.getElementById('cq-confirm-del-btn').style.opacity = '.4';
+  document.getElementById('cq-confirm-del-btn').style.cursor = 'not-allowed';
+  document.getElementById('cq-module-confirm').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('cq-confirm-input').focus(); }, 100);
+}
+function cqCloseModuleConfirm(){
+  cqPendingModuleIdx = null;
+  document.getElementById('cq-module-confirm').style.display = 'none';
+}
+function cqCheckConfirmInput(){
+  var val = document.getElementById('cq-confirm-input').value.trim();
+  var ok = (val === 'Confirmer');
+  var btn = document.getElementById('cq-confirm-del-btn');
+  btn.disabled = !ok;
+  btn.style.opacity = ok ? '1' : '.4';
+  btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+}
+function cqConfirmDeleteModule(){
+  if(cqPendingModuleIdx === null) return;
+  var unit = cqModules[cqPendingModuleIdx].unit;
+  cqModules.splice(cqPendingModuleIdx, 1);
+  cqPersist();
+  cqSyncDelete(unit);
+  cqCloseModuleConfirm();
+  toast('Dossier '+unit+' supprimé');
+  renderCQList();
+  renderCQDashboard();
+}
+
+
 </script>
 </body>
 </html>
