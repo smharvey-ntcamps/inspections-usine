@@ -419,6 +419,7 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
         <option value="ciseau">🔧 Inspection plateforme élévatrice (ciseau lift)</option>
         <option value="transit">🚐 Inspection automobile (Transit)</option>
         <option value="audit5s">✅ Audit 5S</option>
+        <option value="fermeture">🚚 Préparation au transport</option>
         <option value="f03">📝 Modifications aux plans</option>
       </select>
     </div>
@@ -440,6 +441,11 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
     <div class="legend" id="legend-5s" style="display:none">
       <span><span class="leg-dot" style="background:var(--green)"></span>C = Conforme</span>
       <span><span class="leg-dot" style="background:var(--red)"></span>NC = Non conforme</span>
+    </div>
+    <div class="legend" id="legend-fermeture" style="display:none">
+      <span><span class="leg-dot" style="background:var(--green)"></span>C = Conforme</span>
+      <span><span class="leg-dot" style="background:var(--red)"></span>NC = Non conforme</span>
+      <span><span class="leg-dot" style="background:var(--gray)"></span>NA = N/A</span>
     </div>
     <div class="progress-wrap" id="progress-wrap-div">
       <div class="progress-label" id="prog-label">0 / 0 éléments évalués</div>
@@ -685,6 +691,9 @@ const FORMS = {
   ]},
   audit5s: { label:'Audit 5S', codes:['C','NC'], sections:[
     {id:'A',title:'A) Panneau outils et consommables',items:['Bon niveau des consommables','Matériel au bon endroit','Aucun débris ou saleté','Identifications claires']}
+  ]},
+  fermeture: { label:'Préparation au transport', codes:['C','NC','NA'], sections:[
+    {id:'A',title:'A) Points uniques',items:['Fermer les breaker doubles 240V','Purger les conduits (passer l\'air en hiver)','Vérifier si seulement une phase est branchée au chauffe-eau','S\'assurer que les valves de la laveuse sont fermées','Ouvrir les portes des chambres et les cointer','Mettre du glycol (hiver) ou de l\'eau (été)','→ Toilette (± 1 gallon + tirer la chasse d\'eau)','→ Drain douche (± 1/3 gallon par drain)','→ Drain plancher (± 1/3 gallon par drain)','→ Lavabo (± 1/3 gallon par lavabo)','→ Laveuse (± 1/2 gallon par cuve + cycle de rinçage)','→ Urinoir (± 1/3 gallon par urinoir)','→ Lave-vaisselle (± 1 gallon + cycle de rinçage)','Vérifier que les fenêtres sont fermées ET barrées','Mettre des blocs de bois dans les fenêtres à guillotine','Laisser les portes des frigidaires entre-ouvertes','S\'assurer que les téléviseurs ont les vis de sécurité','Fermer le main breaker','4 chandelles en acier prêtes à être embarquées','72 blocs de bois 6x6 (pour 6 cages) minimum prêts à être embarqués','Le matériel pour les galeries est dans le module','→ S\'assurer que les limons ont 6 marches','Toile de protection installée sur la/les unités extérieures (compresseurs)','Équipements fixés adéquatement','Boucher la cheminée de la Toyotomi et les entrées et sorties de l\'échangeur d\'air']}
   ]}
 };
 
@@ -692,7 +701,7 @@ const EQUIP_TYPES = ['chariot','faresin','ciseau','transit'];
 const TYPE_LABELS = {
   usine:'🏭 Usine de fabrication', chariot:'🚜 Chariot élévateur (lift)',
   faresin:'🚜 Chariot télescopique (Faresin)', ciseau:'🔧 Plateforme élévatrice (ciseau lift)',
-  transit:'🚐 Automobile (Transit)', audit5s:'✅ Audit 5S'
+  transit:'🚐 Automobile (Transit)', audit5s:'✅ Audit 5S', fermeture:'🚚 Préparation au transport'
 };
 
 const F03_ELEMENTS = ['Porte','Fenêtre','Finition intérieure','Toiture','Isolation','Électricité','Plomberie','Chauffage et ventilation','Ameublement','Structure (CLT ou autre)','Autre (spécifier)'];
@@ -830,6 +839,7 @@ function onTypeChange() {
   document.getElementById('legend-usine').style.display = isF03 ? 'none' : (currentType==='usine'?'flex':'none');
   document.getElementById('legend-equip').style.display = isF03 ? 'none' : (EQUIP_TYPES.indexOf(currentType)>=0?'flex':'none');
   document.getElementById('legend-5s').style.display = isF03 ? 'none' : (currentType==='audit5s'?'flex':'none');
+  document.getElementById('legend-fermeture').style.display = isF03 ? 'none' : (currentType==='fermeture'?'flex':'none');
   document.getElementById('sections').style.display = isF03 ? 'none' : 'block';
   document.getElementById('insp-notes-wrap').style.display = isF03 ? 'none' : 'block';
   document.getElementById('btn-save-insp').style.display = isF03 ? 'none' : 'flex';
@@ -838,10 +848,11 @@ function onTypeChange() {
 
   if (!isF03) {
     if (savedUsername) document.getElementById('insp-name').value = savedUsername;
-    currentForm = EQUIP_TYPES.indexOf(type) >= 0 ? FORMS.equip : (type === 'audit5s' ? FORMS.audit5s : FORMS.usine);
+    currentForm = EQUIP_TYPES.indexOf(type) >= 0 ? FORMS.equip : (type === 'audit5s' ? FORMS.audit5s : (type === 'fermeture' ? FORMS.fermeture : FORMS.usine));
     document.getElementById('legend-usine').style.display = type === 'usine' ? 'flex' : 'none';
     document.getElementById('legend-equip').style.display = EQUIP_TYPES.indexOf(type) >= 0 ? 'flex' : 'none';
     document.getElementById('legend-5s').style.display = type === 'audit5s' ? 'flex' : 'none';
+    document.getElementById('legend-fermeture').style.display = type === 'fermeture' ? 'flex' : 'none';
     initInspState(); buildInspForm(); updateProgress();
     currentForm.sections.forEach(function(s){ updateSectionCount(s.id); });
   } else {
@@ -1283,10 +1294,6 @@ async function saveNcAction(uid){
   toast(val?'Action corrective sauvegardée !':'Action retirée.');
   renderNC();
 }
-
-// ════════════════════════════════════════════════════════════
-// MODIFICATIONS F03 TAB
-// ════════════════════════════════════════════════════════════
 
 function renderMods() {
   var el = document.getElementById('mods-content');
@@ -2615,8 +2622,6 @@ function cqConfirmDeleteModule(){
   renderCQList();
   renderCQDashboard();
 }
-
-
 </script>
 </body>
 </html>
