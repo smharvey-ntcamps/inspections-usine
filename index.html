@@ -72,6 +72,9 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .section-block.collapsed .chev{transform:rotate(-90deg)}
 .section-count{font-size:11px;font-family:var(--mono);font-weight:400;color:var(--teal);margin-left:auto;margin-right:10px}
 .item{padding:9px 13px;border-top:1px solid var(--border)}
+.item.item-sub{padding-left:34px;position:relative;background:var(--bg)}
+.item.item-sub::before{content:'';position:absolute;left:19px;top:0;bottom:0;width:1px;background:var(--border)}
+.item-sub-marker{font-family:var(--mono);color:var(--teal-mid);font-weight:600;margin-right:5px}
 .item-label{font-size:13px;line-height:1.45;margin-bottom:6px}
 .item-num{font-family:var(--mono);font-size:11px;color:var(--text3);margin-right:4px}
 .badge-row{display:flex;gap:5px;flex-wrap:wrap}
@@ -693,7 +696,7 @@ const FORMS = {
     {id:'A',title:'A) Panneau outils et consommables',items:['Bon niveau des consommables','Matériel au bon endroit','Aucun débris ou saleté','Identifications claires']}
   ]},
   fermeture: { label:'Préparation au transport', codes:['C','NC','NA'], sections:[
-    {id:'A',title:'A) Points uniques',items:['Fermer les breaker doubles 240V','Purger les conduits (passer l\'air en hiver)','Vérifier si seulement une phase est branchée au chauffe-eau','S\'assurer que les valves de la laveuse sont fermées','Ouvrir les portes des chambres et les cointer','Mettre du glycol (hiver) ou de l\'eau (été)','→ Toilette (± 1 gallon + tirer la chasse d\'eau)','→ Drain douche (± 1/3 gallon par drain)','→ Drain plancher (± 1/3 gallon par drain)','→ Lavabo (± 1/3 gallon par lavabo)','→ Laveuse (± 1/2 gallon par cuve + cycle de rinçage)','→ Urinoir (± 1/3 gallon par urinoir)','→ Lave-vaisselle (± 1 gallon + cycle de rinçage)','Vérifier que les fenêtres sont fermées ET barrées','Mettre des blocs de bois dans les fenêtres à guillotine','Laisser les portes des frigidaires entre-ouvertes','S\'assurer que les téléviseurs ont les vis de sécurité','Fermer le main breaker','4 chandelles en acier prêtes à être embarquées','72 blocs de bois 6x6 (pour 6 cages) minimum prêts à être embarqués','Le matériel pour les galeries est dans le module','→ S\'assurer que les limons ont 6 marches','Toile de protection installée sur la/les unités extérieures (compresseurs)','Équipements fixés adéquatement','Boucher la cheminée de la Toyotomi et les entrées et sorties de l\'échangeur d\'air']}
+    {id:'A',title:'A) Liste de vérification',items:['Fermer les breaker doubles 240V','Purger les conduits (passer l\'air en hiver)','Vérifier si seulement une phase est branchée au chauffe-eau','S\'assurer que les valves de la laveuse sont fermées','Ouvrir les portes des chambres et les cointer','Mettre du glycol (hiver) ou de l\'eau (été)',{text:'Toilette (± 1 gallon + tirer la chasse d\'eau)',sub:true},{text:'Drain douche (± 1/3 gallon par drain)',sub:true},{text:'Drain plancher (± 1/3 gallon par drain)',sub:true},{text:'Lavabo (± 1/3 gallon par lavabo)',sub:true},{text:'Laveuse (± 1/2 gallon par cuve + cycle de rinçage)',sub:true},{text:'Urinoir (± 1/3 gallon par urinoir)',sub:true},{text:'Lave-vaisselle (± 1 gallon + cycle de rinçage)',sub:true},'Vérifier que les fenêtres sont fermées ET barrées','Mettre des blocs de bois dans les fenêtres à guillotine','Laisser les portes des frigidaires entre-ouvertes','S\'assurer que les téléviseurs ont les vis de sécurité','Fermer le main breaker','4 chandelles en acier prêtes à être embarquées','72 blocs de bois 6x6 (pour 6 cages) minimum prêts à être embarqués','Le matériel pour les galeries est dans le module',{text:'S\'assurer que les limons ont 6 marches',sub:true},'Toile de protection installée sur la/les unités extérieures (compresseurs)','Équipements fixés adéquatement','Boucher la cheminée de la Toyotomi et les entrées et sorties de l\'échangeur d\'air']}
   ]}
 };
 
@@ -879,10 +882,16 @@ function buildInspForm() {
     hdr.onclick=function(){ wrap.classList.toggle('collapsed'); };
     wrap.appendChild(hdr);
     var itemsEl=document.createElement('div'); itemsEl.className='section-items';
-    s.items.forEach(function(item,i){
-      var key=s.id+'_'+i; var div=document.createElement('div'); div.className='item';
+    var visibleNum=0;
+    s.items.forEach(function(rawItem,i){
+      var isSub = rawItem && typeof rawItem === 'object';
+      var itemText = isSub ? rawItem.text : rawItem;
+      var key=s.id+'_'+i; var div=document.createElement('div'); div.className='item'+(isSub?' item-sub':'');
+      var numHtml;
+      if(isSub){ numHtml='<span class="item-sub-marker">–</span>'; }
+      else { visibleNum++; numHtml='<span class="item-num">'+visibleNum+'.</span>'; }
       var badges=currentForm.codes.map(function(code){ return '<span class="badge" data-key="'+key+'" data-code="'+code+'" onclick="setCode(\''+key+'\',\''+code+'\',this)">'+code+'</span>'; }).join('');
-      div.innerHTML='<div class="item-label"><span class="item-num">'+(i+1)+'.</span>'+item+'</div><div class="badge-row">'+badges+'</div><div class="corr-wrap" id="cw_'+key+'"><textarea placeholder="Description du problème..." oninput="inspState[\''+key+'\'].corr=this.value"></textarea><div class="regle-wrap" id="rw_'+key+'"><input type="checkbox" class="regle-check" id="rc_'+key+'" onchange="inspState[\''+key+'\'].regle=this.checked"><label class="regle-label" for="rc_'+key+'">✓ Problème déjà réglé</label></div></div>';
+      div.innerHTML='<div class="item-label">'+numHtml+itemText+'</div><div class="badge-row">'+badges+'</div><div class="corr-wrap" id="cw_'+key+'"><textarea placeholder="Description du problème..." oninput="inspState[\''+key+'\'].corr=this.value"></textarea><div class="regle-wrap" id="rw_'+key+'"><input type="checkbox" class="regle-check" id="rc_'+key+'" onchange="inspState[\''+key+'\'].regle=this.checked"><label class="regle-label" for="rc_'+key+'">✓ Problème déjà réglé</label></div></div>';
       itemsEl.appendChild(div);
     });
     wrap.appendChild(itemsEl); c.appendChild(wrap);
@@ -923,7 +932,7 @@ async function submitInspection() {
   }
   var scores={}; currentForm.codes.forEach(function(c){ scores[c]=0; });
   var ncItems=[];
-  currentForm.sections.forEach(function(s){ s.items.forEach(function(item,i){ var k=s.id+'_'+i,v=inspState[k]; if(v.code) scores[v.code]=(scores[v.code]||0)+1; if(v.code==='NC'||v.code==='PC') ncItems.push({section:s.title,item:item,code:v.code,corr:v.corr,regle:v.regle||false}); }); });
+  currentForm.sections.forEach(function(s){ s.items.forEach(function(rawItem,i){ var k=s.id+'_'+i,v=inspState[k]; var itemText=(rawItem&&typeof rawItem==='object')?rawItem.text:rawItem; if(v.code) scores[v.code]=(scores[v.code]||0)+1; if(v.code==='NC'||v.code==='PC') ncItems.push({section:s.title,item:itemText,code:v.code,corr:v.corr,regle:v.regle||false}); }); });
   var payload={id:'INS-'+Date.now().toString(),type:currentType,typeLabel:TYPE_LABELS[currentType],date:date,inspector:name,notes:document.getElementById('insp-notes').value,scores:scores,ncItems:ncItems};
   var btn=document.getElementById('btn-save-insp'); btn.disabled=true; btn.textContent='Sauvegarde...';
   var ok=await postInsp(payload);
