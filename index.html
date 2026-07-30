@@ -2311,19 +2311,9 @@ function cqSetCode(modIdx, phId, itemId, el, code){
   // Mettre à jour le badge tâches
   cqUpdateTachesBadge();
 
-  // En mode filtre : fade out les items qui viennent de devenir conformes
-  if((code==='C'||code==='NA')&&!cqShowAll){
-    var ph=CQ_PHASES.find(function(p){ return p.id===phId; });
-    var anyDone=false;
-    ph.sections.forEach(function(s){ s.items.forEach(function(i){
-      var v=cqModules[modIdx].items[phId+'_'+i.id];
-      if(v&&v.code&&v.code!=='REV') anyDone=true;
-    }); });
-    if(anyDone){
-      var itemEl=document.getElementById('cqi_'+phId+'_'+itemId);
-      if(itemEl) setTimeout(function(){ itemEl.classList.add('cq-item-conform'); }, 450);
-    }
-  }
+  // Note : les items conformes ne se masquent plus automatiquement après un clic —
+  // ça coupait la possibilité d'ajouter une note tout de suite après avoir coché C/N/A.
+  // Utilisez le bouton "Masquer les conformes" pour filtrer manuellement une fois terminé.
 }
 
 function cqSaveNote(modIdx, phId, itemId, val){
