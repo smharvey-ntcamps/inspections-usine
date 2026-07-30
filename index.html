@@ -300,6 +300,10 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .cq-item-conform{display:none}
 .cq-item-conform.show{display:block}
 .cq-imp-badge{font-size:9px;font-family:var(--mono);background:var(--amber-light);color:var(--amber);padding:1px 5px;border-radius:4px;flex-shrink:0;margin-top:3px}
+.cq-note-wrap{margin-top:7px}
+.cq-note-wrap textarea{width:100%;padding:7px 9px;font-size:12px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;resize:none;min-height:44px;transition:.15s}
+.cq-note-wrap textarea:focus{border-color:var(--teal-mid)}
+.cq-note-wrap.nc textarea{border-color:var(--red);background:var(--red-light)}
 
 /* Historique des visites */
 .cq-visit-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:.6rem}
@@ -2241,7 +2245,7 @@ function renderCQDetail(){
         var v=m.items[k]||{code:null,note:''};
         var isConform=(v.code==='C'||v.code==='NA');
         var hideClass=(isConform&&!cqShowAll&&ps!=='empty')?'cq-item-conform':'';
-        var noteShow=(v.code==='NC'||v.code==='REV')?'show':'';
+        var noteNcCls=(v.code==='NC')?' nc':'';
         var badges=['C','NC','NA','REV'].map(function(code){
           var lbl={C:'C',NC:'NC',NA:'N/A',REV:'⏸'}[code];
           var sel=(v.code===code?'sel-'+code:'');
@@ -2253,8 +2257,8 @@ function renderCQDetail(){
           +'<span class="cq-imp-badge">'+item.imp+'</span>'
           +'<span>'+item.text+'</span></div>'
           +'<div class="badge-row">'+badges+'</div>'
-          +'<div class="corr-wrap '+noteShow+'" id="cqnw_'+ph.id+'_'+item.id+'">'
-          +'<textarea placeholder="Note / mesure corrective..." oninput="cqSaveNote('+cqCurrent+',\''+ph.id+'\',\''+item.id+'\',this.value)" id="cqnote_'+ph.id+'_'+item.id+'">'+noteVal+'</textarea>'
+          +'<div class="cq-note-wrap'+noteNcCls+'" id="cqnw_'+ph.id+'_'+item.id+'">'
+          +'<textarea placeholder="Note (optionnel)..." oninput="cqSaveNote('+cqCurrent+',\''+ph.id+'\',\''+item.id+'\',this.value)" id="cqnote_'+ph.id+'_'+item.id+'">'+noteVal+'</textarea>'
           +'</div></div>';
       }).join('');
       return '<div class="section-block" style="margin-bottom:.5rem">'
@@ -2300,9 +2304,9 @@ function cqSetCode(modIdx, phId, itemId, el, code){
     b.className='badge'+(bCode===code?' sel-'+code:'');
   });
 
-  // Afficher/cacher la zone de note
+  // La zone de note reste toujours visible ; on la met juste en évidence si NC
   var nw=document.getElementById('cqnw_'+phId+'_'+itemId);
-  if(nw) nw.classList.toggle('show', code==='NC'||code==='REV');
+  if(nw) nw.classList.toggle('nc', code==='NC');
 
   // Mettre à jour le badge tâches
   cqUpdateTachesBadge();
