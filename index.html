@@ -316,6 +316,8 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .cq-visit-nc-item{font-size:12px;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border);line-height:1.4}
 .cq-visit-nc-item:last-child{border:none}
 .cq-visit-nc-note{font-size:11px;color:var(--text3);margin-top:2px}
+.cq-visit-notes{margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border)}
+.cq-visit-notes .cq-visit-nc-note em{font-style:normal;color:var(--teal-mid)}
 .cq-last-visit{background:var(--blue-light);border:1px solid rgba(33,118,204,.25);border-radius:var(--radius);padding:.6rem .85rem;font-size:12px;color:var(--blue-dark);margin-bottom:.7rem;display:flex;align-items:center;gap:6px}
 .cq-btn-row{display:flex;gap:8px;margin-top:.75rem}
 .cq-btn-row .btn{margin:0}
@@ -2174,6 +2176,15 @@ function renderCQDetail(){
               }).join('')
             + '</div>';
         }
+        var notesHtml = '';
+        if(v.otherNotes && v.otherNotes.length){
+          var codeLabels={C:'✓ Conforme',NA:'N/A',REV:'⏸ Pas vérifié'};
+          notesHtml = '<div class="cq-visit-notes"><div class="cq-visit-nc-title">Notes (Conforme / N/A / Pas vérifié) ('+v.otherNotes.length+')</div>'
+            + v.otherNotes.map(function(n){
+                return '<div class="cq-visit-nc-item">'+n.text+'<div class="cq-visit-nc-note">→ '+n.note+' <em>('+(codeLabels[n.code]||n.code)+')</em></div></div>';
+              }).join('')
+            + '</div>';
+        }
         return '<div class="cq-visit-card">'
           +'<div class="cq-visit-header"><span class="cq-visit-title">'+phLabel+'</span>'
           +'<div style="display:flex;align-items:center;gap:8px">'
@@ -2189,6 +2200,7 @@ function renderCQDetail(){
           +'<span style="font-size:11px;font-family:var(--mono);color:var(--text3);padding:3px 0">/ '+v.total+' items</span>'
           +'</div>'
           + ncHtml
+          + notesHtml
           +'</div>';
       }).join('');
       histPanel = '<div class="cq-phase-panel active">'+cards+'</div>';
@@ -2351,6 +2363,7 @@ function cqTerminerPhase(phId){
   var scores={C:0,NC:0,NA:0,REV:0};
   var total=0;
   var ncItems=[];
+  var otherNotes=[];
   ph.sections.forEach(function(sec){
     sec.items.forEach(function(item){
       total++;
@@ -2358,6 +2371,7 @@ function cqTerminerPhase(phId){
       var code=v.code||'REV';
       scores[code]=(scores[code]||0)+1;
       if(code==='NC') ncItems.push({text:item.text, note:v.note||''});
+      else if(v.note && v.note.trim()) otherNotes.push({text:item.text, note:v.note, code:code});
     });
   });
 
@@ -2368,7 +2382,8 @@ function cqTerminerPhase(phId){
     terminatedAt: new Date().toISOString(),
     scores: scores,
     total: total,
-    ncItems: ncItems
+    ncItems: ncItems,
+    otherNotes: otherNotes
   };
 
   if(!m.visits) m.visits=[];
