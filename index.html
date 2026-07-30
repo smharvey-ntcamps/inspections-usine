@@ -2389,6 +2389,7 @@ function cqTerminerPhase(phId){
 // Collecte toutes les NC actives (code==='NC') de tous les modules
 function cqGetAllTaches(){
   var taches = [];
+  var notes = [];
   CQ_PHASES.forEach(function(ph){
     ph.sections.forEach(function(sec){
       sec.items.forEach(function(item){
@@ -2431,16 +2432,32 @@ function cqGetAllTaches(){
               });
             }
           }
+          // Notes sur des items Conforme / N/A / Pas vérifié (les NC sont déjà listées ci-dessus)
+          if(v && v.code && v.code !== 'NC' && v.note && v.note.trim()){
+            notes.push({
+              modIdx: modIdx,
+              unit: m.unit,
+              type: m.type,
+              phase: ph.id,
+              phaseLabel: {avant:'Avant',pendant:'Pendant',apres:'Après'}[ph.id],
+              itemId: item.id,
+              key: k,
+              text: item.text,
+              note: v.note,
+              imp: item.imp,
+              code: v.code
+            });
+          }
         });
       });
     });
   });
-  return taches;
+  return {taches: taches, notes: notes};
 }
 
 function cqUpdateTachesBadge(){
-  var taches = cqGetAllTaches();
-  var actives = taches.filter(function(t){ return !t.reglée; }).length;
+  var res = cqGetAllTaches();
+  var actives = res.taches.filter(function(t){ return !t.reglée; }).length;
   var badge = document.getElementById('cq-taches-badge');
   if(!badge) return;
   if(actives > 0){
@@ -2454,11 +2471,12 @@ function cqUpdateTachesBadge(){
 
 function renderCQTaches(){
   var el = document.getElementById('cq-taches-content');
-  var taches = cqGetAllTaches();
-  var actives = taches.filter(function(t){ return !t.reglée; });
-  var reglees = taches.filter(function(t){ return t.reglée; });
+  var res = cqGetAllTaches();
+  var actives = res.taches.filter(function(t){ return !t.reglée; });
+  var reglees = res.taches.filter(function(t){ return t.reglée; });
+  var notes = res.notes;
 
-  if(!actives.length && !reglees.length){
+  if(!actives.length && !reglees.length && !notes.length){
     el.innerHTML = '<div class="cq-taches-empty">'
       +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>'
       +'<p style="font-size:13px;margin-top:.5rem">Aucune non-conformité active.<br>Beau travail !</p></div>';
@@ -2514,6 +2532,34 @@ function renderCQTaches(){
           +'</div></div>';
       });
     }
+  }
+
+  // Notes sur items Conforme / N/A / Pas vérifié
+  if(notes.length){
+    var noteGroups = {};
+    notes.forEach(function(n){
+      if(!noteGroups[n.unit]) noteGroups[n.unit] = {type:n.type, items:[]};
+      noteGroups[n.unit].items.push(n);
+    });
+    var codeLabels = {C:'✓ Conforme', NA:'N/A', REV:'⏸ Pas vérifié'};
+    var codeColors = {C:'var(--green)', NA:'var(--gray)', REV:'#6B2FE0'};
+    html += '<div class="cq-tache-group-header" style="border-top:1px solid var(--border);padding-top:.85rem;margin-top:.5rem">📝 Notes (Conforme / N/A / Pas vérifié) <span class="cq-tache-group-tag">'+notes.length+'</span></div>';
+    Object.keys(noteGroups).forEach(function(unit){
+      var g = noteGroups[unit];
+      html += '<div class="cq-tache-group">'
+        +'<div class="cq-tache-group-header">'
+        +unit+' <span class="cq-tache-group-tag">'+g.type+'</span>'
+        +'</div>';
+      g.items.forEach(function(n){
+        html += '<div class="cq-tache-card">'
+          +'<div class="cq-tache-body">'
+          +'<div class="cq-tache-text">'+n.text+'</div>'
+          +'<div class="cq-tache-note">→ '+n.note+'</div>'
+          +'<div class="cq-tache-meta">'+n.phaseLabel+' · <span style="color:'+codeColors[n.code]+';font-weight:600">'+(codeLabels[n.code]||n.code)+'</span></div>'
+          +'</div></div>';
+      });
+      html += '</div>';
+    });
   }
 
   el.innerHTML = html;
