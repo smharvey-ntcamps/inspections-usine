@@ -305,6 +305,18 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .cq-note-wrap textarea:focus{border-color:var(--teal-mid)}
 .cq-note-wrap.nc textarea{border-color:var(--red);background:var(--red-light)}
 
+/* Photo par item CQ */
+.cq-photo-wrap{margin-top:7px}
+.cq-photo-btn{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--blue-mid);background:var(--blue-light);border:1.5px dashed var(--blue-mid);border-radius:var(--radius);cursor:pointer;padding:7px 10px;width:100%;text-align:center}
+.cq-photo-btn:active{transform:scale(.98)}
+.cq-photo-thumb-wrap{position:relative;display:inline-block}
+.cq-photo-thumb{width:72px;height:72px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;display:block}
+.cq-photo-remove{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:11px;line-height:20px;padding:0}
+.cq-photo-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:2rem;cursor:zoom-out}
+.cq-photo-lightbox img{max-width:100%;max-height:100%;border-radius:var(--radius)}
+.cq-visit-photo{width:64px;height:64px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;margin-top:5px;display:block}
+.cq-tache-photo{width:56px;height:56px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;margin-top:5px;display:block}
+
 /* Historique des visites */
 .cq-visit-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:.6rem}
 .cq-visit-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
@@ -2172,7 +2184,7 @@ function renderCQDetail(){
         if(v.ncItems && v.ncItems.length){
           ncHtml = '<div class="cq-visit-nc"><div class="cq-visit-nc-title">NC actives lors de cette visite ('+v.ncItems.length+')</div>'
             + v.ncItems.map(function(n){
-                return '<div class="cq-visit-nc-item">'+n.text+(n.note?'<div class="cq-visit-nc-note">→ '+n.note+'</div>':'')+'</div>';
+                return '<div class="cq-visit-nc-item">'+n.text+(n.note?'<div class="cq-visit-nc-note">→ '+n.note+'</div>':'')+(n.photo?'<img src="'+n.photo+'" class="cq-visit-photo" onclick="cqViewPhoto(this.src)">':'')+'</div>';
               }).join('')
             + '</div>';
         }
@@ -2181,7 +2193,7 @@ function renderCQDetail(){
           var codeLabels={C:'✓ Conforme',NA:'N/A',REV:'⏸ Pas vérifié'};
           notesHtml = '<div class="cq-visit-notes"><div class="cq-visit-nc-title">Notes (Conforme / N/A / Pas vérifié) ('+v.otherNotes.length+')</div>'
             + v.otherNotes.map(function(n){
-                return '<div class="cq-visit-nc-item">'+n.text+'<div class="cq-visit-nc-note">→ '+n.note+' <em>('+(codeLabels[n.code]||n.code)+')</em></div></div>';
+                return '<div class="cq-visit-nc-item">'+n.text+(n.note?'<div class="cq-visit-nc-note">→ '+n.note+' <em>('+(codeLabels[n.code]||n.code)+')</em></div>':'<div class="cq-visit-nc-note"><em>('+(codeLabels[n.code]||n.code)+')</em></div>')+(n.photo?'<img src="'+n.photo+'" class="cq-visit-photo" onclick="cqViewPhoto(this.src)">':'')+'</div>';
               }).join('')
             + '</div>';
         }
@@ -2264,6 +2276,10 @@ function renderCQDetail(){
           return '<span class="badge '+sel+'" onclick="cqSetCode('+cqCurrent+',\''+ph.id+'\',\''+item.id+'\',this,\''+code+'\')">'+lbl+'</span>';
         }).join('');
         var noteVal=(v.note||'').replace(/"/g,'&quot;');
+        var photoHtml=v.photo
+          ? '<div class="cq-photo-thumb-wrap"><img src="'+v.photo+'" class="cq-photo-thumb" onclick="cqViewPhoto(this.src)"><button class="cq-photo-remove" onclick="event.stopPropagation();cqRemovePhoto('+cqCurrent+',\''+ph.id+'\',\''+item.id+'\')" title="Retirer la photo">✕</button></div>'
+          : '<button class="cq-photo-btn" onclick="document.getElementById(\'cqphotoinput_'+ph.id+'_'+item.id+'\').click()">📷 Ajouter une photo</button>';
+        photoHtml += '<input type="file" accept="image/*" capture="environment" style="display:none" id="cqphotoinput_'+ph.id+'_'+item.id+'" onchange="cqPhotoSelected('+cqCurrent+',\''+ph.id+'\',\''+item.id+'\',this)">';
         return '<div class="item '+hideClass+'" id="cqi_'+ph.id+'_'+item.id+'">'
           +'<div class="item-label" style="display:flex;align-items:flex-start;gap:6px">'
           +'<span class="cq-imp-badge">'+item.imp+'</span>'
@@ -2271,7 +2287,9 @@ function renderCQDetail(){
           +'<div class="badge-row">'+badges+'</div>'
           +'<div class="cq-note-wrap'+noteNcCls+'" id="cqnw_'+ph.id+'_'+item.id+'">'
           +'<textarea placeholder="Note (optionnel)..." oninput="cqSaveNote('+cqCurrent+',\''+ph.id+'\',\''+item.id+'\',this.value)" id="cqnote_'+ph.id+'_'+item.id+'">'+noteVal+'</textarea>'
-          +'</div></div>';
+          +'</div>'
+          +'<div class="cq-photo-wrap" id="cqpw_'+ph.id+'_'+item.id+'">'+photoHtml+'</div>'
+          +'</div>';
       }).join('');
       return '<div class="section-block" style="margin-bottom:.5rem">'
         +'<div class="section-header" onclick="this.parentElement.classList.toggle(\'collapsed\')">'
@@ -2334,6 +2352,94 @@ function cqSaveNote(modIdx, phId, itemId, val){
   cqModules[modIdx].items[k].note=val;
 }
 
+// ── Photos par item (compressées côté navigateur avant sauvegarde) ──
+// Limite : une cellule Google Sheets accepte 50 000 caractères max.
+// On vise ~35 000 caractères par photo pour garder de la marge.
+var CQ_PHOTO_MAX_CHARS = 35000;
+
+function cqCompressImage(file, onDone, onError){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var maxDim = 480;
+      var w = img.width, h = img.height;
+      if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+      else if (h >= w && h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      var quality = 0.55;
+      var dataUrl = canvas.toDataURL('image/jpeg', quality);
+      var tries = 0;
+      while (dataUrl.length > CQ_PHOTO_MAX_CHARS && tries < 4) {
+        quality = Math.max(0.15, quality - 0.12);
+        dataUrl = canvas.toDataURL('image/jpeg', quality);
+        tries++;
+      }
+      if (dataUrl.length > CQ_PHOTO_MAX_CHARS) {
+        // Dernier recours : réduire aussi les dimensions
+        var scale = Math.sqrt(CQ_PHOTO_MAX_CHARS / dataUrl.length);
+        var w2 = Math.max(120, Math.round(w * scale));
+        var h2 = Math.max(90, Math.round(h * scale));
+        canvas.width = w2; canvas.height = h2;
+        ctx.drawImage(img, 0, 0, w2, h2);
+        dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+      }
+      onDone(dataUrl);
+    };
+    img.onerror = onError;
+    img.src = e.target.result;
+  };
+  reader.onerror = onError;
+  reader.readAsDataURL(file);
+}
+
+function cqPhotoSelected(modIdx, phId, itemId, inputEl){
+  var file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  toast('Traitement de la photo...');
+  cqCompressImage(file, function(dataUrl){
+    var k = phId + '_' + itemId;
+    if (!cqModules[modIdx].items[k]) cqModules[modIdx].items[k] = {code:null, note:''};
+    cqModules[modIdx].items[k].photo = dataUrl;
+    cqPersist();
+    renderCQDetail();
+    toast('✓ Photo ajoutée');
+  }, function(){
+    toast('Impossible de traiter cette photo.', true);
+  });
+  inputEl.value = '';
+}
+
+function cqRemovePhoto(modIdx, phId, itemId){
+  var k = phId + '_' + itemId;
+  if (cqModules[modIdx].items[k]) delete cqModules[modIdx].items[k].photo;
+  cqPersist();
+  renderCQDetail();
+}
+
+function cqViewPhoto(src){
+  var overlay = document.createElement('div');
+  overlay.className = 'cq-photo-lightbox';
+  overlay.onclick = function(){ overlay.remove(); };
+  var img = document.createElement('img');
+  img.src = src;
+  overlay.appendChild(img);
+  document.body.appendChild(overlay);
+}
+
+// Avertit si le JSON total des items d'un module approche la limite de cellule Google Sheets
+function cqCheckItemsSize(m){
+  try {
+    var len = JSON.stringify(m.items || {}).length;
+    if (len > 45000) {
+      toast('⚠ Ce dossier contient beaucoup de photos — certaines pourraient ne pas se sauvegarder (limite Google Sheets).', true);
+    }
+  } catch(e) {}
+}
+
 function cqSavePhase(phId){
   var inspEl=document.getElementById('cq-insp-'+phId);
   var dateEl=document.getElementById('cq-date-'+phId);
@@ -2345,6 +2451,7 @@ function cqSavePhase(phId){
   m.updatedAt = new Date().toISOString();
   localStorage.setItem('saved_username', insp);
   cqPersist();
+  cqCheckItemsSize(m);
   cqSyncModule(m);
   renderCQDashboard();
   toast('✓ Sauvegardé — vous pouvez continuer plus tard');
@@ -2370,8 +2477,8 @@ function cqTerminerPhase(phId){
       var v=m.items[phId+'_'+item.id]||{code:null,note:''};
       var code=v.code||'REV';
       scores[code]=(scores[code]||0)+1;
-      if(code==='NC') ncItems.push({text:item.text, note:v.note||''});
-      else if(v.note && v.note.trim()) otherNotes.push({text:item.text, note:v.note, code:code});
+      if(code==='NC') ncItems.push({text:item.text, note:v.note||'', photo:v.photo||''});
+      else if((v.note && v.note.trim()) || v.photo) otherNotes.push({text:item.text, note:v.note||'', code:code, photo:v.photo||''});
     });
   });
 
@@ -2392,6 +2499,7 @@ function cqTerminerPhase(phId){
   m.updatedAt = new Date().toISOString();
   localStorage.setItem('saved_username', insp);
   cqPersist();
+  cqCheckItemsSize(m);
   cqSyncModule(m);
   renderCQDashboard();
   toast('✓ Contrôle terminé et enregistré dans l\'historique');
@@ -2422,6 +2530,7 @@ function cqGetAllTaches(){
               key: k,
               text: item.text,
               note: v.note || '',
+              photo: v.photo || '',
               imp: item.imp,
               reglée: false // NC = pas encore réglé
             });
@@ -2447,8 +2556,8 @@ function cqGetAllTaches(){
               });
             }
           }
-          // Notes sur des items Conforme / N/A / Pas vérifié (les NC sont déjà listées ci-dessus)
-          if(v && v.code && v.code !== 'NC' && v.note && v.note.trim()){
+          // Notes/photos sur des items Conforme / N/A / Pas vérifié (les NC sont déjà listées ci-dessus)
+          if(v && v.code && v.code !== 'NC' && ((v.note && v.note.trim()) || v.photo)){
             notes.push({
               modIdx: modIdx,
               unit: m.unit,
@@ -2458,7 +2567,8 @@ function cqGetAllTaches(){
               itemId: item.id,
               key: k,
               text: item.text,
-              note: v.note,
+              note: v.note || '',
+              photo: v.photo || '',
               imp: item.imp,
               code: v.code
             });
@@ -2526,6 +2636,7 @@ function renderCQTaches(){
         +'<div class="cq-tache-body">'
         +'<div class="cq-tache-text">'+t.text+'</div>'
         +(t.note?'<div class="cq-tache-note">→ '+t.note+'</div>':'')
+        +(t.photo?'<img src="'+t.photo+'" class="cq-tache-photo" onclick="cqViewPhoto(this.src)">':'')
         +'<div class="cq-tache-meta">'+t.phaseLabel+(t.imp?' · Importance '+t.imp:'')+'</div>'
         +'</div></div>';
     });
@@ -2569,7 +2680,8 @@ function renderCQTaches(){
         html += '<div class="cq-tache-card">'
           +'<div class="cq-tache-body">'
           +'<div class="cq-tache-text">'+n.text+'</div>'
-          +'<div class="cq-tache-note">→ '+n.note+'</div>'
+          +(n.note?'<div class="cq-tache-note">→ '+n.note+'</div>':'')
+          +(n.photo?'<img src="'+n.photo+'" class="cq-tache-photo" onclick="cqViewPhoto(this.src)">':'')
           +'<div class="cq-tache-meta">'+n.phaseLabel+' · <span style="color:'+codeColors[n.code]+';font-weight:600">'+(codeLabels[n.code]||n.code)+'</span></div>'
           +'</div></div>';
       });
