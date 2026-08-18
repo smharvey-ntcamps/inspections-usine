@@ -523,6 +523,8 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
       </div>
       <div class="section-title">Description</div>
       <div class="field"><textarea id="f03-description" placeholder="Expliquer rapidement la modification ou la problématique..."></textarea></div>
+      <div class="section-title">Photo (optionnel)</div>
+      <div class="cq-photo-wrap" id="f03-photo-wrap"></div>
       <button class="btn btn-blue" id="btn-save-f03" onclick="submitF03()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
         Soumettre la modification
@@ -703,7 +705,7 @@ const F03_API  = 'https://script.google.com/macros/s/AKfycbxlk41R7pJD6WBJLNYJFks
 // Incrémenter cette valeur à chaque publication sur GitHub — permet à
 // l'app d'afficher une bannière "Mettre à jour" chez les gens qui ont
 // déjà la page ouverte, sans qu'ils aient à faire un refresh manuel.
-const APP_VERSION = '2026-08-18-2';
+const APP_VERSION = '2026-08-18-3';
 
 function checkForUpdate(){
   fetch(location.pathname + '?_v=' + Date.now(), {cache:'no-store'})
@@ -916,13 +918,51 @@ function onTypeChange() {
     if (!ctx) initCanvas();
     else drawSchema();
     buildElements();
+    renderF03Photo();
     document.getElementById('f03-date').value = new Date().toISOString().split('T')[0];
   }
 }
 
 function initInspState() {
   inspState = {};
-  currentForm.sections.forEach(function(s){ s.items.forEach(function(item,i){ inspState[s.id+'_'+i]={code:null,corr:'',regle:false}; }); });
+  currentForm.sections.forEach(function(s){ s.items.forEach(function(item,i){ inspState[s.id+'_'+i]={code:null,corr:'',regle:false,photo:''}; }); });
+}
+
+// ── Photos par item (formulaire d'inspection) ──────────────
+function inspPhotoHtml(key){
+  var v = inspState[key] || {};
+  var photoHtml;
+  if (v.photo) {
+    photoHtml = '<div class="cq-photo-thumb-wrap"><img src="'+v.photo+'" class="cq-photo-thumb" onclick="cqViewPhoto(this.src)"><button class="cq-photo-remove" onclick="event.stopPropagation();inspRemovePhoto(\''+key+'\')" title="Retirer la photo">✕</button></div>';
+  } else {
+    photoHtml = '<button class="cq-photo-btn" onclick="document.getElementById(\'inspphotoinput_'+key+'\').click()">📷 Ajouter une photo</button>';
+  }
+  photoHtml += '<input type="file" accept="image/*" capture="environment" style="display:none" id="inspphotoinput_'+key+'" onchange="inspPhotoSelected(\''+key+'\',this)">';
+  return photoHtml;
+}
+
+function updateInspPhotoWrap(key){
+  var el = document.getElementById('ipw_'+key);
+  if (el) el.innerHTML = inspPhotoHtml(key);
+}
+
+function inspPhotoSelected(key, inputEl){
+  var file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  toast('Traitement de la photo...');
+  cqCompressImage(file, function(dataUrl){
+    inspState[key].photo = dataUrl;
+    updateInspPhotoWrap(key);
+    toast('✓ Photo ajoutée');
+  }, function(){
+    toast('Impossible de traiter cette photo.', true);
+  });
+  inputEl.value = '';
+}
+
+function inspRemovePhoto(key){
+  if (inspState[key]) inspState[key].photo = '';
+  updateInspPhotoWrap(key);
 }
 
 function buildInspForm() {
@@ -943,7 +983,7 @@ function buildInspForm() {
       if(isSub){ numHtml='<span class="item-sub-marker">–</span>'; }
       else { visibleNum++; numHtml='<span class="item-num">'+visibleNum+'.</span>'; }
       var badges=currentForm.codes.map(function(code){ return '<span class="badge" data-key="'+key+'" data-code="'+code+'" onclick="setCode(\''+key+'\',\''+code+'\',this)">'+code+'</span>'; }).join('');
-      div.innerHTML='<div class="item-label">'+numHtml+itemText+'</div><div class="badge-row">'+badges+'</div><div class="corr-wrap" id="cw_'+key+'"><textarea placeholder="Description du problème..." oninput="inspState[\''+key+'\'].corr=this.value"></textarea><div class="regle-wrap" id="rw_'+key+'"><input type="checkbox" class="regle-check" id="rc_'+key+'" onchange="inspState[\''+key+'\'].regle=this.checked"><label class="regle-label" for="rc_'+key+'">✓ Problème déjà réglé</label></div></div>';
+      div.innerHTML='<div class="item-label">'+numHtml+itemText+'</div><div class="badge-row">'+badges+'</div><div class="corr-wrap" id="cw_'+key+'"><textarea placeholder="Description du problème..." oninput="inspState[\''+key+'\'].corr=this.value"></textarea><div class="cq-photo-wrap" id="ipw_'+key+'">'+inspPhotoHtml(key)+'</div><div class="regle-wrap" id="rw_'+key+'"><input type="checkbox" class="regle-check" id="rc_'+key+'" onchange="inspState[\''+key+'\'].regle=this.checked"><label class="regle-label" for="rc_'+key+'">✓ Problème déjà réglé</label></div></div>';
       itemsEl.appendChild(div);
     });
     wrap.appendChild(itemsEl); c.appendChild(wrap);
@@ -984,7 +1024,13 @@ async function submitInspection() {
   }
   var scores={}; currentForm.codes.forEach(function(c){ scores[c]=0; });
   var ncItems=[];
-  currentForm.sections.forEach(function(s){ s.items.forEach(function(rawItem,i){ var k=s.id+'_'+i,v=inspState[k]; var itemText=(rawItem&&typeof rawItem==='object')?rawItem.text:rawItem; if(v.code) scores[v.code]=(scores[v.code]||0)+1; if(v.code==='NC'||v.code==='PC') ncItems.push({section:s.title,item:itemText,code:v.code,corr:v.corr,regle:v.regle||false}); }); });
+  currentForm.sections.forEach(function(s){ s.items.forEach(function(rawItem,i){ var k=s.id+'_'+i,v=inspState[k]; var itemText=(rawItem&&typeof rawItem==='object')?rawItem.text:rawItem; if(v.code) scores[v.code]=(scores[v.code]||0)+1; if(v.code==='NC'||v.code==='PC') ncItems.push({section:s.title,item:itemText,code:v.code,corr:v.corr,regle:v.regle||false,photo:v.photo||''}); }); });
+  try {
+    var ncItemsLen = JSON.stringify(ncItems).length;
+    if (ncItemsLen > 42000) {
+      toast('⚠ Cette inspection contient beaucoup de photos — certaines pourraient ne pas se synchroniser correctement.', true);
+    }
+  } catch(eSize) {}
   var payload={id:'INS-'+Date.now().toString(),type:currentType,typeLabel:TYPE_LABELS[currentType],date:date,inspector:name,notes:document.getElementById('insp-notes').value,scores:scores,ncItems:ncItems};
   var btn=document.getElementById('btn-save-insp'); btn.disabled=true; btn.textContent='Sauvegarde...';
   var ok=await postInsp(payload);
@@ -1108,6 +1154,40 @@ function onTouchMove(e){ e.preventDefault(); if(!isDrawing||currentTool!=='draw'
 function setTool(t){ currentTool=t; document.getElementById('tool-marker').classList.toggle('active',t==='marker'); document.getElementById('tool-draw').classList.toggle('active',t==='draw'); }
 function clearCanvas(){ drawSchema(); }
 
+// ── Photo (F03) ─────────────────────────────────────────────
+var f03Photo = '';
+
+function f03PhotoHtml(){
+  if (f03Photo) {
+    return '<div class="cq-photo-thumb-wrap"><img src="'+f03Photo+'" class="cq-photo-thumb" onclick="cqViewPhoto(this.src)"><button class="cq-photo-remove" onclick="event.stopPropagation();f03RemovePhoto()" title="Retirer la photo">✕</button></div><input type="file" accept="image/*" capture="environment" style="display:none" id="f03photoinput" onchange="f03PhotoSelected(this)">';
+  }
+  return '<button class="cq-photo-btn" onclick="document.getElementById(\'f03photoinput\').click()">📷 Ajouter une photo</button><input type="file" accept="image/*" capture="environment" style="display:none" id="f03photoinput" onchange="f03PhotoSelected(this)">';
+}
+
+function renderF03Photo(){
+  var el = document.getElementById('f03-photo-wrap');
+  if (el) el.innerHTML = f03PhotoHtml();
+}
+
+function f03PhotoSelected(inputEl){
+  var file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  toast('Traitement de la photo...');
+  cqCompressImage(file, function(dataUrl){
+    f03Photo = dataUrl;
+    renderF03Photo();
+    toast('✓ Photo ajoutée');
+  }, function(){
+    toast('Impossible de traiter cette photo.', true);
+  });
+  inputEl.value = '';
+}
+
+function f03RemovePhoto(){
+  f03Photo = '';
+  renderF03Photo();
+}
+
 async function submitF03() {
   var nom=document.getElementById('f03-nom').value.trim();
   if(nom){ savedUsername=nom; localStorage.setItem('saved_username', nom); }
@@ -1122,7 +1202,7 @@ async function submitF03() {
   if(!desc){ toast('Veuillez ajouter une description.',true); return; }
   var autre=document.getElementById('f03-autre').value.trim();
   var elements=selectedElements.map(function(e){ return (e==='Autre (spécifier)'&&autre)?'Autre: '+autre:e; });
-  var payload={id:'F03-'+Date.now().toString(),type:'f03',date:date,nom:nom,unite:unite,page:page,elements:elements,description:desc,schema:canvas.toDataURL('image/png'),statut:'attente'};
+  var payload={id:'F03-'+Date.now().toString(),type:'f03',date:date,nom:nom,unite:unite,page:page,elements:elements,description:desc,schema:canvas.toDataURL('image/png'),photo:f03Photo||'',statut:'attente'};
 
   // Mémoriser l'unité dans la datalist
   var f03Units = JSON.parse(localStorage.getItem('f03_units')||'[]');
@@ -1138,6 +1218,7 @@ function resetF03Form() {
   ['f03-nom','f03-unite','f03-page','f03-description','f03-autre'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('f03-date').value=new Date().toISOString().split('T')[0];
   selectedElements=[]; buildElements(); document.getElementById('autre-field').classList.remove('show'); clearCanvas();
+  f03Photo=''; renderF03Photo();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1188,13 +1269,13 @@ function renderHistory() {
     if(r._kind==='insp'){
       var s=r.scores||{}, ncItems=r.ncItems||[];
       var scoreHtml=Object.entries(s).filter(function(e){ return e[1]>0; }).map(function(e){ return '<span class="score-badge sb-'+e[0].toLowerCase()+'">'+e[0]+': '+e[1]+'</span>'; }).join('');
-      var ncSec=ncItems.length?'<div class="nc-block"><h4>NC et partiels ('+ncItems.length+')</h4>'+ncItems.map(function(n){ return '<div class="nc-item-row"><strong>'+n.code+'</strong> — '+n.item+(n.corr?'<div class="nc-corr">→ '+n.corr+'</div>':'')+' </div>'; }).join('')+'</div>':'';
+      var ncSec=ncItems.length?'<div class="nc-block"><h4>NC et partiels ('+ncItems.length+')</h4>'+ncItems.map(function(n){ return '<div class="nc-item-row"><strong>'+n.code+'</strong> — '+n.item+(n.corr?'<div class="nc-corr">→ '+n.corr+'</div>':'')+(n.photo?'<img src="'+n.photo+'" class="cq-visit-photo" onclick="cqViewPhoto(this.src)">':'')+' </div>'; }).join('')+'</div>':'';
       var notesHtml=r.notes&&r.notes.trim()?'<div class="notes-block"><span class="notes-lbl">Notes</span>'+r.notes+'</div>':'';
       return '<div class="hcard"><div class="hcard-top"><div><div class="hcard-date">'+fmtDate(r.date)+'</div><div class="hcard-sub">'+r.inspector+'</div></div>'+delBtn+'</div><span class="hcard-type insp">'+(r.typeLabel||TYPE_LABELS[r.type]||'Usine')+'</span><div class="score-row">'+scoreHtml+'</div>'+ncSec+notesHtml+'</div>';
     } else {
       var tags=(r.elements||[]).map(function(e){ return '<span class="mod-tag">'+e+'</span>'; }).join('');
       var metaStr=[r.unite?'Unité: '+r.unite:'',r.page?'Page: '+r.page:''].filter(Boolean).join(' · ');
-      return '<div class="hcard"><div class="hcard-top"><div><div class="hcard-date">'+fmtDate(r.date)+'</div><div class="hcard-sub">'+r.nom+'</div></div>'+delBtn+'</div><span class="hcard-type f03">📝 Modification F03</span>'+(metaStr?'<div class="hcard-sub" style="margin-bottom:.4rem">'+metaStr+'</div>':'')+'<div class="mod-tags" style="margin-bottom:.4rem">'+tags+'</div><div style="font-size:13px;color:var(--text2)">'+r.description+'</div></div>';
+      return '<div class="hcard"><div class="hcard-top"><div><div class="hcard-date">'+fmtDate(r.date)+'</div><div class="hcard-sub">'+r.nom+'</div></div>'+delBtn+'</div><span class="hcard-type f03">📝 Modification F03</span>'+(metaStr?'<div class="hcard-sub" style="margin-bottom:.4rem">'+metaStr+'</div>':'')+'<div class="mod-tags" style="margin-bottom:.4rem">'+tags+'</div><div style="font-size:13px;color:var(--text2)">'+r.description+'</div>'+(r.photo?'<img src="'+r.photo+'" class="cq-visit-photo" onclick="cqViewPhoto(this.src)">':'')+'</div>';
     }
   }).join('');
   el.innerHTML = filterHtml + dateFiltreHtml + cards;
