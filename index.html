@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Camps NT - Usine</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -693,6 +696,37 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 <script>
 const INSP_API = 'https://script.google.com/macros/s/AKfycbxlk41R7pJD6WBJLNYJFksoj0Nm17uSIGQwa1pgruF2YCmAuLTlY9hKwJm62hHSxwHu/exec';
 const F03_API  = 'https://script.google.com/macros/s/AKfycbxlk41R7pJD6WBJLNYJFksoj0Nm17uSIGQwa1pgruF2YCmAuLTlY9hKwJm62hHSxwHu/exec';
+
+// ════════════════════════════════════════════════════════════
+// DÉTECTION DE NOUVELLE VERSION
+// ════════════════════════════════════════════════════════════
+// Incrémenter cette valeur à chaque publication sur GitHub — permet à
+// l'app d'afficher une bannière "Mettre à jour" chez les gens qui ont
+// déjà la page ouverte, sans qu'ils aient à faire un refresh manuel.
+const APP_VERSION = '2026-08-18-1';
+
+function checkForUpdate(){
+  fetch(location.pathname + '?_v=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.text(); })
+    .then(function(html){
+      var m = html.match(/APP_VERSION\s*=\s*'([^']+)'/);
+      if(m && m[1] !== APP_VERSION) showUpdateBanner();
+    }).catch(function(){});
+}
+
+function showUpdateBanner(){
+  if(document.getElementById('update-banner')) return;
+  var b = document.createElement('div');
+  b.id = 'update-banner';
+  b.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--teal-dark);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:99999;font-size:13px;flex-wrap:wrap;box-shadow:0 -2px 10px rgba(0,0,0,.15)';
+  b.innerHTML = '<span>🔄 Une nouvelle version de l\'application est disponible.</span>'
+    + '<button id="update-reload-btn" style="background:#fff;color:var(--teal-dark);border:none;padding:6px 16px;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px">Mettre à jour</button>';
+  document.body.appendChild(b);
+  document.getElementById('update-reload-btn').onclick = function(){ location.reload(); };
+}
+
+setInterval(checkForUpdate, 5*60*1000); // vérifie toutes les 5 minutes
+document.addEventListener('visibilitychange', function(){ if(!document.hidden) checkForUpdate(); }); // vérifie quand on revient sur l'onglet
 
 // ════════════════════════════════════════════════════════════
 // DONNÉES
@@ -2353,16 +2387,18 @@ function cqSaveNote(modIdx, phId, itemId, val){
 }
 
 // ── Photos par item (compressées côté navigateur avant sauvegarde) ──
-// Limite : une cellule Google Sheets accepte 50 000 caractères max.
-// On vise ~35 000 caractères par photo pour garder de la marge.
-var CQ_PHOTO_MAX_CHARS = 35000;
+// Limite : une cellule Google Sheets accepte 50 000 caractères max, et une
+// visite peut contenir PLUSIEURS photos dans la même cellule (JSON de tous
+// les items de la visite) — on vise donc une taille bien plus petite par
+// photo pour qu'on puisse en mettre plusieurs sans dépasser la limite.
+var CQ_PHOTO_MAX_CHARS = 8000;
 
 function cqCompressImage(file, onDone, onError){
   var reader = new FileReader();
   reader.onload = function(e){
     var img = new Image();
     img.onload = function(){
-      var maxDim = 480;
+      var maxDim = 360;
       var w = img.width, h = img.height;
       if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
       else if (h >= w && h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
@@ -2492,6 +2528,16 @@ function cqTerminerPhase(phId){
     ncItems: ncItems,
     otherNotes: otherNotes
   };
+
+  // Avertir si cette visite (NC + notes, incluant les photos) approche la limite
+  // de cellule Google Sheets — au-delà, la visite risque de ne pas se synchroniser
+  // correctement vers les autres appareils.
+  try {
+    var visitJsonLen = JSON.stringify(ncItems).length + JSON.stringify(otherNotes).length;
+    if (visitJsonLen > 42000) {
+      toast('⚠ Cette visite contient beaucoup de photos — certaines pourraient ne pas se synchroniser sur les autres appareils.', true);
+    }
+  } catch(e) {}
 
   if(!m.visits) m.visits=[];
   m.visits.push(visit);
