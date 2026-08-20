@@ -113,6 +113,17 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .sig-line{position:absolute;left:12px;right:12px;bottom:26px;border-bottom:1px dashed var(--text3);pointer-events:none}
 .sig-hint{position:absolute;left:12px;bottom:8px;font-size:10px;font-family:var(--mono);color:var(--text3);pointer-events:none}
 .sig-clear{position:absolute;top:6px;right:6px;font-size:11px;font-family:var(--mono);padding:3px 9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text2);cursor:pointer}
+.filter-btn.active.red{background:var(--red);border-color:var(--red);color:#fff}
+.acc-hcard{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:var(--radius-lg);padding:.85rem;margin-bottom:.7rem}
+.acc-hcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;cursor:pointer}
+.acc-hcard-name{font-size:14px;font-weight:600}
+.acc-hcard-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px}
+.acc-hcard-date{font-size:12px;font-family:var(--mono);color:var(--red);white-space:nowrap}
+.acc-hcard-body{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);font-size:13px;line-height:1.5;display:none}
+.acc-hcard.open .acc-hcard-body{display:block}
+.acc-hcard-body .row{margin-bottom:4px}
+.acc-hcard-body .lbl{color:var(--text3);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+.acc-decl-box{background:var(--bg);border-radius:8px;padding:8px 10px;margin-top:4px;white-space:pre-wrap}
 .btn svg{width:16px;height:16px}
 
 /* FILTER */
@@ -561,6 +572,16 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
       Une fois envoyé, le PDF officiel PRÉVIBOIS est rempli automatiquement et transmis aux responsables. Les sections enquête et analyse seront complétées ensuite.
     </div>
 
+    <div class="filter-row" style="margin-bottom:.85rem">
+      <button class="filter-btn active red" id="acc-tab-form" onclick="accShowView('form')">➕ Nouveau rapport</button>
+      <button class="filter-btn" id="acc-tab-hist" onclick="accShowView('hist')">📋 Historique</button>
+    </div>
+
+    <div id="acc-hist-view" style="display:none">
+      <div id="acc-hist-content"><div class="loading-state">Chargement...</div></div>
+    </div>
+
+    <div id="acc-form-view">
     <div class="section-title">Identification de l'entreprise</div>
     <div class="field"><label>Nom de l'entreprise</label><input type="text" id="acc-entreprise" value="Les Entreprises Forestières NT"></div>
     <div class="meta-grid">
@@ -635,6 +656,7 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
       Générer et envoyer le rapport
     </button>
     <button class="btn btn-ghost" onclick="resetAccident()">Réinitialiser</button>
+    </div><!-- /acc-form-view -->
   </div>
 
   <!-- ═══ HISTORIQUE ═══ -->
@@ -1036,6 +1058,54 @@ function accSigInit() {
 }
 function accSigClear(id){ var p=accSigPads[id]; if(!p) return; p.ctx.clearRect(0,0,p.canvas.width,p.canvas.height); p.hasInk=false; }
 function accSigData(id){ var p=accSigPads[id]; if(!p||!p.hasInk) return null; return p.canvas.toDataURL('image/png'); }
+
+// ── Historique des rapports d'accident ─────────────────────────
+function accShowView(v){
+  var isForm = v === 'form';
+  document.getElementById('acc-form-view').style.display = isForm ? 'block' : 'none';
+  document.getElementById('acc-hist-view').style.display = isForm ? 'none' : 'block';
+  document.getElementById('acc-tab-form').classList.toggle('active', isForm);
+  document.getElementById('acc-tab-hist').classList.toggle('active', !isForm);
+  if(isForm){ accSigInit(); } else { loadAccidentHistory(); }
+}
+function accEscapeHtml(s){ var d=document.createElement('div'); d.textContent = (s==null?'':String(s)); return d.innerHTML; }
+function accFmtDate(iso){ if(!iso) return ''; var p=String(iso).split('-'); return p.length===3 ? (p[2]+'/'+p[1]+'/'+p[0]) : String(iso); }
+async function loadAccidentHistory(){
+  var el = document.getElementById('acc-hist-content');
+  el.innerHTML = '<div class="loading-state">Chargement...</div>';
+  try {
+    var r = await fetch(ACCIDENT_API + '?action=getAccidents&_=' + Date.now());
+    var j = await r.json();
+    renderAccidentHistory(j.accidents || []);
+  } catch(e){
+    el.innerHTML = '<div class="empty-state"><p>Impossible de charger l\'historique pour le moment.</p></div>';
+  }
+}
+function renderAccidentHistory(list){
+  var el = document.getElementById('acc-hist-content');
+  if(!list.length){ el.innerHTML = '<div class="empty-state"><p>Aucun rapport d\'accident déclaré pour l\'instant.</p></div>'; return; }
+  list = list.slice().reverse(); // plus récent en premier
+  var html = '';
+  list.forEach(function(a){
+    var nom = ((a.prenom||'')+' '+(a.nom||'')).trim() || '—';
+    var sub = [a.poste, a.lieu].filter(Boolean).map(accEscapeHtml).join(' · ');
+    var temoins = a.temoins==='oui' ? ('Oui'+(a.temoinsNoms?' ('+accEscapeHtml(a.temoinsNoms)+')':'')) : 'Non';
+    var etr = a.etranger==='oui' ? ('Oui'+(a.etrangerPrec?' ('+accEscapeHtml(a.etrangerPrec)+')':'')) : 'Non';
+    html += '<div class="acc-hcard"><div class="acc-hcard-top" onclick="this.parentNode.classList.toggle(\'open\')">'
+      + '<div><div class="acc-hcard-name">'+accEscapeHtml(nom)+'</div><div class="acc-hcard-sub">'+sub+'</div></div>'
+      + '<div class="acc-hcard-date">'+accFmtDate(a.date)+(a.heure?'<br>'+accEscapeHtml(a.heure):'')+'</div>'
+      + '</div><div class="acc-hcard-body">'
+      + (a.departement?'<div class="row"><span class="lbl">Département</span> — '+accEscapeHtml(a.departement)+'</div>':'')
+      + (a.superviseur?'<div class="row"><span class="lbl">Superviseur</span> — '+accEscapeHtml(a.superviseur)+'</div>':'')
+      + '<div class="row"><span class="lbl">Témoins</span> — '+temoins+'</div>'
+      + '<div class="row"><span class="lbl">Personne étrangère</span> — '+etr+'</div>'
+      + (a.soins?'<div class="row"><span class="lbl">Premiers soins</span> — '+accEscapeHtml(a.soins)+(a.secouriste?' (secouriste : '+accEscapeHtml(a.secouriste)+')':'')+'</div>':'')
+      + '<div class="row"><span class="lbl">Photos / croquis</span> — '+(a.photos==='oui'?'Oui':'Non')+'</div>'
+      + '<div class="row" style="margin-top:6px"><span class="lbl">Déclaration du travailleur</span><div class="acc-decl-box">'+accEscapeHtml(a.declaration||'')+'</div></div>'
+      + '</div></div>';
+  });
+  el.innerHTML = html;
+}
 
 function accSetYN(group, val) {
   ACC_YN[group] = val;
