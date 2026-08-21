@@ -8,7 +8,6 @@
 <meta http-equiv="Expires" content="0">
 <title>Camps NT - Usine</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -38,14 +37,11 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* NAV */
-.nav{display:grid;grid-template-columns:repeat(6,1fr);background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:60px;z-index:19}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:60px;z-index:19}
 .nav-btn{padding:9px 2px 8px;font-size:10px;font-weight:500;text-align:center;cursor:pointer;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
 .nav-btn svg{width:15px;height:15px}
 .nav-btn.active{color:var(--teal-mid);border-bottom-color:var(--teal-mid)}
 .nav-btn.active.blue{color:var(--blue-mid);border-bottom-color:var(--blue-mid)}
-.nav-btn.active.red{color:var(--red);border-bottom-color:var(--red)}
-.nav-btn.accident-btn{color:var(--red)}
-.nav-btn.accident-btn.active{color:var(--red);border-bottom-color:var(--red)}
 
 /* SCREENS */
 .screen{flex:1;padding:1rem 1.25rem 2rem;display:none}
@@ -100,30 +96,6 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .btn-primary:disabled{background:var(--gray);cursor:not-allowed}
 .btn-ghost{background:transparent;color:var(--teal-mid);border:1.5px solid var(--teal-mid);margin-top:.5rem}
 .btn-blue{background:var(--blue-mid);color:#fff;margin-top:.75rem}
-.btn-red{background:var(--red);color:#fff;margin-top:.75rem}
-.btn-red:disabled{background:var(--gray);cursor:not-allowed}
-.acc-banner{background:var(--red-light);border:1px solid var(--red);color:var(--red-dark);border-radius:var(--radius);padding:9px 12px;font-size:12px;line-height:1.5;margin-bottom:.85rem}
-.acc-yn{display:flex;gap:8px}
-.acc-yn button{flex:1;padding:9px;font-size:13px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text2);cursor:pointer;transition:.12s}
-.acc-yn button.on{background:var(--teal-light);border-color:var(--teal-mid);color:var(--teal-dark);font-weight:600}
-.acc-yn button.on.no{background:var(--red-light);border-color:var(--red);color:var(--red-dark)}
-.acc-required label::after{content:' *';color:var(--red)}
-.sig-wrap{position:relative;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);overflow:hidden}
-.sig-canvas{display:block;width:100%;height:130px;background:#fff;touch-action:none;cursor:crosshair}
-.sig-line{position:absolute;left:12px;right:12px;bottom:26px;border-bottom:1px dashed var(--text3);pointer-events:none}
-.sig-hint{position:absolute;left:12px;bottom:8px;font-size:10px;font-family:var(--mono);color:var(--text3);pointer-events:none}
-.sig-clear{position:absolute;top:6px;right:6px;font-size:11px;font-family:var(--mono);padding:3px 9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text2);cursor:pointer}
-.filter-btn.active.red{background:var(--red);border-color:var(--red);color:#fff}
-.acc-hcard{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:var(--radius-lg);padding:.85rem;margin-bottom:.7rem}
-.acc-hcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;cursor:pointer}
-.acc-hcard-name{font-size:14px;font-weight:600}
-.acc-hcard-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px}
-.acc-hcard-date{font-size:12px;font-family:var(--mono);color:var(--red);white-space:nowrap}
-.acc-hcard-body{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);font-size:13px;line-height:1.5;display:none}
-.acc-hcard.open .acc-hcard-body{display:block}
-.acc-hcard-body .row{margin-bottom:4px}
-.acc-hcard-body .lbl{color:var(--text3);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
-.acc-decl-box{background:var(--bg);border-radius:8px;padding:8px 10px;margin-top:4px;white-space:pre-wrap}
 .btn svg{width:16px;height:16px}
 
 /* FILTER */
@@ -456,10 +428,6 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
       Qualité
     </button>
-    <button class="nav-btn accident-btn" onclick="showTab('accident',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Accident
-    </button>
 
   </nav>
 
@@ -563,100 +531,6 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
       </button>
       <button class="btn btn-ghost" style="border-color:var(--blue-mid);color:var(--blue-mid)" onclick="resetF03Form()">Réinitialiser</button>
     </div>
-  </div>
-
-  <!-- ═══ RAPPORT D'ACCIDENT ═══ -->
-  <div id="tab-accident" class="screen">
-    <div class="acc-banner">
-      <strong>⚠ Rapport d'accident — à remplir au moment de l'événement.</strong><br>
-      Une fois envoyé, le PDF officiel PRÉVIBOIS est rempli automatiquement et transmis aux responsables. Les sections enquête et analyse seront complétées ensuite.
-    </div>
-
-    <div class="filter-row" style="margin-bottom:.85rem">
-      <button class="filter-btn active red" id="acc-tab-form" onclick="accShowView('form')">➕ Nouveau rapport</button>
-      <button class="filter-btn" id="acc-tab-hist" onclick="accShowView('hist')">📋 Historique</button>
-    </div>
-
-    <div id="acc-hist-view" style="display:none">
-      <div id="acc-hist-content"><div class="loading-state">Chargement...</div></div>
-    </div>
-
-    <div id="acc-form-view">
-    <div class="section-title">Identification de l'entreprise</div>
-    <div class="field"><label>Nom de l'entreprise</label><input type="text" id="acc-entreprise" value="Les Entreprises Forestières NT"></div>
-    <div class="meta-grid">
-      <div class="field"><label>Établissement</label><input type="text" id="acc-etablissement" value="Usine de fabrication"></div>
-      <div class="field"><label>Département / secteur</label><input type="text" id="acc-departement" placeholder=""></div>
-    </div>
-
-    <div class="section-title">Personne accidentée</div>
-    <div class="meta-grid">
-      <div class="field acc-required"><label>Nom</label><input type="text" id="acc-nom" placeholder="Nom de famille"></div>
-      <div class="field acc-required"><label>Prénom</label><input type="text" id="acc-prenom" placeholder="Prénom"></div>
-    </div>
-    <div class="field"><label>Poste ou occupation au moment de l'accident</label><input type="text" id="acc-poste" placeholder="Ex : journalier de production"></div>
-
-    <div class="section-title">Renseignements sur l'événement</div>
-    <div class="meta-grid">
-      <div class="field acc-required"><label>Date de l'événement</label><input type="date" id="acc-date"></div>
-      <div class="field"><label>Heure</label><input type="time" id="acc-heure"></div>
-    </div>
-    <div class="field"><label>Déclaré le</label><input type="date" id="acc-declare"></div>
-    <div class="field"><label>Lieu précis de l'accident</label><input type="text" id="acc-lieu" placeholder=""></div>
-    <div class="field"><label>Superviseur(s) en place au moment de l'accident</label><input type="text" id="acc-superviseur" placeholder="Nom du/des superviseur(s)"></div>
-
-    <div class="field">
-      <label>Y a-t-il des témoins oculaires ?</label>
-      <div class="acc-yn" id="acc-temoins-yn">
-        <button type="button" data-v="oui" onclick="accSetYN('temoins','oui')">Oui</button>
-        <button type="button" data-v="non" onclick="accSetYN('temoins','non')">Non</button>
-      </div>
-    </div>
-    <div class="field" id="acc-temoins-noms-wrap" style="display:none"><label>Nommez le(s) témoin(s)</label><input type="text" id="acc-temoins-noms" placeholder="Nom(s) des témoins"></div>
-
-    <div class="field">
-      <label>L'événement a-t-il été provoqué par une personne étrangère à l'entreprise ?</label>
-      <div class="acc-yn" id="acc-etranger-yn">
-        <button type="button" data-v="oui" onclick="accSetYN('etranger','oui')">Oui</button>
-        <button type="button" data-v="non" onclick="accSetYN('etranger','non')">Non</button>
-      </div>
-    </div>
-    <div class="field" id="acc-etranger-prec-wrap" style="display:none"><label>Si oui, précisez</label><input type="text" id="acc-etranger-prec" placeholder="Précisions"></div>
-
-    <div class="section-title">Déclaration et premiers soins</div>
-    <div class="field acc-required"><label>Déclaration du travailleur (dans ses mots)</label><textarea id="acc-declaration" placeholder="Décrivez l'évènement..."></textarea></div>
-    <div class="field"><label>Description des premiers soins</label><textarea id="acc-soins" placeholder="Soins prodigués..." style="min-height:56px"></textarea></div>
-    <div class="field"><label>Nom du secouriste</label><input type="text" id="acc-secouriste" placeholder="Nom du secouriste"></div>
-    <div class="field">
-      <label>Photographies disponibles / croquis ?</label>
-      <div class="acc-yn" id="acc-photos-yn">
-        <button type="button" data-v="oui" onclick="accSetYN('photos','oui')">Oui</button>
-        <button type="button" data-v="non" onclick="accSetYN('photos','non')">Non</button>
-      </div>
-    </div>
-
-    <div class="section-title">Signatures</div>
-    <div class="field acc-required"><label>Signature du travailleur</label>
-      <div class="sig-wrap">
-        <canvas id="acc-sig-trav" class="sig-canvas"></canvas>
-        <div class="sig-line"></div><div class="sig-hint">Signez ci-dessus</div>
-        <button type="button" class="sig-clear" onclick="accSigClear('acc-sig-trav')">Effacer</button>
-      </div>
-    </div>
-    <div class="field acc-required"><label>Signature du responsable</label>
-      <div class="sig-wrap">
-        <canvas id="acc-sig-resp" class="sig-canvas"></canvas>
-        <div class="sig-line"></div><div class="sig-hint">Signez ci-dessus</div>
-        <button type="button" class="sig-clear" onclick="accSigClear('acc-sig-resp')">Effacer</button>
-      </div>
-    </div>
-
-    <button class="btn btn-red" id="btn-send-acc" onclick="submitAccident()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-      Générer et envoyer le rapport
-    </button>
-    <button class="btn btn-ghost" onclick="resetAccident()">Réinitialiser</button>
-    </div><!-- /acc-form-view -->
   </div>
 
   <!-- ═══ HISTORIQUE ═══ -->
@@ -824,13 +698,6 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 <script>
 const INSP_API = 'https://script.google.com/macros/s/AKfycbxlk41R7pJD6WBJLNYJFksoj0Nm17uSIGQwa1pgruF2YCmAuLTlY9hKwJm62hHSxwHu/exec';
 const F03_API  = 'https://script.google.com/macros/s/AKfycbxlk41R7pJD6WBJLNYJFksoj0Nm17uSIGQwa1pgruF2YCmAuLTlY9hKwJm62hHSxwHu/exec';
-// Envoi courriel du rapport d'accident : même backend Apps Script que les inspections
-// (branche action:'accident' ajoutée dans le script "Inspection API")
-const ACCIDENT_API = INSP_API;
-// Nom de fichier du gabarit PDF officiel PRÉVIBOIS (à la racine du dépôt)
-const ACCIDENT_TEMPLATE = 'accident_template.pdf';
-// Correspondance champs formulaire -> champs du PDF AcroForm (Oui="0", Non="1")
-const ACC_YN = { temoins:'non', etranger:'non', photos:'non' };
 
 // ════════════════════════════════════════════════════════════
 // DÉTECTION DE NOUVELLE VERSION
@@ -838,7 +705,7 @@ const ACC_YN = { temoins:'non', etranger:'non', photos:'non' };
 // Incrémenter cette valeur à chaque publication sur GitHub — permet à
 // l'app d'afficher une bannière "Mettre à jour" chez les gens qui ont
 // déjà la page ouverte, sans qu'ils aient à faire un refresh manuel.
-const APP_VERSION = '2026-08-19-accident-1';
+const APP_VERSION = '2026-08-18-4';
 
 function checkForUpdate(){
   fetch(location.pathname + '?_v=' + Date.now(), {cache:'no-store'})
@@ -1011,283 +878,6 @@ async function saveSuiviAction(uid, val) {
   const url = INSP_API + '?action=suivi&uid=' + encodeURIComponent(uid) + '&corr=' + encodeURIComponent(val);
   await new Promise(function(resolve){ var img=new Image(); img.onload=img.onerror=resolve; img.src=url; setTimeout(resolve,4000); });
   setSyncStatus('ok','Synchronisé');
-}
-
-// ════════════════════════════════════════════════════════════
-// RAPPORT D'ACCIDENT
-// ════════════════════════════════════════════════════════════
-
-function accidentInit() {
-  // Pré-remplit la date de l'événement et « Déclaré le » à aujourd'hui (modifiable)
-  var today = new Date();
-  var iso = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
-  var d = document.getElementById('acc-date');
-  var dec = document.getElementById('acc-declare');
-  if (d && !d.value) d.value = iso;
-  if (dec && !dec.value) dec.value = iso;
-  accSigInit();
-}
-
-// ── Zones de signature (dessin au doigt / souris) ──────────────
-var accSigPads = {};
-function accSigInit() {
-  ['acc-sig-trav','acc-sig-resp'].forEach(function(id){
-    var c = document.getElementById(id);
-    if (!c) return;
-    if (accSigPads[id] && accSigPads[id].canvas === c && c.width > 0) return; // déjà prêt
-    var dpr = window.devicePixelRatio || 1;
-    var w = c.clientWidth || c.getBoundingClientRect().width || 300;
-    var h = c.clientHeight || 130;
-    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
-    var ctx = c.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#111';
-    var pad = { canvas:c, ctx:ctx, hasInk:false, drawing:false, lx:0, ly:0 };
-    accSigPads[id] = pad;
-    function pos(e){ var r=c.getBoundingClientRect(); var t=(e.touches&&e.touches[0])?e.touches[0]:e; return { x:t.clientX-r.left, y:t.clientY-r.top }; }
-    function down(e){ e.preventDefault(); pad.drawing=true; var p=pos(e); pad.lx=p.x; pad.ly=p.y; }
-    function move(e){ if(!pad.drawing) return; e.preventDefault(); var p=pos(e); ctx.beginPath(); ctx.moveTo(pad.lx,pad.ly); ctx.lineTo(p.x,p.y); ctx.stroke(); pad.lx=p.x; pad.ly=p.y; pad.hasInk=true; }
-    function up(){ pad.drawing=false; }
-    c.addEventListener('pointerdown', down);
-    c.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-    c.addEventListener('touchstart', down, {passive:false});
-    c.addEventListener('touchmove', move, {passive:false});
-    window.addEventListener('touchend', up);
-  });
-}
-function accSigClear(id){ var p=accSigPads[id]; if(!p) return; p.ctx.clearRect(0,0,p.canvas.width,p.canvas.height); p.hasInk=false; }
-function accSigData(id){ var p=accSigPads[id]; if(!p||!p.hasInk) return null; return p.canvas.toDataURL('image/png'); }
-
-// ── Historique des rapports d'accident ─────────────────────────
-function accShowView(v){
-  var isForm = v === 'form';
-  document.getElementById('acc-form-view').style.display = isForm ? 'block' : 'none';
-  document.getElementById('acc-hist-view').style.display = isForm ? 'none' : 'block';
-  document.getElementById('acc-tab-form').classList.toggle('active', isForm);
-  document.getElementById('acc-tab-hist').classList.toggle('active', !isForm);
-  if(isForm){ accSigInit(); } else { loadAccidentHistory(); }
-}
-function accEscapeHtml(s){ var d=document.createElement('div'); d.textContent = (s==null?'':String(s)); return d.innerHTML; }
-function accFmtDate(iso){ if(!iso) return ''; var p=String(iso).split('-'); return p.length===3 ? (p[2]+'/'+p[1]+'/'+p[0]) : String(iso); }
-async function loadAccidentHistory(){
-  var el = document.getElementById('acc-hist-content');
-  el.innerHTML = '<div class="loading-state">Chargement...</div>';
-  try {
-    var r = await fetch(ACCIDENT_API + '?action=getAccidents&_=' + Date.now());
-    var j = await r.json();
-    renderAccidentHistory(j.accidents || []);
-  } catch(e){
-    el.innerHTML = '<div class="empty-state"><p>Impossible de charger l\'historique pour le moment.</p></div>';
-  }
-}
-function renderAccidentHistory(list){
-  var el = document.getElementById('acc-hist-content');
-  if(!list.length){ el.innerHTML = '<div class="empty-state"><p>Aucun rapport d\'accident déclaré pour l\'instant.</p></div>'; return; }
-  list = list.slice().reverse(); // plus récent en premier
-  var html = '';
-  list.forEach(function(a){
-    var nom = ((a.prenom||'')+' '+(a.nom||'')).trim() || '—';
-    var sub = [a.poste, a.lieu].filter(Boolean).map(accEscapeHtml).join(' · ');
-    var temoins = a.temoins==='oui' ? ('Oui'+(a.temoinsNoms?' ('+accEscapeHtml(a.temoinsNoms)+')':'')) : 'Non';
-    var etr = a.etranger==='oui' ? ('Oui'+(a.etrangerPrec?' ('+accEscapeHtml(a.etrangerPrec)+')':'')) : 'Non';
-    html += '<div class="acc-hcard"><div class="acc-hcard-top" onclick="this.parentNode.classList.toggle(\'open\')">'
-      + '<div><div class="acc-hcard-name">'+accEscapeHtml(nom)+'</div><div class="acc-hcard-sub">'+sub+'</div></div>'
-      + '<div class="acc-hcard-date">'+accFmtDate(a.date)+(a.heure?'<br>'+accEscapeHtml(a.heure):'')+'</div>'
-      + '</div><div class="acc-hcard-body">'
-      + (a.departement?'<div class="row"><span class="lbl">Département</span> — '+accEscapeHtml(a.departement)+'</div>':'')
-      + (a.superviseur?'<div class="row"><span class="lbl">Superviseur</span> — '+accEscapeHtml(a.superviseur)+'</div>':'')
-      + '<div class="row"><span class="lbl">Témoins</span> — '+temoins+'</div>'
-      + '<div class="row"><span class="lbl">Personne étrangère</span> — '+etr+'</div>'
-      + (a.soins?'<div class="row"><span class="lbl">Premiers soins</span> — '+accEscapeHtml(a.soins)+(a.secouriste?' (secouriste : '+accEscapeHtml(a.secouriste)+')':'')+'</div>':'')
-      + '<div class="row"><span class="lbl">Photos / croquis</span> — '+(a.photos==='oui'?'Oui':'Non')+'</div>'
-      + '<div class="row" style="margin-top:6px"><span class="lbl">Déclaration du travailleur</span><div class="acc-decl-box">'+accEscapeHtml(a.declaration||'')+'</div></div>'
-      + '</div></div>';
-  });
-  el.innerHTML = html;
-}
-
-function accSetYN(group, val) {
-  ACC_YN[group] = val;
-  var wrap = document.getElementById('acc-'+group+'-yn');
-  wrap.querySelectorAll('button').forEach(function(b){
-    var on = b.getAttribute('data-v') === val;
-    b.classList.toggle('on', on);
-    b.classList.toggle('no', on && val === 'non');
-  });
-  // Champs conditionnels
-  if (group === 'temoins') document.getElementById('acc-temoins-noms-wrap').style.display = (val==='oui') ? 'block' : 'none';
-  if (group === 'etranger') document.getElementById('acc-etranger-prec-wrap').style.display = (val==='oui') ? 'block' : 'none';
-}
-
-function resetAccident() {
-  ['acc-departement','acc-nom','acc-prenom','acc-poste','acc-heure','acc-lieu','acc-superviseur','acc-temoins-noms','acc-etranger-prec','acc-declaration','acc-soins','acc-secouriste'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
-  document.getElementById('acc-entreprise').value = 'Les Entreprises Forestières NT';
-  document.getElementById('acc-etablissement').value = 'Usine de fabrication';
-  ['temoins','etranger','photos'].forEach(function(g){ ACC_YN[g]='non'; var w=document.getElementById('acc-'+g+'-yn'); if(w) w.querySelectorAll('button').forEach(function(b){b.classList.remove('on','no');}); });
-  document.getElementById('acc-temoins-noms-wrap').style.display='none';
-  document.getElementById('acc-etranger-prec-wrap').style.display='none';
-  document.getElementById('acc-date').value=''; document.getElementById('acc-declare').value='';
-  accSigClear('acc-sig-trav'); accSigClear('acc-sig-resp');
-  accidentInit();
-}
-
-function accGet(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; }
-
-// Découpe une date ISO (YYYY-MM-DD) en {aa, mm, jj} pour les cases du PDF
-function accSplitDate(iso){
-  if(!iso) return {aa:'',mm:'',jj:''};
-  var p = iso.split('-'); // [YYYY, MM, DD]
-  return { aa: p[0] ? p[0].slice(2) : '', mm: p[1]||'', jj: p[2]||'' };
-}
-
-function accSetText(form, name, val, size){
-  try { var f = form.getTextField(name); f.acroField.setDefaultAppearance('/Helv '+(size||10)+' Tf 0 g'); f.setText(val||''); f.setFontSize(size||10); }
-  catch(e){ console.log('champ texte introuvable:', name, e.message); }
-}
-function accSetRadio(form, name, on){ // on = true -> Oui('0'), false -> Non('1')
-  try { form.getRadioGroup(name).select(on ? '0' : '1'); }
-  catch(e){ console.log('champ radio introuvable:', name, e.message); }
-}
-
-async function accBuildPdf(data){
-  // Charge le gabarit officiel et le remplit avec pdf-lib
-  var resp = await fetch(ACCIDENT_TEMPLATE, {cache:'no-store'});
-  if(!resp.ok) throw new Error('Gabarit PDF introuvable ('+resp.status+')');
-  var bytes = await resp.arrayBuffer();
-  var doc = await PDFLib.PDFDocument.load(bytes);
-  var form = doc.getForm();
-  // Nettoie les groupes Oui/Non (option /Opt dupliquée) pour un remplissage fiable
-  ['Groupe48','Groupe49','Groupe50'].forEach(function(n){
-    try { form.getRadioGroup(n).acroField.dict.delete(PDFLib.PDFName.of('Opt')); } catch(e){}
-  });
-  var de = accSplitDate(data.date);
-  var dd = accSplitDate(data.declare);
-  // Identification entreprise
-  accSetText(form,'Texte45', data.entreprise, 11);
-  accSetText(form,'Texte46', data.etablissement, 10);
-  accSetText(form,'Texte47', data.departement, 10);
-  // Employé
-  accSetText(form,'Texte48', data.nom, 11);
-  accSetText(form,'Texte49', data.prenom, 11);
-  accSetText(form,'Texte77', data.poste, 10);
-  // Événement
-  accSetText(form,'Texte65', de.aa, 10); accSetText(form,'Texte66', de.mm, 10); accSetText(form,'Texte67', de.jj, 10);
-  accSetText(form,'Texte64', data.heure, 10);
-  accSetText(form,'Texte68', dd.aa, 10); accSetText(form,'Texte69', dd.mm, 10); accSetText(form,'Texte70', dd.jj, 10);
-  accSetText(form,'Texte82', data.lieu, 11);
-  accSetText(form,'Texte72', data.superviseur, 10);
-  accSetRadio(form,'Groupe48', data.temoins==='oui');
-  accSetText(form,'Texte71', data.temoinsNoms, 10);
-  accSetRadio(form,'Groupe50', data.etranger==='oui');
-  accSetText(form,'Texte81', data.etrangerPrec, 10);
-  // Déclaration et soins
-  accSetText(form,'Texte73', data.declaration, 10);
-  accSetText(form,'Texte75', data.soins, 10);
-  accSetText(form,'Texte76', data.secouriste, 10);
-  accSetRadio(form,'Groupe49', data.photos==='oui');
-
-  // ── Signatures (dessins) insérées dans le PDF ──
-  var page1 = doc.getPages()[0];
-  async function drawSig(dataUrl, centerX, bottomY, maxW, maxH){
-    if(!dataUrl) return;
-    var pngBytes = await (await fetch(dataUrl)).arrayBuffer();
-    var png = await doc.embedPng(pngBytes);
-    var s = Math.min(maxW/png.width, maxH/png.height);
-    var w = png.width*s, h = png.height*s;
-    page1.drawImage(png, { x: centerX - w/2, y: bottomY, width: w, height: h });
-  }
-  if(data.sigTrav){
-    // ligne « Signature du travailleur : » au-dessus des premiers soins (haut) + bloc du bas
-    await drawSig(data.sigTrav, 360, 285, 205, 24);
-    await drawSig(data.sigTrav, 324, 132, 150, 32);
-  }
-  if(data.sigResp){
-    await drawSig(data.sigResp, 124, 132, 150, 32);
-  }
-  // Date au bas, à côté des signatures (date de déclaration)
-  if(data.declare){
-    try {
-      var font = await doc.embedFont(PDFLib.StandardFonts.Helvetica);
-      var dd = accSplitDate(data.declare);
-      var dstr = dd.jj + '/' + dd.mm + '/' + (data.declare.split('-')[0] || '');
-      page1.drawText(dstr, { x: 470, y: 138, size: 11, font: font, color: PDFLib.rgb(0.1,0.1,0.1) });
-    } catch(e){}
-  }
-
-  var out = await doc.save();
-  return out; // Uint8Array
-}
-
-function accBytesToBase64(bytes){
-  var bin=''; var chunk=0x8000;
-  for(var i=0;i<bytes.length;i+=chunk){ bin += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk)); }
-  return btoa(bin);
-}
-
-async function submitAccident(){
-  var data = {
-    entreprise: accGet('acc-entreprise'), etablissement: accGet('acc-etablissement'), departement: accGet('acc-departement'),
-    nom: accGet('acc-nom'), prenom: accGet('acc-prenom'), poste: accGet('acc-poste'),
-    date: accGet('acc-date'), heure: accGet('acc-heure'), declare: accGet('acc-declare'),
-    lieu: accGet('acc-lieu'), superviseur: accGet('acc-superviseur'),
-    temoins: ACC_YN.temoins, temoinsNoms: accGet('acc-temoins-noms'),
-    etranger: ACC_YN.etranger, etrangerPrec: accGet('acc-etranger-prec'),
-    declaration: accGet('acc-declaration'), soins: accGet('acc-soins'), secouriste: accGet('acc-secouriste'),
-    photos: ACC_YN.photos,
-    sigTrav: accSigData('acc-sig-trav'),
-    sigResp: accSigData('acc-sig-resp')
-  };
-  // Validation minimale
-  if(!data.nom || !data.prenom || !data.date || !data.declaration){
-    toast('⚠ Remplissez au moins : nom, prénom, date et déclaration du travailleur.', true);
-    return;
-  }
-  if(!data.sigTrav){
-    toast('✍ La signature du travailleur est requise.', true);
-    document.getElementById('acc-sig-trav').scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-  if(!data.sigResp){
-    toast('✍ La signature du responsable est requise.', true);
-    document.getElementById('acc-sig-resp').scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-  var btn = document.getElementById('btn-send-acc');
-  btn.disabled = true; var old = btn.innerHTML; btn.innerHTML = 'Génération du PDF...';
-  try {
-    var pdfBytes = await accBuildPdf(data);
-    var b64 = accBytesToBase64(pdfBytes);
-    var fname = 'Rapport_accident_' + (data.date||'') + '_' + (data.nom||'').replace(/[^A-Za-z0-9]/g,'') + '.pdf';
-    var payload = {
-      action:'accident', filename: fname, pdfBase64: b64,
-      subject: "Rapport d'accident – Usine – " + data.prenom + ' ' + data.nom + ' (' + (data.date||'') + ')',
-      resume: data
-    };
-    // Télécharge une copie locale immédiatement (sauvegarde / impression / signature)
-    try {
-      var blob = new Blob([pdfBytes], {type:'application/pdf'});
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
-    } catch(e){}
-    // Envoi au backend courriel (fire-and-forget, comme les inspections)
-    btn.innerHTML = 'Envoi du courriel...';
-    var sent = true;
-    if(ACCIDENT_API && ACCIDENT_API.indexOf('REPLACE_')===-1){
-      try { await fetch(ACCIDENT_API, {method:'POST', mode:'no-cors', body: JSON.stringify(payload)}); }
-      catch(e){ sent = false; }
-    } else { sent = false; }
-    // Journal local
-    try { var log = JSON.parse(localStorage.getItem('accident_log')||'[]'); log.unshift({t:Date.now(), data:data, sent:sent}); localStorage.setItem('accident_log', JSON.stringify(log)); } catch(e){}
-    if(sent){ toast('✅ Rapport envoyé aux responsables. Une copie a été téléchargée.'); resetAccident(); }
-    else { toast('⚠ PDF téléchargé. Envoi courriel non configuré — transmettez la copie manuellement.', true); }
-  } catch(err){
-    console.log('Erreur rapport accident:', err);
-    toast('❌ Erreur lors de la génération du PDF : ' + err.message, true);
-  } finally {
-    btn.disabled = false; btn.innerHTML = old;
-  }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1644,7 +1234,6 @@ async function showTab(tab, btn) {
   if(tab==='nc'){ if(inspRecords.length>0) renderNC(); else { document.getElementById('nc-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderNC(); } }
   if(tab==='mods'){ if(f03Records.length>0) renderMods(); else { document.getElementById('mods-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderMods(); } }
   if(tab==='qualite'){ cqInit(); }
-  if(tab==='accident'){ accidentInit(); }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1960,6 +1549,51 @@ function exportF03PDF(id) {
   if(r.schema) win.document.write('<div><span class="meta-label">Schéma</span><img class="schema-img" src="'+r.schema+'"></div>');
   win.document.write('<div><span class="meta-label">Description</span><div class="desc-box">'+r.description+'</div></div>');
   win.document.write('<div class="footer"><div><span class="meta-label">Nom</span><div class="sig-val">'+(r.nom||'')+'</div></div><div><span class="meta-label">Date</span><div class="sig-val">'+fmtDate(r.date)+'</div></div></div>');
+  win.document.write('<button class="no-print" onclick="window.print()" style="margin-top:1.5rem;padding:10px 20px;background:#2176CC;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">🖨 Imprimer / Sauvegarder en PDF</button>');
+  win.document.write('</body></html>');
+  win.document.close();
+}
+
+function exportCQPDF(modIdx, visitIdx) {
+  var m = cqModules[modIdx];
+  if(!m) return;
+  var v = (m.visits||[])[visitIdx];
+  if(!v) return;
+  var phLabel = {avant:'Avant les travaux', pendant:'Pendant les travaux', apres:'Après les travaux'}[v.phase] || v.phase;
+  var sc = v.scores || {};
+  var codeLabels = {C:'✓ Conforme', NA:'N/A', REV:'⏸ Pas vérifié'};
+
+  var ncHtml = '';
+  if (v.ncItems && v.ncItems.length) {
+    ncHtml = '<div style="margin-top:1rem"><span class="meta-label">NC actives ('+v.ncItems.length+')</span>'
+      + v.ncItems.map(function(n){
+          return '<div class="cq-pdf-item nc">'+n.text
+            + (n.note ? '<div class="cq-pdf-note">→ '+n.note+'</div>' : '')
+            + (n.photo ? '<img class="cq-pdf-photo" src="'+n.photo+'">' : '')
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+
+  var notesHtml = '';
+  if (v.otherNotes && v.otherNotes.length) {
+    notesHtml = '<div style="margin-top:1rem"><span class="meta-label">Notes (Conforme / N/A / Pas vérifié) ('+v.otherNotes.length+')</span>'
+      + v.otherNotes.map(function(n){
+          return '<div class="cq-pdf-item">'+n.text
+            + '<div class="cq-pdf-note"><em>('+(codeLabels[n.code]||n.code)+')</em>'+(n.note?' → '+n.note:'')+'</div>'
+            + (n.photo ? '<img class="cq-pdf-photo" src="'+n.photo+'">' : '')
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+
+  var win = window.open('','_blank');
+  win.document.write('<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Contrôle qualité — '+m.unit+' — '+fmtDate(v.date)+'</title><style>body{font-family:DM Sans,sans-serif;padding:2cm;max-width:21cm;margin:0 auto;color:#1A1A18}.header{text-align:center;margin-bottom:1.5rem;border-bottom:2px solid #0D3560;padding-bottom:1rem}.header h1{font-size:20px;color:#0D3560;margin:0}.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;font-size:13px}.meta-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:3px}.meta-val{font-size:14px;font-weight:500;border-bottom:1px solid #ddd;padding-bottom:4px}.cq-pdf-item{border:1px solid #ddd;border-radius:4px;padding:.6rem .8rem;margin-top:.5rem;font-size:13px}.cq-pdf-item.nc{border-color:#e0a0a0;background:#fdecea}.cq-pdf-note{color:#555;font-size:12px;margin-top:3px}.cq-pdf-photo{display:block;max-width:220px;margin-top:6px;border:1px solid #ddd;border-radius:4px}.footer{margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;font-size:13px}.sig-val{font-size:15px;font-weight:500;padding:.4rem 0;border-bottom:1px solid #ddd;margin-top:.3rem}@media print{.no-print{display:none}}</style></head><body>');
+  win.document.write('<div class="header"><h1>Contrôle qualité — '+phLabel+'</h1><p style="color:#888;font-size:12px">ITT Camps</p></div>');
+  win.document.write('<div class="meta-grid"><div><span class="meta-label">Unité</span><div class="meta-val">'+(m.unit||'—')+'</div></div><div><span class="meta-label">Type</span><div class="meta-val">'+(m.type||'—')+'</div></div></div>');
+  win.document.write('<div class="meta-grid"><div><span class="meta-label">Résultat</span><div class="meta-val">C: '+(sc.C||0)+(sc.NC?' · NC: '+sc.NC:'')+(sc.NA?' · N/A: '+sc.NA:'')+(sc.REV?' · Pas vérifié: '+sc.REV:'')+' / '+(v.total||0)+' items</div></div><div></div></div>');
+  win.document.write(ncHtml + notesHtml);
+  win.document.write('<div class="footer"><div><span class="meta-label">Inspecteur</span><div class="sig-val">'+(v.inspector||'')+'</div></div><div><span class="meta-label">Date</span><div class="sig-val">'+fmtDate(v.date)+'</div></div></div>');
   win.document.write('<button class="no-print" onclick="window.print()" style="margin-top:1.5rem;padding:10px 20px;background:#2176CC;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">🖨 Imprimer / Sauvegarder en PDF</button>');
   win.document.write('</body></html>');
   win.document.close();
@@ -2727,6 +2361,7 @@ function renderCQDetail(){
           +'<div class="cq-visit-header"><span class="cq-visit-title">'+phLabel+'</span>'
           +'<div style="display:flex;align-items:center;gap:8px">'
           +'<span class="cq-pill '+(sc.NC>0?'nc':sc.C===v.total?'ok':'warn')+'">'+(sc.NC>0?'⚠ '+sc.NC+' NC':sc.C===v.total?'✓ Complet':'En cours')+'</span>'
+          +'<button onclick="exportCQPDF('+cqCurrent+','+realIdx+')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:5px;font-size:14px;line-height:1" title="Générer un PDF">🖨</button>'
           +'<button onclick="cqAskDeleteVisit('+cqCurrent+','+realIdx+')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:5px;font-size:14px;line-height:1" title="Supprimer cette visite">🗑</button>'
           +'</div></div>'
           +'<div class="cq-visit-meta">'+fmtDate(v.date)+' — '+v.inspector+'</div>'
