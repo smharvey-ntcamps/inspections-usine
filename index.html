@@ -838,7 +838,7 @@ const ACC_YN = { temoins:'non', etranger:'non', photos:'non' };
 // Incrémenter cette valeur à chaque publication sur GitHub — permet à
 // l'app d'afficher une bannière "Mettre à jour" chez les gens qui ont
 // déjà la page ouverte, sans qu'ils aient à faire un refresh manuel.
-const APP_VERSION = '2026-08-21-2';
+const APP_VERSION = '2026-08-21-3';
 
 function checkForUpdate(){
   fetch(location.pathname + '?_v=' + Date.now(), {cache:'no-store'})
@@ -862,6 +862,7 @@ function showUpdateBanner(){
 
 setInterval(checkForUpdate, 5*60*1000); // vérifie toutes les 5 minutes
 document.addEventListener('visibilitychange', function(){ if(!document.hidden) checkForUpdate(); }); // vérifie quand on revient sur l'onglet
+setTimeout(checkForUpdate, 3000); // vérifie aussi dès l'ouverture (appareils longtemps inactifs)
 
 // ════════════════════════════════════════════════════════════
 // DONNÉES
