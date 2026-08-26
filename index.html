@@ -350,6 +350,8 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .cq-photo-thumb-wrap{position:relative;display:inline-block}
 .cq-photo-thumb{width:72px;height:72px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;display:block}
 .cq-photo-remove{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:11px;line-height:20px;padding:0}
+.cq-photo-gallery{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px}
+.cq-photo-gallery .cq-photo-btn{width:72px;height:72px;padding:0;display:flex;align-items:center;justify-content:center;font-size:20px}
 .cq-photo-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:2rem;cursor:zoom-out}
 .cq-photo-lightbox img{max-width:100%;max-height:100%;border-radius:var(--radius)}
 .cq-visit-photo{width:64px;height:64px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;margin-top:5px;display:block}
@@ -907,7 +909,7 @@ const ACC_YN = { temoins:'non', etranger:'non', photos:'non' };
 // Incrémenter cette valeur à chaque publication sur GitHub — permet à
 // l'app d'afficher une bannière "Mettre à jour" chez les gens qui ont
 // déjà la page ouverte, sans qu'ils aient à faire un refresh manuel.
-const APP_VERSION = '2026-08-21-4';
+const APP_VERSION = '2026-08-26-1';
 
 function checkForUpdate(){
   fetch(location.pathname + '?_v=' + Date.now(), {cache:'no-store'})
@@ -2209,12 +2211,20 @@ function exportCQPDF(modIdx, visitIdx) {
       + '</div>';
   }
 
+  var globalHtml = '';
+  if (v.globalNote || (v.globalPhotos && v.globalPhotos.length)) {
+    globalHtml = '<div style="margin-top:1rem"><span class="meta-label">Notes générales de la visite</span>'
+      + (v.globalNote ? '<div class="cq-pdf-item">'+v.globalNote+'</div>' : '')
+      + (v.globalPhotos && v.globalPhotos.length ? v.globalPhotos.map(function(p){ return '<img class="cq-pdf-photo" src="'+p+'">'; }).join('') : '')
+      + '</div>';
+  }
+
   var win = window.open('','_blank');
   win.document.write('<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Contrôle qualité — '+m.unit+' — '+fmtDate(v.date)+'</title><style>body{font-family:DM Sans,sans-serif;padding:2cm;max-width:21cm;margin:0 auto;color:#1A1A18}.header{text-align:center;margin-bottom:1.5rem;border-bottom:2px solid #0D3560;padding-bottom:1rem}.header h1{font-size:20px;color:#0D3560;margin:0}.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;font-size:13px}.meta-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:3px}.meta-val{font-size:14px;font-weight:500;border-bottom:1px solid #ddd;padding-bottom:4px}.cq-pdf-item{border:1px solid #ddd;border-radius:4px;padding:.6rem .8rem;margin-top:.5rem;font-size:13px}.cq-pdf-item.nc{border-color:#e0a0a0;background:#fdecea}.cq-pdf-note{color:#555;font-size:12px;margin-top:3px}.cq-pdf-photo{display:block;max-width:220px;margin-top:6px;border:1px solid #ddd;border-radius:4px}.footer{margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;font-size:13px}.sig-val{font-size:15px;font-weight:500;padding:.4rem 0;border-bottom:1px solid #ddd;margin-top:.3rem}@media print{.no-print{display:none}}</style></head><body>');
   win.document.write('<div class="header"><h1>Contrôle qualité — '+phLabel+'</h1><p style="color:#888;font-size:12px">ITT Camps</p></div>');
   win.document.write('<div class="meta-grid"><div><span class="meta-label">Unité</span><div class="meta-val">'+(m.unit||'—')+'</div></div><div><span class="meta-label">Type</span><div class="meta-val">'+(m.type||'—')+'</div></div></div>');
   win.document.write('<div class="meta-grid"><div><span class="meta-label">Résultat</span><div class="meta-val">C: '+(sc.C||0)+(sc.NC?' · NC: '+sc.NC:'')+(sc.NA?' · N/A: '+sc.NA:'')+(sc.REV?' · Pas vérifié: '+sc.REV:'')+' / '+(v.total||0)+' items</div></div><div></div></div>');
-  win.document.write(ncHtml + notesHtml);
+  win.document.write(ncHtml + notesHtml + globalHtml);
   win.document.write('<div class="footer"><div><span class="meta-label">Inspecteur</span><div class="sig-val">'+(v.inspector||'')+'</div></div><div><span class="meta-label">Date</span><div class="sig-val">'+fmtDate(v.date)+'</div></div></div>');
   win.document.write('<button class="no-print" onclick="window.print()" style="margin-top:1.5rem;padding:10px 20px;background:#2176CC;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">🖨 Imprimer / Sauvegarder en PDF</button>');
   win.document.write('</body></html>');
@@ -2979,6 +2989,13 @@ function renderCQDetail(){
               }).join('')
             + '</div>';
         }
+        var globalHtml = '';
+        if(v.globalNote || (v.globalPhotos && v.globalPhotos.length)){
+          globalHtml = '<div class="cq-visit-notes"><div class="cq-visit-nc-title">Notes générales de la visite</div>'
+            + (v.globalNote ? '<div class="cq-visit-nc-item">'+v.globalNote+'</div>' : '')
+            + (v.globalPhotos && v.globalPhotos.length ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">'+v.globalPhotos.map(function(p){ return '<img src="'+p+'" class="cq-visit-photo" onclick="cqViewPhoto(this.src)">'; }).join('')+'</div>' : '')
+            + '</div>';
+        }
         return '<div class="cq-visit-card">'
           +'<div class="cq-visit-header"><span class="cq-visit-title">'+phLabel+'</span>'
           +'<div style="display:flex;align-items:center;gap:8px">'
@@ -2996,6 +3013,7 @@ function renderCQDetail(){
           +'</div>'
           + ncHtml
           + notesHtml
+          + globalHtml
           +'</div>';
       }).join('');
       histPanel = '<div class="cq-phase-panel active">'+cards+'</div>';
@@ -3032,9 +3050,17 @@ function renderCQDetail(){
     // Meta inspecteur/date
     var sig=m.sigs[ph.id]||{};
     var savedName=localStorage.getItem('saved_username')||'';
+    var globalNoteVal=(sig.note||'').replace(/"/g,'&quot;');
+    var globalPhotos=sig.photos||[];
+    var globalPhotosHtml=globalPhotos.map(function(p,gi){
+      return '<div class="cq-photo-thumb-wrap"><img src="'+p+'" class="cq-photo-thumb" onclick="cqViewPhoto(this.src)"><button class="cq-photo-remove" onclick="event.stopPropagation();cqRemoveGlobalPhoto('+cqCurrent+',\''+ph.id+'\','+gi+')" title="Retirer la photo">✕</button></div>';
+    }).join('');
     var metaHtml='<div class="cq-phase-meta">'
       +'<div class="field"><label>Inspecteur</label><input type="text" id="cq-insp-'+ph.id+'" placeholder="Nom..." value="'+(sig.inspector||savedName||'')+'" style="font-size:13px"></div>'
       +'<div class="field"><label>Date de visite</label><input type="date" id="cq-date-'+ph.id+'" value="'+(sig.date||new Date().toISOString().split('T')[0])+'" style="font-size:13px"></div>'
+      +'<div class="field"><label>Notes générales</label><textarea id="cq-globalnote-'+ph.id+'" placeholder="Notes globales sur cette étape (optionnel)..." style="font-size:13px;min-height:60px">'+globalNoteVal+'</textarea></div>'
+      +'<div class="field"><label>Photos générales</label><div class="cq-photo-gallery">'+globalPhotosHtml+'<button class="cq-photo-btn" onclick="document.getElementById(\'cqglobalphotoinput_'+ph.id+'\').click()" title="Ajouter une photo">📷</button></div>'
+      +'<input type="file" accept="image/*" capture="environment" style="display:none" id="cqglobalphotoinput_'+ph.id+'" onchange="cqGlobalPhotoSelected('+cqCurrent+',\''+ph.id+'\',this)"></div>'
       +'</div>';
 
     // Filtre toggle
@@ -3205,6 +3231,31 @@ function cqRemovePhoto(modIdx, phId, itemId){
   renderCQDetail();
 }
 
+// ── Photos et notes générales par phase (avant/pendant/après) ──
+function cqGlobalPhotoSelected(modIdx, phId, inputEl){
+  var file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  toast('Traitement de la photo...');
+  cqCompressImage(file, function(dataUrl){
+    if (!cqModules[modIdx].sigs[phId]) cqModules[modIdx].sigs[phId] = {inspector:'', date:'', note:'', photos:[]};
+    if (!cqModules[modIdx].sigs[phId].photos) cqModules[modIdx].sigs[phId].photos = [];
+    cqModules[modIdx].sigs[phId].photos.push(dataUrl);
+    cqPersist();
+    renderCQDetail();
+    toast('✓ Photo ajoutée');
+  }, function(){
+    toast('Impossible de traiter cette photo.', true);
+  });
+  inputEl.value = '';
+}
+
+function cqRemoveGlobalPhoto(modIdx, phId, photoIdx){
+  var sig = cqModules[modIdx].sigs[phId];
+  if (sig && sig.photos) sig.photos.splice(photoIdx, 1);
+  cqPersist();
+  renderCQDetail();
+}
+
 function cqViewPhoto(src){
   var overlay = document.createElement('div');
   overlay.className = 'cq-photo-lightbox';
@@ -3228,11 +3279,14 @@ function cqCheckItemsSize(m){
 function cqSavePhase(phId){
   var inspEl=document.getElementById('cq-insp-'+phId);
   var dateEl=document.getElementById('cq-date-'+phId);
+  var noteEl=document.getElementById('cq-globalnote-'+phId);
   var insp=inspEl?inspEl.value.trim():'';
   var date=dateEl?dateEl.value:'';
+  var note=noteEl?noteEl.value:'';
   if(!insp){ toast('Veuillez entrer le nom de l\'inspecteur.',true); return; }
   var m = cqModules[cqCurrent];
-  m.sigs[phId]={inspector:insp,date:date};
+  var prevPhotos=(m.sigs[phId]&&m.sigs[phId].photos)||[];
+  m.sigs[phId]={inspector:insp,date:date,note:note,photos:prevPhotos};
   m.updatedAt = new Date().toISOString();
   localStorage.setItem('saved_username', insp);
   cqPersist();
@@ -3245,13 +3299,16 @@ function cqSavePhase(phId){
 function cqTerminerPhase(phId){
   var inspEl=document.getElementById('cq-insp-'+phId);
   var dateEl=document.getElementById('cq-date-'+phId);
+  var noteEl=document.getElementById('cq-globalnote-'+phId);
   var insp=inspEl?inspEl.value.trim():'';
   var date=dateEl?dateEl.value:'';
+  var note=noteEl?noteEl.value:'';
   if(!insp){ toast('Veuillez entrer le nom de l\'inspecteur.',true); return; }
 
   // Construire le snapshot de cette phase
   var m=cqModules[cqCurrent];
   var ph=CQ_PHASES.find(function(p){ return p.id===phId; });
+  var globalPhotos=(m.sigs[phId]&&m.sigs[phId].photos)||[];
   var scores={C:0,NC:0,NA:0,REV:0};
   var total=0;
   var ncItems=[];
@@ -3271,6 +3328,8 @@ function cqTerminerPhase(phId){
     phase: phId,
     date: date,
     inspector: insp,
+    globalNote: note,
+    globalPhotos: globalPhotos,
     terminatedAt: new Date().toISOString(),
     scores: scores,
     total: total,
@@ -3282,7 +3341,7 @@ function cqTerminerPhase(phId){
   // de cellule Google Sheets — au-delà, la visite risque de ne pas se synchroniser
   // correctement vers les autres appareils.
   try {
-    var visitJsonLen = JSON.stringify(ncItems).length + JSON.stringify(otherNotes).length;
+    var visitJsonLen = JSON.stringify(ncItems).length + JSON.stringify(otherNotes).length + JSON.stringify(globalPhotos).length;
     if (visitJsonLen > 42000) {
       toast('⚠ Cette visite contient beaucoup de photos — certaines pourraient ne pas se synchroniser sur les autres appareils.', true);
     }
@@ -3290,7 +3349,7 @@ function cqTerminerPhase(phId){
 
   if(!m.visits) m.visits=[];
   m.visits.push(visit);
-  m.sigs[phId]={inspector:insp, date:date};
+  m.sigs[phId]={inspector:insp, date:date, note:note, photos:globalPhotos};
   m.updatedAt = new Date().toISOString();
   localStorage.setItem('saved_username', insp);
   cqPersist();
