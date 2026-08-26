@@ -108,6 +108,13 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .acc-yn button.on{background:var(--teal-light);border-color:var(--teal-mid);color:var(--teal-dark);font-weight:600}
 .acc-yn button.on.no{background:var(--red-light);border-color:var(--red);color:var(--red-dark)}
 .acc-required label::after{content:' *';color:var(--red)}
+.mat-nat{display:flex;flex-wrap:wrap;gap:8px}
+.mat-nat button{flex:1 1 30%;padding:9px 4px;font-size:12px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text2);cursor:pointer;transition:.12s}
+.mat-nat button.on{background:var(--teal-light);border-color:var(--teal-mid);color:var(--teal-dark);font-weight:600}
+.mat-chk{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--gray);cursor:pointer;flex-shrink:0}
+.mat-chk:hover{border-color:var(--teal-mid);background:var(--teal-light)}
+.nav-btn.materiel-btn{color:var(--blue-mid)}
+.nav-btn.materiel-btn.active{color:var(--blue-mid);border-bottom-color:var(--blue-mid)}
 .sig-wrap{position:relative;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);overflow:hidden}
 .sig-canvas{display:block;width:100%;height:130px;background:#fff;touch-action:none;cursor:crosshair}
 .sig-line{position:absolute;left:12px;right:12px;bottom:26px;border-bottom:1px dashed var(--text3);pointer-events:none}
@@ -460,6 +467,10 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       Accident
     </button>
+    <button class="nav-btn materiel-btn" onclick="showTab('materiel',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4a2 2 0 001-1.73z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      Matériel
+    </button>
 
   </nav>
 
@@ -659,6 +670,64 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
     </div><!-- /acc-form-view -->
   </div>
 
+  <!-- ═══ AJUSTEMENT LISTES DE MATÉRIEL ═══ -->
+  <div id="tab-materiel" class="screen">
+    <div class="filter-row" style="margin-bottom:.85rem">
+      <button class="filter-btn active blue" id="mat-tab-form" onclick="matShowView('form')">➕ Nouvelle modification</button>
+      <button class="filter-btn" id="mat-tab-achats" onclick="matShowView('achats')">🛒 Suivi</button>
+    </div>
+
+    <div id="mat-form-view">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:.85rem;line-height:1.5">Ce formulaire sert à ajuster une liste de matériel <strong>générique</strong> (le modèle utilisé pour les prochains projets du même type) — pas à commander pour le projet en cours.</p>
+
+      <div class="field acc-required">
+        <label>Projet</label>
+        <input type="text" id="mat-projet" placeholder="Nom du projet">
+      </div>
+
+      <div class="section-title">Nature de l'ajustement</div>
+      <div class="mat-nat" id="mat-nat-group">
+        <button type="button" data-v="manque" class="on" onclick="matSetNature('manque')">Manque</button>
+        <button type="button" data-v="surplus" onclick="matSetNature('surplus')">Surplus</button>
+        <button type="button" data-v="remplacer" onclick="matSetNature('remplacer')">Remplacer</button>
+        <button type="button" data-v="ajouter" onclick="matSetNature('ajouter')">Ajouter</button>
+        <button type="button" data-v="retirer" onclick="matSetNature('retirer')">Retirer</button>
+      </div>
+
+      <div class="field acc-required" id="mat-item-wrap">
+        <label id="mat-item-label">Item concerné</label>
+        <input type="text" id="mat-item" placeholder="Ex : Vis à bois 3po">
+      </div>
+      <div class="field acc-required" id="mat-newitem-wrap" style="display:none">
+        <label>Nouvel item (remplacement)</label>
+        <input type="text" id="mat-newitem" placeholder="Ex : Chaudron inox 12L">
+      </div>
+      <div class="field acc-required" id="mat-qty-wrap">
+        <label id="mat-qty-label">Quantité manquante</label>
+        <input type="text" id="mat-qty" placeholder="Ex : 2 boîtes">
+      </div>
+
+      <div class="field acc-required">
+        <label>Contremaître</label>
+        <input type="text" id="mat-contremaitre" placeholder="Votre nom">
+      </div>
+
+      <button class="btn btn-blue" id="btn-send-mat" onclick="submitMateriel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        Envoyer l'ajustement
+      </button>
+      <button class="btn btn-ghost" onclick="resetMaterielForm()">Réinitialiser</button>
+    </div><!-- /mat-form-view -->
+
+    <div id="mat-achats-view" style="display:none">
+      <div class="filter-row" style="margin-bottom:.6rem">
+        <button class="filter-btn active" id="mat-filt-todo" onclick="matSetFilter('todo')">À faire</button>
+        <button class="filter-btn" id="mat-filt-done" onclick="matSetFilter('done')">Appliqué</button>
+      </div>
+      <div id="mat-achats-content"><div class="loading-state">Chargement...</div></div>
+    </div>
+  </div>
+
   <!-- ═══ HISTORIQUE ═══ -->
   <div id="tab-history" class="screen">
     <div id="history-content"></div>
@@ -838,7 +907,7 @@ const ACC_YN = { temoins:'non', etranger:'non', photos:'non' };
 // Incrémenter cette valeur à chaque publication sur GitHub — permet à
 // l'app d'afficher une bannière "Mettre à jour" chez les gens qui ont
 // déjà la page ouverte, sans qu'ils aient à faire un refresh manuel.
-const APP_VERSION = '2026-08-21-3';
+const APP_VERSION = '2026-08-21-4';
 
 function checkForUpdate(){
   fetch(location.pathname + '?_v=' + Date.now(), {cache:'no-store'})
@@ -1292,6 +1361,146 @@ async function submitAccident(){
 }
 
 // ════════════════════════════════════════════════════════════
+// AJUSTEMENT LISTES DE MATÉRIEL
+// ════════════════════════════════════════════════════════════
+const MAT_API = INSP_API;
+var matNature = 'manque';
+var matRecords = [];
+var matStatutFilter = 'todo';
+
+var MAT_ITEM_LABELS = { manque:'Item concerné', surplus:'Item concerné', remplacer:'Item actuel (à remplacer)', ajouter:'Nouvel item (à ajouter)', retirer:'Item à retirer' };
+var MAT_QTY_LABELS = { manque:'Quantité manquante', surplus:'Quantité en trop', remplacer:'Quantité (optionnel)', ajouter:'Quantité' };
+var MAT_NAT_LABELS = { manque:'Manque', surplus:'Surplus', remplacer:'Remplacer', ajouter:'Ajouter', retirer:'Retirer' };
+
+function materielInit(){
+  var saved = localStorage.getItem('saved_username');
+  var cf = document.getElementById('mat-contremaitre');
+  if(cf && !cf.value && saved) cf.value = saved;
+}
+
+function matSetNature(nat){
+  matNature = nat;
+  document.querySelectorAll('#mat-nat-group button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v')===nat); });
+  document.getElementById('mat-item-label').textContent = MAT_ITEM_LABELS[nat];
+  document.getElementById('mat-newitem-wrap').style.display = nat==='remplacer' ? 'block' : 'none';
+  var qtyWrap = document.getElementById('mat-qty-wrap');
+  if(nat==='retirer'){ qtyWrap.style.display='none'; }
+  else { qtyWrap.style.display='block'; document.getElementById('mat-qty-label').textContent = MAT_QTY_LABELS[nat]; }
+  qtyWrap.classList.toggle('acc-required', nat!=='remplacer');
+}
+
+function matShowView(v){
+  var isForm = v==='form';
+  document.getElementById('mat-form-view').style.display = isForm ? 'block':'none';
+  document.getElementById('mat-achats-view').style.display = isForm ? 'none':'block';
+  document.getElementById('mat-tab-form').classList.toggle('active', isForm);
+  document.getElementById('mat-tab-achats').classList.toggle('active', !isForm);
+  if(!isForm){ loadMaterielAjustements(); }
+}
+
+function resetMaterielForm(){
+  document.getElementById('mat-projet').value = '';
+  document.getElementById('mat-item').value = '';
+  document.getElementById('mat-newitem').value = '';
+  document.getElementById('mat-qty').value = '';
+  matSetNature('manque');
+}
+
+async function submitMateriel(){
+  var projet = document.getElementById('mat-projet').value.trim();
+  var item = document.getElementById('mat-item').value.trim();
+  var newItem = document.getElementById('mat-newitem').value.trim();
+  var qty = document.getElementById('mat-qty').value.trim();
+  var contremaitre = document.getElementById('mat-contremaitre').value.trim();
+  if(!projet){ toast('⚠ Le nom du projet est obligatoire.', true); return; }
+  if(!item){ toast('⚠ Précisez l\'item concerné.', true); return; }
+  if(matNature==='remplacer' && !newItem){ toast('⚠ Précisez le nouvel item de remplacement.', true); return; }
+  if(matNature!=='remplacer' && matNature!=='retirer' && !qty){ toast('⚠ La quantité est obligatoire.', true); return; }
+  if(!contremaitre){ toast('⚠ Le nom du contremaître est obligatoire.', true); return; }
+  localStorage.setItem('saved_username', contremaitre);
+  var payload = {
+    action: 'materielAjustement',
+    id: 'MAT-' + Date.now().toString(),
+    projet: projet,
+    nature: matNature,
+    item: item,
+    itemNouveau: matNature==='remplacer' ? newItem : '',
+    quantite: matNature==='retirer' ? '' : qty,
+    contremaitre: contremaitre,
+    date: new Date().toISOString()
+  };
+  var btn = document.getElementById('btn-send-mat'); var old = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = 'Envoi...';
+  try {
+    await fetch(MAT_API, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
+    toast('✅ Ajustement envoyé à l\'équipe achats.');
+    resetMaterielForm();
+  } catch(e) {
+    toast('⚠ Envoi impossible pour le moment, réessayez.', true);
+  } finally {
+    btn.disabled = false; btn.innerHTML = old;
+  }
+}
+
+async function loadMaterielAjustements(){
+  var el = document.getElementById('mat-achats-content');
+  el.innerHTML = '<div class="loading-state">Chargement...</div>';
+  try {
+    var r = await fetch(MAT_API + '?action=getMaterielAjustements&_=' + Date.now());
+    var j = await r.json();
+    matRecords = j.ajustements || [];
+    renderMaterielAchats();
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state"><p>Impossible de charger la liste pour le moment.</p></div>';
+  }
+}
+
+function matSetFilter(f){
+  matStatutFilter = f;
+  document.getElementById('mat-filt-todo').classList.toggle('active', f==='todo');
+  document.getElementById('mat-filt-done').classList.toggle('active', f==='done');
+  renderMaterielAchats();
+}
+
+function matEscapeHtml(s){
+  var d = document.createElement('div');
+  d.textContent = (s==null ? '' : String(s));
+  return d.innerHTML;
+}
+
+function renderMaterielAchats(){
+  var el = document.getElementById('mat-achats-content');
+  var todoCount = matRecords.filter(function(r){ return r.statut!=='fait'; }).length;
+  document.getElementById('mat-filt-todo').textContent = 'À faire (' + todoCount + ')';
+  var list = matRecords.filter(function(r){ return matStatutFilter==='done' ? r.statut==='fait' : r.statut!=='fait'; });
+  if(!list.length){
+    el.innerHTML = '<div class="empty-state"><p>' + (matStatutFilter==='done' ? 'Aucun ajustement appliqué pour l\'instant.' : 'Aucun ajustement à faire pour le moment.') + '</p></div>';
+    return;
+  }
+  list = list.slice().reverse();
+  el.innerHTML = list.map(function(r){
+    var detail = '';
+    if(r.nature==='manque') detail = matEscapeHtml(r.item) + ' : manque <strong>' + matEscapeHtml(r.quantite) + '</strong>';
+    else if(r.nature==='surplus') detail = matEscapeHtml(r.item) + ' : <strong>' + matEscapeHtml(r.quantite) + '</strong> en trop';
+    else if(r.nature==='remplacer') detail = matEscapeHtml(r.item) + ' → <strong>' + matEscapeHtml(r.itemNouveau) + '</strong>' + (r.quantite ? ' (qté ' + matEscapeHtml(r.quantite) + ')' : '');
+    else if(r.nature==='ajouter') detail = 'À ajouter : ' + matEscapeHtml(r.item) + (r.quantite ? ', qté ' + matEscapeHtml(r.quantite) : '');
+    else if(r.nature==='retirer') detail = 'À retirer : ' + matEscapeHtml(r.item);
+    var chk = r.statut==='fait' ? '' : '<div class="mat-chk" onclick="matMarkDone(\'' + r.id + '\')" title="Marquer comme appliqué"></div>';
+    return '<div class="hcard"><div class="hcard-top"><div><div class="hcard-date">' + matEscapeHtml(r.projet) + '</div><div class="hcard-sub">' + matEscapeHtml(r.contremaitre||'') + '</div></div>' + chk + '</div>'
+      + '<span class="mod-tag">' + MAT_NAT_LABELS[r.nature] + '</span>'
+      + '<div style="font-size:13px;color:var(--text2);margin-top:6px">' + detail + '</div></div>';
+  }).join('');
+}
+
+function matMarkDone(id){
+  var rec = matRecords.find(function(r){ return r.id===id; });
+  if(rec) rec.statut = 'fait';
+  renderMaterielAchats();
+  var img = new Image();
+  img.src = MAT_API + '?action=materielStatut&id=' + encodeURIComponent(id) + '&statut=fait';
+}
+
+// ════════════════════════════════════════════════════════════
 // INSPECTION FORM
 // ════════════════════════════════════════════════════════════
 
@@ -1646,6 +1855,7 @@ async function showTab(tab, btn) {
   if(tab==='mods'){ if(f03Records.length>0) renderMods(); else { document.getElementById('mods-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderMods(); } }
   if(tab==='qualite'){ cqInit(); }
   if(tab==='accident'){ accidentInit(); }
+  if(tab==='materiel'){ materielInit(); }
 }
 
 // ════════════════════════════════════════════════════════════
