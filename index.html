@@ -18,6 +18,7 @@
   --amber:#BA7517;--amber-light:#FAEEDA;
   --green:#3B6D11;--green-light:#EAF3DE;
   --gray:#888780;--gray-light:#F1EFE8;
+  --reg:#D9730D;--reg-light:#FDF1E4;--reg-dark:#5A2E04;
   --bg:#F8F7F4;--surface:#FFFFFF;--border:rgba(0,0,0,.1);
   --text:#1A1A18;--text2:#5C5C5A;--text3:#9A9A97;
   --radius:10px;--radius-lg:14px;
@@ -130,6 +131,19 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 .acc-hcard.open .acc-hcard-body{display:block}
 .acc-hcard-body .row{margin-bottom:4px}
 .acc-hcard-body .lbl{color:var(--text3);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+.filter-btn.active.amber{background:var(--reg);border-color:var(--reg);color:#fff}
+.reg-banner{background:var(--reg-light);border:1px solid var(--reg);color:var(--reg-dark);border-radius:var(--radius);padding:9px 12px;font-size:12px;line-height:1.5;margin-bottom:.85rem}
+.reg-note{font-size:12px;color:var(--text3);line-height:1.5;margin:-.2rem 0 .7rem}
+.btn-amber{background:var(--reg);color:#fff;margin-top:.75rem}
+.btn-amber:disabled{background:var(--gray);cursor:not-allowed}
+.reg-hcard{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--reg);border-radius:var(--radius-lg);padding:.85rem;margin-bottom:.7rem}
+.reg-hcard .acc-hcard-date{color:var(--reg)}
+.reg-hcard.open .acc-hcard-body{display:block}
+.reg-tag{display:inline-block;font-size:10.5px;font-family:var(--mono);padding:2px 8px;border-radius:6px;margin-top:6px}
+.reg-tag.todo{background:var(--reg-light);color:var(--reg-dark)}
+.reg-tag.done{background:var(--green-light);color:var(--green)}
+.reg-complete{margin-top:.7rem;padding:.7rem;background:var(--bg);border-radius:var(--radius)}
+.reg-complete .field{margin-bottom:.55rem}
 .acc-decl-box{background:var(--bg);border-radius:8px;padding:8px 10px;margin-top:4px;white-space:pre-wrap}
 .btn svg{width:16px;height:16px}
 
@@ -580,21 +594,97 @@ html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var
 
   <!-- ═══ RAPPORT D'ACCIDENT ═══ -->
   <div id="tab-accident" class="screen">
-    <div class="acc-banner">
+    <div class="filter-row" style="margin-bottom:.85rem">
+      <button class="filter-btn active amber" id="acc-tab-reg" onclick="accShowView('reg')">📝 Nouveau registre</button>
+      <button class="filter-btn" id="acc-tab-form" onclick="accShowView('form')">➕ Nouveau rapport</button>
+      <button class="filter-btn" id="acc-tab-hist" onclick="accShowView('hist')">📋 Historique</button>
+    </div>
+
+    <div class="reg-banner" id="acc-banner-reg">
+      <strong>📝 Registre d'accidents, d'incidents et de premiers secours</strong><br>
+      À remplir pour <strong>chaque</strong> événement, même mineur : accident, incident sans blessure ou premiers secours donnés. Le rapport d'accident complet se fait seulement si la direction de l'usine le demande.
+    </div>
+    <div class="acc-banner" id="acc-banner-rapport" style="display:none">
       <strong>⚠ Rapport d'accident — à remplir au moment de l'événement.</strong><br>
       Une fois envoyé, le PDF officiel PRÉVIBOIS est rempli automatiquement et transmis aux responsables. Les sections enquête et analyse seront complétées ensuite.
     </div>
 
-    <div class="filter-row" style="margin-bottom:.85rem">
-      <button class="filter-btn active red" id="acc-tab-form" onclick="accShowView('form')">➕ Nouveau rapport</button>
-      <button class="filter-btn" id="acc-tab-hist" onclick="accShowView('hist')">📋 Historique</button>
-    </div>
-
     <div id="acc-hist-view" style="display:none">
-      <div id="acc-hist-content"><div class="loading-state">Chargement...</div></div>
+      <div class="filter-row" style="margin-bottom:.7rem">
+        <button class="filter-btn active amber" id="acc-hsub-reg" onclick="accHistSub('reg')">📝 Registre</button>
+        <button class="filter-btn" id="acc-hsub-rap" onclick="accHistSub('rap')">⚠ Rapports d'accident</button>
+      </div>
+      <div id="reg-hist-wrap">
+        <div class="filter-row" style="margin-bottom:.6rem">
+          <button class="filter-btn active" id="reg-filt-todo" onclick="regSetFilter('todo')">Mesure à compléter</button>
+          <button class="filter-btn" id="reg-filt-all" onclick="regSetFilter('all')">Toutes les entrées</button>
+        </div>
+        <div id="reg-hist-content"><div class="loading-state">Chargement...</div></div>
+      </div>
+      <div id="acc-hist-content" style="display:none"><div class="loading-state">Chargement...</div></div>
     </div>
 
-    <div id="acc-form-view">
+    <!-- ── Nouvelle entrée au registre ── -->
+    <div id="reg-form-view">
+      <div class="section-title">Événement</div>
+      <div class="meta-grid">
+        <div class="field acc-required"><label>Date</label><input type="date" id="reg-date"></div>
+        <div class="field"><label>Heure</label><input type="time" id="reg-heure"></div>
+      </div>
+      <div class="field"><label>Établissement</label><input type="text" id="reg-etablissement" value="Usine de fabrication modulaire"></div>
+      <div class="field acc-required"><label>Lieu de l'accident ou de l'incident</label><input type="text" id="reg-lieu" placeholder="Ex : station de coupe, quai de chargement"></div>
+      <div class="field acc-required"><label>Description et causes</label><textarea id="reg-description" placeholder="Que s'est-il passé ? Pourquoi ?"></textarea></div>
+      <div class="field acc-required"><label>Blessure ou malaise</label><textarea id="reg-blessure" placeholder="Ex : coupure à l'index gauche — « Aucune » s'il s'agit d'un incident sans blessure" style="min-height:56px"></textarea></div>
+      <div class="field"><label>Premiers secours et transport</label><textarea id="reg-secours" placeholder="Soins donnés, transport à la clinique ou à l'hôpital, etc." style="min-height:56px"></textarea></div>
+
+      <div class="section-title">Personne secourue</div>
+      <div class="field acc-required"><label>Nom et prénom</label><input type="text" id="reg-secouru-nom" placeholder="Prénom Nom"></div>
+      <div class="field"><label>Métier ou fonction</label><input type="text" id="reg-metier" placeholder="Ex : charpentier, journalier de production"></div>
+      <div class="field">
+        <label>S'est-elle absentée au-delà de la journée de l'événement ?</label>
+        <div class="acc-yn" id="reg-absent-yn">
+          <button type="button" data-v="oui" onclick="regSetAbsent('oui')">Oui</button>
+          <button type="button" data-v="non" class="on no" onclick="regSetAbsent('non')">Non</button>
+        </div>
+      </div>
+      <div class="field acc-required" id="reg-sig-secouru-wrap"><label>Signature de la personne secourue</label>
+        <div class="sig-wrap">
+          <canvas id="reg-sig-secouru" class="sig-canvas"></canvas>
+          <div class="sig-line"></div><div class="sig-hint">Signez ci-dessus</div>
+          <button type="button" class="sig-clear" onclick="regSigClear('reg-sig-secouru')">Effacer</button>
+        </div>
+      </div>
+      <p class="reg-note" id="reg-absent-note" style="display:none">La personne s'est absentée au-delà de la journée : sa signature n'est pas exigée au registre.</p>
+
+      <div class="section-title">Secouriste</div>
+      <div class="field"><label>Nom et prénom du secouriste</label><input type="text" id="reg-secouriste-nom" placeholder="Laisser vide si aucun premier secours n'a été donné"></div>
+      <div class="field" id="reg-sig-secouriste-wrap"><label>Signature du secouriste</label>
+        <div class="sig-wrap">
+          <canvas id="reg-sig-secouriste" class="sig-canvas"></canvas>
+          <div class="sig-line"></div><div class="sig-hint">Signez ci-dessus</div>
+          <button type="button" class="sig-clear" onclick="regSigClear('reg-sig-secouriste')">Effacer</button>
+        </div>
+      </div>
+
+      <div class="section-title">Mesure corrective</div>
+      <p class="reg-note">Peut être complétée plus tard, dans Historique → Registre.</p>
+      <div class="field"><label>Mesures correctives</label><textarea id="reg-mesures" placeholder="Ce qui sera fait pour éviter que ça se reproduise" style="min-height:56px"></textarea></div>
+      <div class="meta-grid">
+        <div class="field"><label>Personne responsable</label><input type="text" id="reg-responsable" placeholder="Nom"></div>
+        <div class="field"><label>Date de mise en place</label><input type="date" id="reg-date-mesure"></div>
+      </div>
+
+      <div class="section-title">Inscription</div>
+      <div class="field acc-required"><label>Inscrit par</label><input type="text" id="reg-inscrit-par" placeholder="Votre nom"></div>
+
+      <button class="btn btn-amber" id="btn-send-reg" onclick="submitRegistre()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        Enregistrer au registre
+      </button>
+      <button class="btn btn-ghost" onclick="resetRegistre()">Réinitialiser</button>
+    </div><!-- /reg-form-view -->
+
+    <div id="acc-form-view" style="display:none">
     <div class="section-title">Identification de l'entreprise</div>
     <div class="field"><label>Nom de l'entreprise</label><input type="text" id="acc-entreprise" value="Les Entreprises Forestières NT"></div>
     <div class="meta-grid">
@@ -909,7 +999,7 @@ const ACC_YN = { temoins:'non', etranger:'non', photos:'non' };
 // Incrémenter cette valeur à chaque publication sur GitHub — permet à
 // l'app d'afficher une bannière "Mettre à jour" chez les gens qui ont
 // déjà la page ouverte, sans qu'ils aient à faire un refresh manuel.
-const APP_VERSION = '2026-08-27-1';
+const APP_VERSION = '2026-10-22-1';
 
 function checkForUpdate(){
   fetch(location.pathname + '?_v=' + Date.now(), {cache:'no-store'})
@@ -1133,12 +1223,42 @@ function accSigData(id){ var p=accSigPads[id]; if(!p||!p.hasInk) return null; re
 
 // ── Historique des rapports d'accident ─────────────────────────
 function accShowView(v){
-  var isForm = v === 'form';
+  // Trois vues : 'reg' (nouvelle entrée au registre), 'form' (rapport d'accident), 'hist' (historique)
+  var isReg = v === 'reg', isForm = v === 'form', isHist = v === 'hist';
+  document.getElementById('reg-form-view').style.display = isReg ? 'block' : 'none';
   document.getElementById('acc-form-view').style.display = isForm ? 'block' : 'none';
-  document.getElementById('acc-hist-view').style.display = isForm ? 'none' : 'block';
-  document.getElementById('acc-tab-form').classList.toggle('active', isForm);
-  document.getElementById('acc-tab-hist').classList.toggle('active', !isForm);
-  if(isForm){ accSigInit(); } else { loadAccidentHistory(); }
+  document.getElementById('acc-hist-view').style.display = isHist ? 'block' : 'none';
+  document.getElementById('acc-banner-reg').style.display = isForm ? 'none' : 'block';
+  document.getElementById('acc-banner-rapport').style.display = isForm ? 'block' : 'none';
+  var bReg = document.getElementById('acc-tab-reg'), bForm = document.getElementById('acc-tab-form'), bHist = document.getElementById('acc-tab-hist');
+  bReg.classList.toggle('active', isReg); bReg.classList.toggle('amber', isReg);
+  bForm.classList.toggle('active', isForm); bForm.classList.toggle('red', isForm);
+  bHist.classList.toggle('active', isHist);
+  if(isForm){ accSigInit(); accSigFit(); }
+  if(isReg){ regSigInit(); }
+  if(isHist){ accHistSub(accHistCurrent); }
+}
+// Le formulaire du rapport est caché à l'ouverture de l'onglet : on ajuste les zones de
+// signature à leur vraie taille la première fois qu'il s'affiche (sans rien redessiner).
+function accSigFit(){
+  ['acc-sig-trav','acc-sig-resp'].forEach(function(id){
+    var p = accSigPads[id]; if(!p || p.hasInk) return;
+    var c = p.canvas, dpr = window.devicePixelRatio || 1, w = c.clientWidth, h = c.clientHeight || 130;
+    if(!w || c.width === Math.round(w*dpr)) return;
+    c.width = Math.round(w*dpr); c.height = Math.round(h*dpr);
+    p.ctx.setTransform(dpr,0,0,dpr,0,0); p.ctx.lineWidth = 2.2; p.ctx.lineCap = 'round'; p.ctx.lineJoin = 'round'; p.ctx.strokeStyle = '#111';
+  });
+}
+var accHistCurrent = 'reg';
+function accHistSub(which){
+  accHistCurrent = which;
+  var isReg = which === 'reg';
+  document.getElementById('reg-hist-wrap').style.display = isReg ? 'block' : 'none';
+  document.getElementById('acc-hist-content').style.display = isReg ? 'none' : 'block';
+  var a = document.getElementById('acc-hsub-reg'), b = document.getElementById('acc-hsub-rap');
+  a.classList.toggle('active', isReg); a.classList.toggle('amber', isReg);
+  b.classList.toggle('active', !isReg); b.classList.toggle('red', !isReg);
+  if(isReg){ loadRegistre(); } else { loadAccidentHistory(); }
 }
 function accEscapeHtml(s){ var d=document.createElement('div'); d.textContent = (s==null?'':String(s)); return d.innerHTML; }
 function accFmtDate(iso){ if(!iso) return ''; var p=String(iso).split('-'); return p.length===3 ? (p[2]+'/'+p[1]+'/'+p[0]) : String(iso); }
@@ -1360,6 +1480,323 @@ async function submitAccident(){
   } finally {
     btn.disabled = false; btn.innerHTML = old;
   }
+}
+
+// ════════════════════════════════════════════════════════════
+// REGISTRE D'ACCIDENTS, D'INCIDENTS ET DE PREMIERS SECOURS
+// (onglet Accident → « Nouveau registre » ; distinct du rapport PRÉVIBOIS)
+// Modèle : registre de la CNESST (DC900-801-15), adapté par Camps NT.
+// Backend : action 'registre' et 'registreMesure' (doPost), 'getRegistre' (doGet)
+// ════════════════════════════════════════════════════════════
+const REG_API = INSP_API;
+const REG_LOGO = 'registre_logo.png';
+var regAbsent = 'non';
+var regRecords = [];
+var regFilter = 'todo';
+var regSigPads = {};
+
+function regInit(){
+  var d = document.getElementById('reg-date');
+  if(d && !d.value){ var t = new Date(); d.value = t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
+  var who = document.getElementById('reg-inscrit-par');
+  var saved = localStorage.getItem('saved_username');
+  if(who && !who.value && saved) who.value = saved;
+  if(document.getElementById('reg-form-view').style.display !== 'none') regSigInit();
+}
+
+// ── Signatures au doigt (même principe que le rapport d'accident) ──
+function regSigInit(){
+  ['reg-sig-secouru','reg-sig-secouriste'].forEach(function(id){
+    var c = document.getElementById(id); if(!c) return;
+    var dpr = window.devicePixelRatio || 1;
+    var w = c.clientWidth, h = c.clientHeight || 130;
+    if(!w) return; // zone cachée : on réessaiera à l'affichage
+    var pad = regSigPads[id];
+    if(pad && pad.canvas === c){
+      if(!pad.hasInk && c.width !== Math.round(w*dpr)){ c.width = Math.round(w*dpr); c.height = Math.round(h*dpr); regSigStyle(pad.ctx, dpr); }
+      return;
+    }
+    c.width = Math.round(w*dpr); c.height = Math.round(h*dpr);
+    var ctx = c.getContext('2d'); regSigStyle(ctx, dpr);
+    pad = { canvas:c, ctx:ctx, hasInk:false, drawing:false, lx:0, ly:0 };
+    regSigPads[id] = pad;
+    function pos(e){ var r=c.getBoundingClientRect(); var t=(e.touches&&e.touches[0])?e.touches[0]:e; return { x:t.clientX-r.left, y:t.clientY-r.top }; }
+    function down(e){ e.preventDefault(); pad.drawing=true; var p=pos(e); pad.lx=p.x; pad.ly=p.y; }
+    function move(e){ if(!pad.drawing) return; e.preventDefault(); var p=pos(e); ctx.beginPath(); ctx.moveTo(pad.lx,pad.ly); ctx.lineTo(p.x,p.y); ctx.stroke(); pad.lx=p.x; pad.ly=p.y; pad.hasInk=true; }
+    function up(){ pad.drawing=false; }
+    c.addEventListener('pointerdown', down); c.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+    c.addEventListener('touchstart', down, {passive:false}); c.addEventListener('touchmove', move, {passive:false}); window.addEventListener('touchend', up);
+  });
+}
+function regSigStyle(ctx, dpr){ ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#111'; }
+function regSigClear(id){ var p = regSigPads[id]; if(!p) return; p.ctx.save(); p.ctx.setTransform(1,0,0,1,0,0); p.ctx.clearRect(0,0,p.canvas.width,p.canvas.height); p.ctx.restore(); p.hasInk = false; }
+// Image PNG réduite (≈ 420 px de large) pour rester sous la limite de 50 000 caractères d'une cellule
+function regSigData(id){
+  var p = regSigPads[id]; if(!p || !p.hasInk) return null;
+  var src = p.canvas, W = Math.min(420, src.width), H = Math.round(src.height * W / src.width);
+  var c = document.createElement('canvas'); c.width = W; c.height = H;
+  c.getContext('2d').drawImage(src, 0, 0, W, H);
+  return c.toDataURL('image/png');
+}
+
+function regSetAbsent(v){
+  regAbsent = v;
+  document.querySelectorAll('#reg-absent-yn button').forEach(function(b){ var on = b.getAttribute('data-v')===v; b.classList.toggle('on', on); b.classList.toggle('no', on && v==='non'); });
+  document.getElementById('reg-sig-secouru-wrap').classList.toggle('acc-required', v==='non');
+  document.getElementById('reg-absent-note').style.display = v==='oui' ? 'block' : 'none';
+}
+
+function resetRegistre(){
+  ['reg-heure','reg-lieu','reg-description','reg-blessure','reg-secours','reg-secouru-nom','reg-metier','reg-secouriste-nom','reg-mesures','reg-responsable','reg-date-mesure','reg-date'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('reg-etablissement').value = 'Usine de fabrication modulaire';
+  regSetAbsent('non');
+  regSigClear('reg-sig-secouru'); regSigClear('reg-sig-secouriste');
+  regInit();
+}
+
+function regGet(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; }
+function regEsc(s){ var d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; }
+function regFmtDate(iso){ if(!iso) return ''; var p=String(iso).slice(0,10).split('-'); return p.length===3 ? (p[2]+'/'+p[1]+'/'+p[0]) : String(iso); }
+function regTodayIso(){ var t=new Date(); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
+function regNewId(){ var t=new Date(), z=function(n){return String(n).padStart(2,'0');}; return 'REG-'+t.getFullYear()+z(t.getMonth()+1)+z(t.getDate())+'-'+z(t.getHours())+z(t.getMinutes())+z(t.getSeconds()); }
+
+async function submitRegistre(){
+  var data = {
+    id: regNewId(),
+    date: regGet('reg-date'), heure: regGet('reg-heure'), etablissement: regGet('reg-etablissement'),
+    lieu: regGet('reg-lieu'), metier: regGet('reg-metier'),
+    description: regGet('reg-description'), blessure: regGet('reg-blessure'), secours: regGet('reg-secours'),
+    secouruNom: regGet('reg-secouru-nom'), absent: regAbsent,
+    secouristeNom: regGet('reg-secouriste-nom'),
+    mesures: regGet('reg-mesures'), responsable: regGet('reg-responsable'), dateMesure: regGet('reg-date-mesure'),
+    inscritPar: regGet('reg-inscrit-par'),
+    sigSecouru: regSigData('reg-sig-secouru'), sigSecouriste: regSigData('reg-sig-secouriste')
+  };
+  // Validation
+  if(!data.date || !data.lieu || !data.description || !data.blessure || !data.secouruNom){
+    toast('⚠ Remplissez au moins : date, lieu, description, blessure et nom de la personne secourue.', true); return;
+  }
+  if(data.date > regTodayIso()){ toast('⚠ La date de l\'événement ne peut pas être dans le futur.', true); return; }
+  if(data.dateMesure && data.dateMesure < data.date){ toast('⚠ La date de mise en place ne peut pas précéder l\'événement.', true); return; }
+  if(data.absent==='non' && !data.sigSecouru){
+    toast('✍ La signature de la personne secourue est requise.', true);
+    document.getElementById('reg-sig-secouru').scrollIntoView({behavior:'smooth', block:'center'}); return;
+  }
+  if(data.secouristeNom && !data.sigSecouriste){
+    toast('✍ La signature du secouriste est requise.', true);
+    document.getElementById('reg-sig-secouriste').scrollIntoView({behavior:'smooth', block:'center'}); return;
+  }
+  if(!data.inscritPar){ toast('⚠ Indiquez qui fait l\'inscription.', true); return; }
+  localStorage.setItem('saved_username', data.inscritPar);
+
+  var btn = document.getElementById('btn-send-reg');
+  btn.disabled = true; var old = btn.innerHTML; btn.innerHTML = 'Génération du PDF...';
+  try {
+    var pdfBytes = await regBuildPdf(data);
+    var fname = 'Registre_' + data.id + '_' + (data.secouruNom||'').replace(/[^A-Za-z0-9]/g,'') + '.pdf';
+    // Copie locale immédiate
+    try {
+      var blob = new Blob([pdfBytes], {type:'application/pdf'}); var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    } catch(e){}
+    btn.innerHTML = 'Envoi...';
+    var payload = {
+      action:'registre', filename: fname, pdfBase64: accBytesToBase64(pdfBytes),
+      subject: 'Registre d\'accidents – Usine – ' + data.secouruNom + ' (' + regFmtDate(data.date) + ')',
+      entree: data
+    };
+    var sent = true;
+    try { await fetch(REG_API, {method:'POST', mode:'no-cors', body: JSON.stringify(payload)}); }
+    catch(e){ sent = false; }
+    try { var log = JSON.parse(localStorage.getItem('registre_log')||'[]'); log.unshift({t:Date.now(), data:data, sent:sent}); localStorage.setItem('registre_log', JSON.stringify(log.slice(0,30))); } catch(e){}
+    if(sent){ toast('✅ Entrée ajoutée au registre. Une copie PDF a été téléchargée.'); resetRegistre(); }
+    else { toast('⚠ Envoi impossible (réseau ?). Le PDF a été téléchargé : transmettez-le manuellement.', true); }
+  } catch(err){
+    console.log('Erreur registre :', err);
+    toast('❌ Erreur lors de la génération du PDF : ' + err.message, true);
+  } finally {
+    btn.disabled = false; btn.innerHTML = old;
+  }
+}
+
+// ── PDF d'une entrée (mise en page du registre Camps NT, Lettre US paysage) ──
+function regPdfSafe(s){
+  // Helvetica standard (WinAnsi) : remplace les caractères non imprimables (émojis, etc.)
+  var ok = '’‘“”–—…•€ŒœŠšŽžŸ·«»°';
+  return String(s==null?'':s).replace(/\r/g,'').replace(/[^\n\x20-\x7E\xA0-\xFF]/g, function(ch){ return ok.indexOf(ch)>=0 ? ch : '?'; });
+}
+function regWrap(font, text, size, maxW){
+  var out = [];
+  regPdfSafe(text).split('\n').forEach(function(par){
+    var words = par.split(/\s+/).filter(Boolean), line = '';
+    if(!words.length){ out.push(''); return; }
+    words.forEach(function(w){
+      while(font.widthOfTextAtSize(w, size) > maxW && w.length > 1){ // mot trop long : on le coupe
+        var k = w.length; while(k > 1 && font.widthOfTextAtSize(w.slice(0,k), size) > maxW) k--;
+        if(line){ out.push(line); line=''; } out.push(w.slice(0,k)); w = w.slice(k);
+      }
+      var t = line ? line+' '+w : w;
+      if(font.widthOfTextAtSize(t, size) <= maxW) line = t; else { out.push(line); line = w; }
+    });
+    out.push(line);
+  });
+  return out;
+}
+// Écrit un texte dans une boîte en réduisant la taille au besoin (9 → 6 pt)
+function regBox(page, font, text, x, yTop, w, h, opts){
+  opts = opts || {}; var size = opts.size || 9, min = 6, lines;
+  for(;;){ lines = regWrap(font, text, size, w); if(lines.length*size*1.22 <= h || size <= min) break; size -= 0.5; }
+  var maxLines = Math.floor(h/(size*1.22));
+  if(lines.length > maxLines){ lines = lines.slice(0, maxLines); lines[maxLines-1] = lines[maxLines-1].replace(/.{0,2}$/,'') + '…'; }
+  lines.forEach(function(ln, i){ page.drawText(ln, {x:x, y:yTop - size - i*size*1.22, size:size, font:font, color:opts.color||PDFLib.rgb(0.1,0.1,0.1)}); });
+}
+
+async function regBuildPdf(d){
+  var P = PDFLib, rgb = P.rgb;
+  var doc = await P.PDFDocument.create();
+  doc.setTitle('Registre d\'accidents, d\'incidents et de premiers secours – ' + d.id);
+  doc.setAuthor('Camps NT');
+  var W = 792, H = 612, page = doc.addPage([W, H]);
+  var font = await doc.embedFont(P.StandardFonts.Helvetica), bold = await doc.embedFont(P.StandardFonts.HelveticaBold);
+  var BLACK = rgb(.067,.067,.067), GRAY = rgb(.36,.36,.36), LINE = rgb(.867,.867,.867), ACC = rgb(.851,.451,.051), PALE = rgb(.992,.945,.894);
+  var ML = 40, cols = [78,118,196,116,98,106], X = [ML]; cols.forEach(function(c){ X.push(X[X.length-1]+c); }); var R = X[6];
+  function txt(s, x, y, size, f, color){ page.drawText(regPdfSafe(s), {x:x, y:y, size:size, font:f||font, color:color||BLACK}); }
+  function txtR(s, xr, y, size, f, color){ var t=regPdfSafe(s); page.drawText(t, {x:xr-(f||font).widthOfTextAtSize(t,size), y:y, size:size, font:f||font, color:color||BLACK}); }
+  function txtC(s, xc, y, size, f, color){ var t=regPdfSafe(s); page.drawText(t, {x:xc-(f||font).widthOfTextAtSize(t,size)/2, y:y, size:size, font:f||font, color:color||BLACK}); }
+  function hline(x1, x2, y, th, color){ page.drawLine({start:{x:x1,y:y}, end:{x:x2,y:y}, thickness:th, color:color}); }
+  function vline(x, y1, y2, th, color){ page.drawLine({start:{x:x,y:y1}, end:{x:x,y:y2}, thickness:th, color:color}); }
+
+  // En-tête
+  var top = H - 30;
+  try { var lb = await (await fetch(REG_LOGO, {cache:'force-cache'})).arrayBuffer(); var logo = await doc.embedPng(lb); page.drawImage(logo, {x:ML, y:top-40, width:43, height:40}); } catch(e){}
+  txt('CAMPS NT  ·  SANTÉ ET SÉCURITÉ DU TRAVAIL', ML+55, top-8, 7, bold, GRAY);
+  txt('Registre d’accidents, d’incidents et de premiers secours', ML+55, top-26, 14.5, bold);
+  txt('Usine de fabrication modulaire  ·  Modèle inspiré du registre de la CNESST (DC900-801-15)', ML+55, top-38, 8, font, GRAY);
+  txtR('Entrée ' + d.id, R, top-8, 7.5, bold, ACC);
+  txtR('Établissement : ' + (d.etablissement||''), R, top-22, 7.5, font, GRAY);
+  txtR('Inscrit par : ' + (d.inscritPar||''), R, top-34, 7.5, font, GRAY);
+  hline(ML, R, top-47, 1.2, BLACK);
+
+  // En-têtes de colonnes
+  var thTop = H - 82, thH = 40;
+  page.drawRectangle({x:ML, y:thTop-thH, width:R-ML, height:thH, color:PALE});
+  hline(ML, R, thTop, 1.2, BLACK);
+  var HEADS = [['Date et heure','de l’accident','ou de l’incident'],['Lieu de l’accident ou de','l’incident et métier ou','fonction de la personne','secourue'],['Description et causes de l’accident','ou de l’incident'],['Blessure ou malaise'],['Premiers secours','et transport'],['Signatures']];
+  HEADS.forEach(function(lines, i){ var cx=(X[i]+X[i+1])/2, y0=thTop-thH/2+(lines.length-1)*4.2-2.5; lines.forEach(function(ln,k){ txtC(ln, cx, y0-k*8.4, 7, bold); }); });
+
+  // Bloc de l'événement
+  var y = thTop - thH, mainH = 330, mesH = 80, mid = y - mainH, bot = mid - mesH, pad = 4;
+  for(var i=1;i<6;i++) vline(X[i], y, mid, 0.6, LINE);
+  hline(ML, R, mid, 0.6, LINE); hline(ML, R, bot, 0.9, BLACK);
+  // Date et heure
+  txt('Date', X[0]+pad, y-12, 6.5, bold, GRAY); txt(regFmtDate(d.date), X[0]+pad, y-25, 10, bold);
+  txt('Heure', X[0]+pad, y-42, 6.5, bold, GRAY); txt(d.heure ? d.heure.replace(':',' h ') : '—', X[0]+pad, y-55, 10, bold);
+  // Lieu + métier
+  regBox(page, font, (d.lieu||'') + (d.metier ? '\n\nMétier ou fonction :\n' + d.metier : ''), X[1]+pad, y-pad, cols[1]-2*pad, mainH-2*pad);
+  regBox(page, font, d.description, X[2]+pad, y-pad, cols[2]-2*pad, mainH-2*pad);
+  regBox(page, font, d.blessure, X[3]+pad, y-pad, cols[3]-2*pad, mainH-2*pad);
+  regBox(page, font, d.secours || '—', X[4]+pad, y-pad, cols[4]-2*pad, mainH-2*pad);
+  // Signatures
+  var sx = X[5]+pad, sw = cols[5]-2*pad, q = mainH/2;
+  async function sig(dataUrl, yTop, hBox){
+    if(!dataUrl) return false;
+    try { var png = await doc.embedPng(await (await fetch(dataUrl)).arrayBuffer()); var s = Math.min(sw/png.width, hBox/png.height); page.drawImage(png, {x:sx+(sw-png.width*s)/2, y:yTop-hBox+(hBox-png.height*s)/2, width:png.width*s, height:png.height*s}); return true; } catch(e){ return false; }
+  }
+  txt('Pers. secourue*', sx, y-10, 6.5, bold); regBox(page, font, d.secouruNom, sx, y-13, sw, 22, {size:8.5});
+  txt('Signature', sx, y-42, 5.5, font, GRAY);
+  if(!(await sig(d.sigSecouru, y-46, q-52)) && d.absent==='oui') regBox(page, font, 'Absente au-delà de la journée : signature non exigée.', sx, y-48, sw, 30, {size:6.5, color:GRAY});
+  hline(X[5], R, y-q, 0.6, LINE);
+  txt('Secouriste', sx, y-q-10, 6.5, bold); regBox(page, font, d.secouristeNom || '—', sx, y-q-13, sw, 22, {size:8.5});
+  txt('Signature', sx, y-q-42, 5.5, font, GRAY);
+  await sig(d.sigSecouriste, y-q-46, q-52);
+  // Rangée mesures
+  vline(X[3], mid, bot, 0.6, LINE); vline(X[5], mid, bot, 0.6, LINE);
+  txt('Mesures', X[0]+pad, mid-11, 7, bold); txt('correctives', X[0]+pad, mid-19, 7, bold);
+  regBox(page, font, d.mesures || 'À compléter', X[0]+52, mid-pad, X[3]-X[0]-56, mesH-2*pad, {color: d.mesures ? undefined : GRAY});
+  txt('Personne', X[3]+pad, mid-11, 7, bold); txt('responsable', X[3]+pad, mid-19, 7, bold);
+  regBox(page, font, d.responsable || '—', X[3]+54, mid-pad, X[5]-X[3]-58, mesH-2*pad);
+  txt('Date de mise en place', sx, mid-9, 5.8, bold); txt('de la mesure corrective', sx, mid-16, 5.8, bold);
+  txt(d.dateMesure ? regFmtDate(d.dateMesure) : 'À compléter', sx, mid-34, 10, d.dateMesure ? bold : font, d.dateMesure ? BLACK : GRAY);
+
+  // Pied de page
+  txt('* L’employeur doit faire signer le registre par le travailleur si celui-ci ne s’est pas absenté au-delà de la journée au cours de laquelle il a été blessé ou a subi un malaise.', ML, 26, 6.5, font, GRAY);
+  hline(ML, R, 20, 0.5, LINE);
+  txt('Camps NT · Santé et sécurité · 248 boul. St-Michel, Dolbeau-Mistassini', ML, 11, 6.5, font, GRAY);
+  txtR('ntcamps.com', R, 11, 6.5, font, GRAY);
+  return await doc.save();
+}
+
+// ── Historique du registre ──
+async function loadRegistre(){
+  var el = document.getElementById('reg-hist-content');
+  el.innerHTML = '<div class="loading-state">Chargement...</div>';
+  try {
+    var r = await fetch(REG_API + '?action=getRegistre&_=' + Date.now());
+    var j = await r.json();
+    regRecords = j.registre || [];
+    renderRegistre();
+  } catch(e){
+    el.innerHTML = '<div class="empty-state"><p>Impossible de charger le registre pour le moment.</p></div>';
+  }
+}
+function regSetFilter(f){
+  regFilter = f;
+  document.getElementById('reg-filt-todo').classList.toggle('active', f==='todo');
+  document.getElementById('reg-filt-all').classList.toggle('active', f==='all');
+  renderRegistre();
+}
+function regIsDone(r){ return !!(r.dateMesure); }
+function renderRegistre(){
+  var el = document.getElementById('reg-hist-content');
+  var todo = regRecords.filter(function(r){ return !regIsDone(r); }).length;
+  document.getElementById('reg-filt-todo').textContent = 'Mesure à compléter (' + todo + ')';
+  document.getElementById('reg-filt-all').textContent = 'Toutes les entrées (' + regRecords.length + ')';
+  var list = regRecords.filter(function(r){ return regFilter==='all' || !regIsDone(r); });
+  if(!list.length){ el.innerHTML = '<div class="empty-state"><p>' + (regFilter==='all' ? 'Aucune entrée au registre pour l\'instant.' : 'Aucune mesure corrective à compléter.') + '</p></div>'; return; }
+  list = list.slice().sort(function(a,b){ return String(b.date+(b.heure||'')).localeCompare(String(a.date+(a.heure||''))); });
+  el.innerHTML = list.map(function(r){
+    var done = regIsDone(r);
+    var sub = [r.lieu, r.metier].filter(Boolean).map(regEsc).join(' · ');
+    var body = '<div class="row"><span class="lbl">Entrée</span> — ' + regEsc(r.id) + (r.inscritPar ? ' (inscrite par ' + regEsc(r.inscritPar) + ')' : '') + '</div>'
+      + '<div class="row"><span class="lbl">Blessure ou malaise</span> — ' + regEsc(r.blessure) + '</div>'
+      + (r.secours ? '<div class="row"><span class="lbl">Premiers secours et transport</span> — ' + regEsc(r.secours) + '</div>' : '')
+      + '<div class="row"><span class="lbl">Secouriste</span> — ' + (r.secouristeNom ? regEsc(r.secouristeNom) : '—') + '</div>'
+      + '<div class="row" style="margin-top:6px"><span class="lbl">Description et causes</span><div class="acc-decl-box">' + regEsc(r.description) + '</div></div>'
+      + '<div class="row" style="margin-top:6px"><span class="lbl">Mesures correctives</span><div class="acc-decl-box">' + (r.mesures ? regEsc(r.mesures) : '<em>Aucune inscrite</em>') + '</div></div>'
+      + (r.responsable ? '<div class="row"><span class="lbl">Responsable</span> — ' + regEsc(r.responsable) + '</div>' : '')
+      + (done ? '<div class="row"><span class="lbl">Mise en place le</span> — ' + regFmtDate(r.dateMesure) + (r.mesurePar ? ' (complétée par ' + regEsc(r.mesurePar) + ')' : '') + '</div>' : regCompleteForm(r));
+    return '<div class="reg-hcard" id="regc-' + regEsc(r.id) + '"><div class="acc-hcard-top" onclick="this.parentNode.classList.toggle(\'open\')">'
+      + '<div><div class="acc-hcard-name">' + regEsc(r.secouruNom || '—') + '</div><div class="acc-hcard-sub">' + sub + '</div>'
+      + '<span class="reg-tag ' + (done ? 'done">✓ Mesure en place' : 'todo">Mesure à compléter') + '</span></div>'
+      + '<div class="acc-hcard-date">' + regFmtDate(r.date) + (r.heure ? '<br>' + regEsc(r.heure) : '') + '</div>'
+      + '</div><div class="acc-hcard-body">' + body + '</div></div>';
+  }).join('');
+}
+function regCompleteForm(r){
+  var k = regEsc(r.id), saved = regEsc(localStorage.getItem('saved_username') || '');
+  return '<div class="reg-complete">'
+    + '<div class="field"><label>Mesures correctives</label><textarea id="regm-mes-' + k + '" style="min-height:56px">' + regEsc(r.mesures || '') + '</textarea></div>'
+    + '<div class="meta-grid"><div class="field"><label>Personne responsable</label><input type="text" id="regm-resp-' + k + '" value="' + regEsc(r.responsable || '') + '"></div>'
+    + '<div class="field"><label>Date de mise en place</label><input type="date" id="regm-date-' + k + '"></div></div>'
+    + '<div class="field"><label>Complété par</label><input type="text" id="regm-par-' + k + '" value="' + saved + '" placeholder="Votre nom"></div>'
+    + '<button class="btn btn-amber" style="margin-top:.2rem" onclick="regCompleteMesure(\'' + k + '\')">Enregistrer la mesure</button></div>';
+}
+async function regCompleteMesure(id){
+  var mes = regGet('regm-mes-'+id), resp = regGet('regm-resp-'+id), dt = regGet('regm-date-'+id), par = regGet('regm-par-'+id);
+  var rec = regRecords.filter(function(r){ return r.id===id; })[0];
+  if(!mes){ toast('⚠ Décrivez la mesure corrective.', true); return; }
+  if(!resp){ toast('⚠ Indiquez la personne responsable.', true); return; }
+  if(!dt){ toast('⚠ Indiquez la date de mise en place.', true); return; }
+  if(rec && dt < String(rec.date).slice(0,10)){ toast('⚠ La date de mise en place ne peut pas précéder l\'événement.', true); return; }
+  if(!par){ toast('⚠ Indiquez votre nom.', true); return; }
+  localStorage.setItem('saved_username', par);
+  try {
+    await fetch(REG_API, {method:'POST', mode:'no-cors', body: JSON.stringify({action:'registreMesure', id:id, mesures:mes, responsable:resp, dateMesure:dt, par:par})});
+    if(rec){ rec.mesures = mes; rec.responsable = resp; rec.dateMesure = dt; rec.mesurePar = par; }
+    toast('✅ Mesure corrective enregistrée.');
+    renderRegistre();
+  } catch(e){ toast('⚠ Envoi impossible pour le moment, réessayez.', true); }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1856,7 +2293,7 @@ async function showTab(tab, btn) {
   if(tab==='nc'){ if(inspRecords.length>0) renderNC(); else { document.getElementById('nc-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderNC(); } }
   if(tab==='mods'){ if(f03Records.length>0) renderMods(); else { document.getElementById('mods-content').innerHTML='<div class="loading-state">Chargement...</div>'; await loadAll(true); renderMods(); } }
   if(tab==='qualite'){ cqInit(); }
-  if(tab==='accident'){ accidentInit(); }
+  if(tab==='accident'){ accidentInit(); regInit(); }
   if(tab==='materiel'){ materielInit(); }
 }
 
