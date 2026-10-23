@@ -2,14 +2,14 @@
  * REGISTRE D'ACCIDENTS, D'INCIDENTS ET DE PREMIERS SECOURS — partie serveur
  * Projet Apps Script « Inspection API » (Sheet « Inspection usine »).
  *
- * À ajouter comme NOUVEAU FICHIER dans l'éditeur Apps Script (Fichier + → Script, nom : Registre).
- * Il ne modifie rien d'existant. Il faut ensuite ajouter 3 lignes d'aiguillage dans Code.gs :
- *   - dans doPost, juste après la lecture du JSON reçu :
- *       if (<objet JSON>.action === 'registre')       return __handleRegistre(<objet JSON>);
- *       if (<objet JSON>.action === 'registreMesure') return __handleRegistreMesure(<objet JSON>);
- *   - dans doGet, avec les autres « action » :
- *       if (e.parameter.action === 'getRegistre') return __getRegistre();
- * puis redéployer une NOUVELLE VERSION du déploiement AKfycbxlk41R7pJD6WBJ… (voir le guide technique).
+ * Copie de référence : ce bloc est ajouté À LA FIN de Code.gs dans l'éditeur Apps Script.
+ * Il utilise getSheet() de Code.gs. Aiguillage ajouté dans Code.gs :
+ *   - doPost (ligne « try { var __ab = JSON.parse(...) ») :
+ *       if (__ab && __ab.action === "registre") { return __handleRegistre(__ab); }
+ *       if (__ab && __ab.action === "registreMesure") { return __handleRegistreMesure(__ab); }
+ *   - doGet, juste après « const action = ... » :
+ *       if (action === 'getRegistre') { return __getRegistre(); }
+ * Puis redéployer une NOUVELLE VERSION du déploiement AKfycbxlk41R7pJD6WBJ… (voir le guide technique).
  */
 
 var REG_SHEET = 'Registre';
@@ -22,10 +22,8 @@ var REG_HEADERS = ['ID', 'Horodatage', 'Date', 'Heure', 'Établissement', 'Lieu'
 var REG_MAX_CELL = 49000; // limite Google Sheets : 50 000 caractères par cellule
 
 function __regSheet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sh = ss.getSheetByName(REG_SHEET);
-  if (!sh) {
-    sh = ss.insertSheet(REG_SHEET);
+  var sh = getSheet(REG_SHEET); // fonction de Code.gs (crée l'onglet au besoin)
+  if (sh.getLastRow() === 0) {
     sh.getRange(1, 1, 1, REG_HEADERS.length).setValues([REG_HEADERS]).setFontWeight('bold');
     sh.setFrozenRows(1);
     // Dates et heures gardées en texte pour éviter les décalages de fuseau horaire
@@ -75,7 +73,7 @@ function __handleRegistre(data) {
       + __regRow('Secouriste', e.secouristeNom) + __regRow('Mesures correctives', e.mesures || 'À compléter')
       + __regRow('Inscrit par', e.inscritPar) + '</table>'
       + '<p style="color:#777;font-size:12px">Le PDF de l’entrée est en pièce jointe.</p>';
-    MailApp.sendEmail({ to: REG_DEST, subject: data.subject || ('Registre d’accidents – ' + e.id), htmlBody: html, attachments: attach });
+    MailApp.sendEmail({ to: REG_DEST, name: 'Registre d’accidents – Usine', subject: data.subject || ('Registre d’accidents – ' + e.id), htmlBody: html, attachments: attach });
   } catch (err) {
     console.error('Registre : courriel non envoyé', err);
   }
